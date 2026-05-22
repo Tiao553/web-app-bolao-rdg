@@ -1,0 +1,23 @@
+app:
+  name: bolao-copa-rdg-backend
+  environment: development
+  timezone: UTC
+
+scoring:
+  exact_points: 3
+  result_points: 1
+  brazil_multiplier: 2
+  champion_points: 10
+  top_scorer_points: 15
+
+sync:
+  post_match_offset_minutes: 115
+  allowed_terminal_statuses:
+    - FT
+    - AET
+    - PEN
+  max_runs_per_day: 3
+
+competition:
+  predictionCloseAt: "2026-06-11T00:00:00Z"
+  exploreReleaseAt: "2026-06-12T00:00:00Z"

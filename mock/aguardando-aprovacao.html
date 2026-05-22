@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copa RDG — Aguardando Aprovação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --or: #F97316;
+      --or-dk: #EA580C;
+      --or-g: rgba(249,115,22,.13);
+      --or-r: rgba(249,115,22,.26);
+      --bg: #09090B;
+      --s0: #0F0F12;
+      --s1: #141418;
+      --s2: #1A1A1F;
+      --s3: #222228;
+      --bd: #27272D;
+      --bd2: #33333B;
+      --tx: #E8E8EA;
+      --tx2: #A1A1AA;
+      --tx3: #71717A;
+      --am: #F59E0B;
+      --am-g: rgba(245,158,11,.12);
+      --am-r: rgba(245,158,11,.30);
+      --g5: #22C55E;
+      --g5-g: rgba(34,197,94,.12);
+      --r: 10px;
+      --rl: 18px;
+      --rxl: 30px;
+      --shadow: 0 34px 90px rgba(0,0,0,.44);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 22% 18%, rgba(249,115,22,.16), transparent 34%),
+        radial-gradient(circle at 84% 76%, rgba(249,115,22,.11), transparent 36%),
+        var(--bg);
+      color: var(--tx);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 34px;
+      display: grid;
+      grid-template-columns: minmax(420px, 1.02fr) minmax(420px, .98fr);
+      gap: 28px;
+    }
+
+    .brand-panel,
+    .status-panel {
+      min-height: calc(100vh - 68px);
+      border-radius: 34px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .brand-panel {
+      position: relative;
+      border: 1px solid var(--bd);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.015)),
+        var(--s0);
+      padding: 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.86), transparent 74%);
+      pointer-events: none;
+    }
+
+    .brand-panel::after {
+      content: '';
+      position: absolute;
+      width: 560px;
+      height: 560px;
+      right: -170px;
+      bottom: -190px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(249,115,22,.20), transparent 68%);
+      pointer-events: none;
+    }
+
+    .brand-logo {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      width: fit-content;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--or), var(--or-dk));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      box-shadow: 0 16px 34px rgba(249,115,22,.22);
+    }
+
+    .brand-name {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brand-kicker {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: var(--or);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      margin-top: 1px;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      max-width: 660px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--or-r);
+      border-radius: 999px;
+      background: var(--or-g);
+      color: var(--or);
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    h1 {
+      font-size: clamp(42px, 5.7vw, 76px);
+      line-height: .92;
+      letter-spacing: -.055em;
+      max-width: 720px;
+      margin-bottom: 22px;
+    }
+
+    h1 span { color: var(--or); }
+
+    .hero-copy p {
+      color: var(--tx2);
+      font-size: 16px;
+      max-width: 560px;
+    }
+
+    .timeline {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 40px;
+    }
+
+    .step-card {
+      border: 1px solid var(--bd2);
+      border-radius: 18px;
+      background: rgba(20,20,24,.72);
+      backdrop-filter: blur(14px);
+      padding: 16px;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      background: var(--or-g);
+      border: 1px solid var(--or-r);
+      color: var(--or);
+      display: grid;
+      place-items: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .step-title {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .step-text {
+      color: var(--tx3);
+      font-size: 12px;
+    }
+
+    .status-panel {
+      position: relative;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.965);
+      color: #18181B;
+      display: grid;
+      place-items: center;
+      padding: 34px;
+    }
+
+    .status-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 22%, rgba(249,115,22,.13), transparent 28%),
+        radial-gradient(circle at 92% 86%, rgba(249,115,22,.10), transparent 30%);
+      pointer-events: none;
+    }
+
+    .status-card {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 480px);
+      border: 1px solid #E4E4E7;
+      border-radius: 30px;
+      background: #fff;
+      box-shadow: 0 28px 70px rgba(24,24,27,.10);
+      padding: 34px;
+      text-align: center;
+    }
+
+    .status-icon-wrap {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      margin: 0 auto 26px;
+      display: grid;
+      place-items: center;
+    }
+
+    .pulse {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--am-g);
+      border: 1px solid var(--am-r);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    .pulse:nth-child(2) {
+      inset: 12px;
+      animation-delay: .35s;
+    }
+
+    .status-icon {
+      position: relative;
+      z-index: 2;
+      width: 70px;
+      height: 70px;
+      border-radius: 23px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(245,158,11,.16), rgba(249,115,22,.13));
+      border: 1px solid rgba(245,158,11,.36);
+      color: var(--am);
+      font-size: 32px;
+      box-shadow: 0 18px 36px rgba(245,158,11,.14);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(.86); opacity: .72; }
+      50% { transform: scale(1); opacity: .28; }
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--am-g);
+      border: 1px solid var(--am-r);
+      color: #B45309;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-card h2 {
+      color: #18181B;
+      font-size: 32px;
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin-bottom: 12px;
+    }
+
+    .status-card p {
+      color: #71717A;
+      font-size: 14px;
+      max-width: 360px;
+      margin: 0 auto 26px;
+    }
+
+    .info-box {
+      display: grid;
+      gap: 10px;
+      text-align: left;
+      border: 1px solid #F4F4F5;
+      border-radius: 18px;
+      background: #FAFAFA;
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: #52525B;
+      font-size: 13px;
+    }
+
+    .info-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 7px;
+      background: rgba(34,197,94,.10);
+      color: #16A34A;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      font-size: 12px;
+      font-weight: 900;
+      margin-top: 1px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .primary-button,
+    .secondary-button {
+      height: 48px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .primary-button {
+      border: 0;
+      background: linear-gradient(135deg, var(--or), var(--or-dk));
+      color: #fff;
+      box-shadow: 0 18px 34px rgba(249,115,22,.22);
+    }
+
+    .secondary-button {
+      border: 1px solid #E4E4E7;
+      background: #fff;
+      color: #18181B;
+    }
+
+    .primary-button:hover,
+    .secondary-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .support-text {
+      color: #A1A1AA;
+      font-size: 12px;
+      margin-top: 24px;
+    }
+
+    .support-text a {
+      color: var(--or-dk);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .mini-preview {
+      position: relative;
+      z-index: 1;
+      width: min(470px, 82%);
+      aspect-ratio: 1 / .64;
+      margin: 34px auto 0;
+      border: 1px solid var(--bd2);
+      border-radius: 26px;
+      background: rgba(20,20,24,.74);
+      backdrop-filter: blur(14px);
+      padding: 18px;
+      box-shadow: 0 26px 60px rgba(0,0,0,.24);
+    }
+
+    .mini-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .mini-pill {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--s3);
+    }
+
+    .mini-pill.or { background: var(--or); width: 88px; }
+    .mini-pill.gray { width: 54px; }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 12px;
+    }
+
+    .mini-card {
+      border: 1px solid var(--bd);
+      border-radius: 18px;
+      background: rgba(15,15,18,.88);
+      padding: 14px;
+      min-height: 124px;
+    }
+
+    .mini-card-title {
+      color: var(--tx3);
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin-bottom: 14px;
+    }
+
+    .mini-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+
+    .mini-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--or-g);
+      border: 1px solid var(--or-r);
+      color: var(--or);
+      display: grid;
+      place-items: center;
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .mini-line {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--s3);
+      flex: 1;
+    }
+
+    .mini-lock {
+      display: grid;
+      place-items: center;
+      min-height: 88px;
+      color: var(--or);
+      font-size: 42px;
+    }
+
+    @media (max-width: 1080px) {
+      .page {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+
+      .brand-panel,
+      .status-panel {
+        min-height: auto;
+      }
+
+      .brand-panel {
+        min-height: 560px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 12px; }
+      .brand-panel,
+      .status-panel { border-radius: 24px; padding: 24px; }
+      .timeline { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr; }
+      .mini-preview { display: none; }
+      .status-card { padding: 26px; border-radius: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="brand-panel" aria-label="Bolão da Copa RDG">
+      <div class="brand-logo">
+        <div class="brand-mark">RDG</div>
+        <div>
+          <div class="brand-name">Copa RDG</div>
+          <div class="brand-kicker">Bolão da Copa</div>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Controle de acesso</div>
+        <h1>Sua conta está quase <span>liberada</span>.</h1>
+        <p>Para proteger o bolão contra contas duplicadas e manter a governança dos participantes, todo cadastro precisa ser aprovado por um administrador.</p>
+
+        <div class="mini-preview" aria-hidden="true">
+          <div class="mini-top">
+            <div class="mini-pill or"></div>
+            <div style="display:flex;gap:6px">
+              <div class="mini-pill gray"></div>
+              <div class="mini-pill gray" style="width:38px"></div>
+            </div>
+          </div>
+          <div class="mini-grid">
+            <div class="mini-card">
+              <div class="mini-card-title">Participantes pendentes</div>
+              <div class="mini-row"><div class="mini-avatar">SF</div><div class="mini-line"></div></div>
+              <div class="mini-row"><div class="mini-avatar">VM</div><div class="mini-line" style="width:72%;flex:none"></div></div>
+              <div class="mini-row"><div class="mini-avatar">RD</div><div class="mini-line" style="width:58%;flex:none"></div></div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-card-title">Acesso</div>
+              <div class="mini-lock">⌛</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-title">Cadastro enviado</div>
+          <div class="step-text">Sua conta foi criada com status pendente.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-title">Admin revisa</div>
+          <div class="step-text">O administrador confirma se você participa do bolão.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-title">Acesso liberado</div>
+          <div class="step-text">Após aprovação, você poderá registrar seus palpites.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="status-panel" aria-label="Aguardando aprovação">
+      <div class="status-card">
+        <div class="status-icon-wrap" aria-hidden="true">
+          <div class="pulse"></div>
+          <div class="pulse"></div>
+          <div class="status-icon">⌛</div>
+        </div>
+
+        <div class="status-badge"><span class="badge-dot"></span> Pending Approval</div>
+
+        <h2>Aguardando aprovação</h2>
+        <p>Seu cadastro foi recebido. Assim que o administrador aprovar sua participação, o acesso ao bolão será liberado automaticamente.</p>
+
+        <div class="info-box">
+          <div class="info-row">
+            <div class="info-check">✓</div>
+            <div>Você já pode fazer login, mas ainda não pode registrar palpites.</div>
+          </div>
+          <div class="info-row">
+            <div class="info-check">✓</div>
+            <div>Ranking, Explore e palpites ficam bloqueados até a aprovação.</div>
+          </div>
+          <div class="info-row">
+            <div class="info-check">✓</div>
+            <div>Depois de aprovado, você entra normalmente no bolão da Copa.</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary-button" type="button">Atualizar status →</button>
+          <button class="secondary-button" type="button">Sair da conta</button>
+        </div>
+
+        <div class="support-text">
+          Precisa de ajuda? <a href="#">Fale com o administrador</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

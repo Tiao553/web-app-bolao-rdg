@@ -1,0 +1,240 @@
+{
+  "_meta": {
+    "source": "FIFA World Cup 2026 — Formato oficial, Wikipedia / ESPN / FIFA.com",
+    "generatedAt": "2026-05-21",
+    "totalKnockoutMatches": 32,
+    "note": "Os campos homeTeam e awayTeam são TBD na carga inicial. A aplicação preenche esses slots dinamicamente conforme os resultados da fase de grupos são registrados. Ver docs/03-bracket-rules.md para a lógica completa de alocação dos terceiros colocados.",
+    "phaseIds": {
+      "ROUND_OF_32": "Dezesseis avos de final (matches 73–88)",
+      "ROUND_OF_16": "Oitavas de final (matches 89–96)",
+      "QUARTER_FINAL": "Quartas de final (matches 97–100)",
+      "SEMI_FINAL": "Semifinais (matches 101–102)",
+      "THIRD_PLACE": "Disputa de terceiro lugar (match 103)",
+      "FINAL": "Final (match 104)"
+    }
+  },
+
+  "roundOf32": [
+    {
+      "id": 73,
+      "phase": "ROUND_OF_32",
+      "slot": "M73",
+      "homeSlot": { "type": "RUNNER_UP", "group": "A" },
+      "awaySlot": { "type": "RUNNER_UP", "group": "B" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 74,
+      "phase": "ROUND_OF_32",
+      "slot": "M74",
+      "homeSlot": { "type": "WINNER",    "group": "E" },
+      "awaySlot": { "type": "THIRD",     "eligibleGroups": ["A","B","C","D","F"], "note": "3º colocado de um dos grupos A/B/C/D/F — ver tabela de alocação" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 75,
+      "phase": "ROUND_OF_32",
+      "slot": "M75",
+      "homeSlot": { "type": "WINNER",    "group": "F" },
+      "awaySlot": { "type": "RUNNER_UP", "group": "C" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 76,
+      "phase": "ROUND_OF_32",
+      "slot": "M76",
+      "homeSlot": { "type": "WINNER",    "group": "C" },
+      "awaySlot": { "type": "RUNNER_UP", "group": "F" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 77,
+      "phase": "ROUND_OF_32",
+      "slot": "M77",
+      "homeSlot": { "type": "WINNER",    "group": "I" },
+      "awaySlot": { "type": "THIRD",     "eligibleGroups": ["C","D","F","G","H"], "note": "3º colocado de um dos grupos C/D/F/G/H — ver tabela de alocação" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 78,
+      "phase": "ROUND_OF_32",
+      "slot": "M78",
+      "homeSlot": { "type": "RUNNER_UP", "group": "E" },
+      "awaySlot": { "type": "RUNNER_UP", "group": "I" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 79,
+      "phase": "ROUND_OF_32",
+      "slot": "M79",
+      "homeSlot": { "type": "WINNER",    "group": "A" },
+      "awaySlot": { "type": "THIRD",     "eligibleGroups": ["C","E","F","H","I"], "note": "3º colocado de um dos grupos C/E/F/H/I — ver tabela de alocação" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 80,
+      "phase": "ROUND_OF_32",
+      "slot": "M80",
+      "homeSlot": { "type": "WINNER",    "group": "L" },
+      "awaySlot": { "type": "THIRD",     "eligibleGroups": ["E","H","I","J","K"], "note": "3º colocado de um dos grupos E/H/I/J/K — ver tabela de alocação" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 81,
+      "phase": "ROUND_OF_32",
+      "slot": "M81",
+      "homeSlot": { "type": "WINNER",    "group": "D" },
+      "awaySlot": { "type": "THIRD",     "eligibleGroups": ["B","E","F","I","J"], "note": "3º colocado de um dos grupos B/E/F/I/J — ver tabela de alocação" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 82,
+      "phase": "ROUND_OF_32",
+      "slot": "M82",
+      "homeSlot": { "type": "WINNER",    "group": "G" },
+      "awaySlot": { "type": "THIRD",     "eligibleGroups": ["A","E","H","I","J"], "note": "3º colocado de um dos grupos A/E/H/I/J — ver tabela de alocação" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 83,
+      "phase": "ROUND_OF_32",
+      "slot": "M83",
+      "homeSlot": { "type": "RUNNER_UP", "group": "K" },
+      "awaySlot": { "type": "RUNNER_UP", "group": "L" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 84,
+      "phase": "ROUND_OF_32",
+      "slot": "M84",
+      "homeSlot": { "type": "WINNER",    "group": "H" },
+      "awaySlot": { "type": "RUNNER_UP", "group": "J" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 85,
+      "phase": "ROUND_OF_32",
+      "slot": "M85",
+      "homeSlot": { "type": "WINNER",    "group": "B" },
+      "awaySlot": { "type": "THIRD",     "eligibleGroups": ["E","F","G","I","J"], "note": "3º colocado de um dos grupos E/F/G/I/J — ver tabela de alocação" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 86,
+      "phase": "ROUND_OF_32",
+      "slot": "M86",
+      "homeSlot": { "type": "WINNER",    "group": "J" },
+      "awaySlot": { "type": "RUNNER_UP", "group": "H" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 87,
+      "phase": "ROUND_OF_32",
+      "slot": "M87",
+      "homeSlot": { "type": "WINNER",    "group": "K" },
+      "awaySlot": { "type": "THIRD",     "eligibleGroups": ["D","E","I","J","L"], "note": "3º colocado de um dos grupos D/E/I/J/L — ver tabela de alocação" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    },
+    {
+      "id": 88,
+      "phase": "ROUND_OF_32",
+      "slot": "M88",
+      "homeSlot": { "type": "RUNNER_UP", "group": "D" },
+      "awaySlot": { "type": "RUNNER_UP", "group": "G" },
+      "homeTeam": null,
+      "awayTeam": null,
+      "startsAt": null,
+      "venue": null
+    }
+  ],
+
+  "roundOf16": [
+    { "id": 89, "phase": "ROUND_OF_16", "slot": "M89", "homeFeeder": "W73", "awayFeeder": "W74", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 90, "phase": "ROUND_OF_16", "slot": "M90", "homeFeeder": "W75", "awayFeeder": "W76", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 91, "phase": "ROUND_OF_16", "slot": "M91", "homeFeeder": "W77", "awayFeeder": "W78", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 92, "phase": "ROUND_OF_16", "slot": "M92", "homeFeeder": "W79", "awayFeeder": "W80", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 93, "phase": "ROUND_OF_16", "slot": "M93", "homeFeeder": "W81", "awayFeeder": "W82", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 94, "phase": "ROUND_OF_16", "slot": "M94", "homeFeeder": "W83", "awayFeeder": "W84", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 95, "phase": "ROUND_OF_16", "slot": "M95", "homeFeeder": "W85", "awayFeeder": "W86", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 96, "phase": "ROUND_OF_16", "slot": "M96", "homeFeeder": "W87", "awayFeeder": "W88", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null }
+  ],
+
+  "quarterFinals": [
+    { "id": 97,  "phase": "QUARTER_FINAL", "slot": "M97",  "homeFeeder": "W89", "awayFeeder": "W90", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 98,  "phase": "QUARTER_FINAL", "slot": "M98",  "homeFeeder": "W91", "awayFeeder": "W92", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 99,  "phase": "QUARTER_FINAL", "slot": "M99",  "homeFeeder": "W93", "awayFeeder": "W94", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 100, "phase": "QUARTER_FINAL", "slot": "M100", "homeFeeder": "W95", "awayFeeder": "W96", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null }
+  ],
+
+  "semiFinals": [
+    { "id": 101, "phase": "SEMI_FINAL", "slot": "M101", "homeFeeder": "W97",  "awayFeeder": "W98",  "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null },
+    { "id": 102, "phase": "SEMI_FINAL", "slot": "M102", "homeFeeder": "W99",  "awayFeeder": "W100", "homeTeam": null, "awayTeam": null, "startsAt": null, "venue": null }
+  ],
+
+  "thirdPlace": [
+    { "id": 103, "phase": "THIRD_PLACE", "slot": "M103", "homeFeeder": "L101", "awayFeeder": "L102", "homeTeam": null, "awayTeam": null, "startsAt": "2026-07-18T19:00:00Z", "venue": "metlife_stadium" }
+  ],
+
+  "final": [
+    { "id": 104, "phase": "FINAL", "slot": "M104", "homeFeeder": "W101", "awayFeeder": "W102", "homeTeam": null, "awayTeam": null, "startsAt": "2026-07-19T20:00:00Z", "venue": "metlife_stadium" }
+  ],
+
+  "thirdPlaceAllocationTable": {
+    "_note": "Quando os 8 terceiros colocados são conhecidos, a FIFA aplica uma tabela de 495 combinações para alocar cada 3º colocado a um slot específico do Round of 32. O critério é: times do mesmo grupo NÃO podem se enfrentar antes das quartas de final. Ver docs/03-bracket-rules.md para a lógica completa.",
+    "slots": {
+      "M74_third": { "eligibleGroups": ["A","B","C","D","F"] },
+      "M77_third": { "eligibleGroups": ["C","D","F","G","H"] },
+      "M79_third": { "eligibleGroups": ["C","E","F","H","I"] },
+      "M80_third": { "eligibleGroups": ["E","H","I","J","K"] },
+      "M81_third": { "eligibleGroups": ["B","E","F","I","J"] },
+      "M82_third": { "eligibleGroups": ["A","E","H","I","J"] },
+      "M85_third": { "eligibleGroups": ["E","F","G","I","J"] },
+      "M87_third": { "eligibleGroups": ["D","E","I","J","L"] }
+    }
+  }
+}

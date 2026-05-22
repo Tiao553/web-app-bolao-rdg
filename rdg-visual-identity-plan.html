@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bolão Copa RDG — Identidade Visual (Archlify-inspired)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+/* ── TOKENS ─────────────────────────────────── */
+:root {
+  --or:    #F97316;
+  --or-dk: #EA580C;
+  --or-g:  rgba(249,115,22,.13);
+  --or-r:  rgba(249,115,22,.26);
+  --bg:    #09090B;
+  --s0:    #0F0F12;
+  --s1:    #141418;
+  --s2:    #1A1A1F;
+  --s3:    #222228;
+  --bd:    #27272D;
+  --bd2:   #33333B;
+  --tx:    #E8E8EA;
+  --tx2:   #71717A;
+  --tx3:   #3F3F47;
+  --g5:    #22C55E;
+  --g5g:   rgba(34,197,94,.12);
+  --ro:    #F43F5E;
+  --rog:   rgba(244,63,94,.12);
+  --am:    #F59E0B;
+  --amg:   rgba(245,158,11,.12);
+  --gold:  #EAB308; --gold-g: rgba(234,179,8,.12);
+  --silv:  #94A3B8; --silv-g: rgba(148,163,184,.1);
+  --brnz:  #B45309; --brnz-g: rgba(180,83,9,.12);
+  --r:5px; --rl:9px; --rxl:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.65}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px 100px}
+section{margin-bottom:80px}
+
+/* ── HERO ──────────────────────────────────── */
+.hero{padding:60px 0 56px;border-bottom:1px solid var(--bd);margin-bottom:80px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-100px;right:-80px;width:420px;height:420px;
+  background:radial-gradient(circle,var(--or-g) 0%,transparent 65%);pointer-events:none}
+.eye{font-family:'Fira Code',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--or);margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.eye::after{content:'';flex:1;height:1px;background:var(--or-r);max-width:140px}
+.hero h1{font-size:clamp(48px,8vw,88px);font-weight:700;line-height:.9;letter-spacing:-.03em;margin-bottom:22px}
+.hero h1 em{font-style:normal;color:var(--or)}
+.hero-sub{font-size:15px;color:var(--tx2);max-width:560px;line-height:1.7;margin-bottom:32px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;background:var(--s1);
+  border:1px solid var(--bd);border-radius:20px;font-family:'Fira Code',monospace;font-size:11px;color:var(--tx2)}
+.chip b{color:var(--or)}
+
+/* ── SECTION HEADER ─────────────────────────── */
+.sh{margin-bottom:28px}
+.sh-eye{font-family:'Fira Code',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin-bottom:8px}
+.sh-title{font-size:clamp(24px,3.5vw,36px);font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.sh-sub{font-size:13.5px;color:var(--tx2);max-width:620px}
+.sh-sub code{font-family:'Fira Code',monospace;font-size:12px;background:var(--s2);padding:1px 5px;border-radius:4px;color:var(--or)}
+
+/* ── ARCHLIFY REFERENCE ─────────────────────── */
+.ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px}
+@media(max-width:640px){.ref-grid{grid-template-columns:1fr}}
+.ref-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden}
+.ref-hd{padding:10px 14px;border-bottom:1px solid var(--bd);background:var(--s2);font-family:'Fira Code',monospace;font-size:10px;color:var(--tx2);letter-spacing:.1em;display:flex;align-items:center;gap:8px}
+.ref-dot{width:6px;height:6px;border-radius:50%;background:var(--or)}
+.ref-body{padding:16px}
+
+/* Archlify-style split workspace mock */
+.arch-workspace{display:flex;gap:0;border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;background:var(--s0)}
+.arch-sidebar{width:180px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--bd);padding:12px}
+.arch-main{flex:1;min-width:0;padding:12px}
+
+/* ── BEFORE/AFTER ────────────────────────────── */
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.ba{grid-template-columns:1fr}}
+.ba-panel{border-radius:var(--rl);overflow:hidden;border:1px solid var(--bd)}
+.ba-panel.before{border-top:2px solid var(--ro)}
+.ba-panel.after {border-top:2px solid var(--g5)}
+.ba-hd{padding:10px 15px;font-family:'Fira Code',monospace;font-weight:500;font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.before .ba-hd{background:var(--rog);color:var(--ro)}
+.after  .ba-hd{background:var(--g5g);color:var(--g5)}
+.ba-body{padding:18px;background:var(--s1)}
+.ba-row{display:flex;gap:11px;margin-bottom:12px;align-items:flex-start}
+.ba-row:last-child{margin-bottom:0}
+.ba-n{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-family:'Fira Code',monospace;font-size:10px;flex-shrink:0;margin-top:2px}
+.before .ba-n{background:var(--rog);color:var(--ro);border:1px solid var(--ro)}
+.after  .ba-n{background:var(--g5g);color:var(--g5);border:1px solid var(--g5)}
+.ba-txt{font-size:13px;line-height:1.55;min-width:0;overflow-wrap:break-word}
+.ba-txt code{font-family:'Fira Code',monospace;font-size:11.5px;background:var(--s2);padding:1px 5px;border-radius:3px;color:var(--or)}
+
+/* ── MERMAID ─────────────────────────────────── */
+.mcard{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rxl);overflow:hidden}
+.mcard-bar{display:flex;align-items:center;justify-content:space-between;padding:9px 15px;
+  border-bottom:1px solid var(--bd);background:var(--s2)}
+.mcard-label{font-family:'Fira Code',monospace;font-size:10px;color:var(--tx2)}
+.mcard-btns{display:flex;gap:4px}
+.mcard-btn{width:26px;height:26px;border:1px solid var(--bd);background:var(--s3);color:var(--tx2);
+  border-radius:var(--r);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.mcard-btn:hover{border-color:var(--or);color:var(--or)}
+.mcard-body{padding:24px;overflow-x:auto;display:flex;justify-content:center}
+.mcard-cap{padding:9px 15px 13px;font-size:12px;color:var(--tx2);border-top:1px solid var(--bd);text-align:center;font-style:italic}
+
+/* ── COLOR GRID ──────────────────────────────── */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.tcard{border-radius:var(--rl);overflow:hidden;border:1px solid var(--bd)}
+.tswatch{height:56px}
+.tinfo{padding:9px 11px;background:var(--s1)}
+.tname{font-family:'Fira Code',monospace;font-size:10.5px;color:var(--or);margin-bottom:2px;overflow-wrap:break-word}
+.thex{font-family:'Fira Code',monospace;font-size:11.5px;color:var(--tx2)}
+.tdesc{font-size:11px;color:var(--tx3);margin-top:2px}
+
+/* ── COMPONENT GRID ──────────────────────────── */
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.cc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;min-width:0}
+.cc-prev{padding:20px;background:var(--s0);border-bottom:1px solid var(--bd);min-height:120px;display:flex;align-items:center;justify-content:center}
+.cc-info{padding:14px 16px}
+.cc-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.cc-mantine{font-family:'Fira Code',monospace;font-size:10px;color:var(--or);margin-bottom:6px;overflow-wrap:break-word}
+.cc-desc{font-size:12.5px;color:var(--tx2);line-height:1.5}
+
+/* ── ARCHLIFY-STYLE MOCKS ─────────────────────  */
+
+/* Top nav mock */
+.mock-nav{background:var(--s0);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.mock-nav-bar{display:flex;align-items:center;gap:0;padding:10px 14px;border-bottom:1px solid var(--bd)}
+.mock-nav-logo{display:flex;align-items:center;gap:7px;margin-right:24px}
+.mock-nav-badge{width:24px;height:24px;background:var(--or);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.mock-nav-name{font-size:13px;font-weight:600}
+.mock-nav-links{display:flex;gap:1px}
+.mock-nav-lnk{padding:5px 10px;border-radius:4px;font-size:12px;color:var(--tx2)}
+.mock-nav-lnk.active{background:var(--or-g);color:var(--or)}
+.mock-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.mock-avatar{width:26px;height:26px;border-radius:50%;background:var(--or-g);border:1px solid var(--or-r);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--or)}
+
+/* Tag cloud (Archlify requirement tags) */
+.mock-tags{display:flex;flex-wrap:wrap;gap:6px}
+.mock-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--s2);
+  border:1px solid var(--bd2);border-radius:4px;font-size:11px;color:var(--tx2)}
+.mock-tag.active{background:var(--or-g);border-color:var(--or-r);color:var(--or)}
+.mock-tag-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* Score gauge (Archlify 8.5/10 style) */
+.score-gauge-wrap{display:flex;align-items:center;gap:20px}
+.score-gauge{position:relative;width:80px;height:80px}
+.score-gauge svg{transform:rotate(-90deg)}
+.score-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-size:22px;font-weight:700;color:var(--or);line-height:1}
+.score-max{font-size:9px;color:var(--tx2);font-family:'Fira Code',monospace}
+.score-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--or);margin-top:2px}
+.score-info{flex:1}
+.score-title{font-size:14px;font-weight:600;margin-bottom:8px}
+.score-tags-sm{display:flex;flex-wrap:wrap;gap:4px}
+.score-tag-sm{padding:2px 7px;background:var(--s2);border:1px solid var(--bd);border-radius:3px;font-size:10px;color:var(--tx2);font-family:'Fira Code',monospace}
+
+/* Dimension bars (Archlify breakdown) */
+.dim-bars{display:flex;flex-direction:column;gap:8px}
+.dim-row{display:flex;align-items:center;gap:10px}
+.dim-label{font-size:12px;color:var(--tx);width:100px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dim-track{flex:1;height:6px;background:var(--s3);border-radius:3px;overflow:hidden}
+.dim-fill{height:100%;border-radius:3px;background:var(--or)}
+.dim-val{font-family:'Fira Code',monospace;font-size:11px;color:var(--or);width:24px;text-align:right;flex-shrink:0}
+
+/* Split workspace */
+.split-ws{display:flex;background:var(--s0);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden}
+.split-left{width:160px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--bd);padding:10px}
+.split-right{flex:1;min-width:0;padding:12px}
+.sl-section{margin-bottom:12px}
+.sl-title{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);margin-bottom:6px;padding:0 4px}
+.sl-item{padding:5px 6px;border-radius:4px;font-size:11.5px;color:var(--tx2);display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.sl-item.active{background:var(--or-g);color:var(--or)}
+.sl-dot{width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* Leaderboard archlify style */
+.lb-archlify{width:100%;max-width:280px}
+.lb-hd{display:flex;align-items:center;padding:7px 10px;margin-bottom:4px;border-bottom:1px solid var(--bd)}
+.lb-hd span{font-family:'Fira Code',monospace;font-size:9px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;flex:1}
+.lb-hd span:last-child{text-align:right;flex:0 0 32px}
+.lb-row-a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;margin-bottom:3px;border:1px solid transparent}
+.lb-gold  {background:var(--gold-g);border-color:rgba(234,179,8,.18)}
+.lb-silv  {background:var(--silv-g);border-color:rgba(148,163,184,.12)}
+.lb-brnz  {background:var(--brnz-g);border-color:rgba(180,83,9,.18)}
+.lb-norm  {background:var(--s2);border-color:var(--bd)}
+.lb-pos{font-family:'Fira Code',monospace;font-size:11px;font-weight:500;width:16px;text-align:center;flex-shrink:0}
+.lb-gold .lb-pos{color:var(--gold)}
+.lb-silv .lb-pos{color:var(--silv)}
+.lb-brnz .lb-pos{color:var(--brnz)}
+.lb-norm .lb-pos{color:var(--tx3)}
+.lb-av{width:22px;height:22px;border-radius:50%;background:var(--or-g);border:1px solid var(--or-r);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--or);flex-shrink:0}
+.lb-nm{font-size:12px;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-pts{font-family:'Fira Code',monospace;font-size:12px;font-weight:600;color:var(--or);flex-shrink:0;width:32px;text-align:right}
+
+/* Match card archlify style */
+.match-a{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;width:100%;max-width:230px}
+.match-a-lbl{font-family:'Fira Code',monospace;font-size:9px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px;text-align:center}
+.match-a-teams{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.mat{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:0}
+.mat-flag{font-size:18px;line-height:1}
+.mat-name{font-size:10px;font-weight:600;text-transform:uppercase;text-align:center;color:var(--tx);overflow-wrap:break-word}
+.mat-score{display:flex;align-items:center;gap:3px}
+.sc{background:var(--s2);border:1px solid var(--or-r);border-radius:3px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--or);font-family:'Fira Code',monospace}
+.sc-sep{font-size:10px;color:var(--tx3)}
+
+/* Status badges */
+.mbadge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:500;border:1px solid}
+.mb-ok  {background:var(--g5g);  color:var(--g5); border-color:rgba(34,197,94,.25)}
+.mb-wait{background:var(--amg);  color:var(--am); border-color:rgba(245,158,11,.25)}
+.mb-no  {background:var(--rog);  color:var(--ro); border-color:rgba(244,63,94,.25)}
+.mb-lock{background:var(--silv-g);color:var(--silv);border-color:rgba(148,163,184,.2)}
+.mb-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* ── PHASE CARDS ─────────────────────────────── */
+.phases{display:flex;flex-direction:column;gap:16px}
+.phase{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rxl);overflow:hidden}
+.phase-hd{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--bd);background:var(--s2)}
+.phase-num{width:38px;height:38px;border-radius:50%;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.phase-title{font-size:16px;font-weight:600}
+.phase-sub{font-size:12.5px;color:var(--tx2);margin-top:2px}
+.phase-body{padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:620px){.phase-body{grid-template-columns:1fr}}
+.t-title{font-family:'Fira Code',monospace;font-size:10px;color:var(--or);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px}
+.t{display:flex;gap:9px;margin-bottom:10px;min-width:0;align-items:flex-start}
+.t-n{width:18px;height:18px;border-radius:3px;background:var(--or-g);border:1px solid var(--or-r);display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:9px;color:var(--or);flex-shrink:0;margin-top:2px}
+.t-txt{font-size:13px;line-height:1.55;min-width:0;overflow-wrap:break-word}
+.t-txt code{font-family:'Fira Code',monospace;font-size:11.5px;background:var(--s2);padding:1px 5px;border-radius:3px;color:var(--or)}
+.cb{background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px;font-family:'Fira Code',monospace;font-size:11.5px;line-height:1.75;overflow-x:auto;white-space:pre-wrap;word-break:break-word;min-width:0}
+.cb-f{display:block;font-size:9.5px;color:var(--tx3);margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--bd)}
+.kw{color:#C792EA}.str{color:#C3E88D}.num{color:#F78C6C}.cm{color:#546E7A}.cn{color:var(--or)}.hl{color:#82AAFF}
+
+/* ── TABLES ──────────────────────────────────── */
+.tw{border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:480px}
+thead th{background:var(--s2);padding:10px 13px;text-align:left;font-family:'Fira Code',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--tx2);border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody td{padding:10px 13px;font-size:13px;border-bottom:1px solid var(--bd);vertical-align:top;min-width:0;overflow-wrap:break-word}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+td code{font-family:'Fira Code',monospace;font-size:11px;background:var(--s2);padding:1px 5px;border-radius:3px;color:var(--or);white-space:nowrap}
+
+/* ── CALLOUTS ────────────────────────────────── */
+.callouts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.callouts{grid-template-columns:1fr}}
+.callout{padding:16px 18px;border-radius:var(--rl);border:1px solid;min-width:0}
+.callout.gold  {background:var(--gold-g);border-color:rgba(234,179,8,.2);border-left:3px solid var(--gold)}
+.callout.rose  {background:var(--rog);   border-color:rgba(244,63,94,.2); border-left:3px solid var(--ro)}
+.callout.amber {background:var(--amg);   border-color:rgba(245,158,11,.2);border-left:3px solid var(--am)}
+.callout.orange{background:var(--or-g);  border-color:var(--or-r);        border-left:3px solid var(--or)}
+.callout-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.gold   .callout-lbl{color:var(--gold)}
+.rose   .callout-lbl{color:var(--ro)}
+.amber  .callout-lbl{color:var(--am)}
+.orange .callout-lbl{color:var(--or)}
+.callout p{font-size:13px;color:var(--tx2);line-height:1.55;overflow-wrap:break-word}
+.callout p code{font-family:'Fira Code',monospace;font-size:11px;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;color:inherit}
+
+/* ── SCREEN INVENTORY ────────────────────────── */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.sc-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden}
+.sc-thumb{background:var(--s0);border-bottom:1px solid var(--bd);padding:12px;min-height:110px;display:flex;flex-direction:column;gap:5px}
+.tb{height:6px;border-radius:3px;background:var(--s2)}
+.tb.or{background:var(--or);width:35%}
+.tb.w80{width:80%}.tb.w60{width:60%}.tb.w40{width:40%}.tb.w30{width:30%}
+.tb-card{background:var(--s1);border:1px solid var(--bd);border-radius:3px;padding:6px;margin-top:4px}
+.tb-row{display:flex;gap:4px;margin-bottom:3px}
+.tb-bl{height:6px;border-radius:2px;background:var(--s3);flex:1}
+.tb-bl.or{background:var(--or-r)}
+.sc-info{padding:12px 14px}
+.sc-route{font-family:'Fira Code',monospace;font-size:10px;color:var(--or);margin-bottom:2px}
+.sc-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.sc-desc{font-size:11.5px;color:var(--tx2);line-height:1.5}
+
+hr{border:none;border-top:1px solid var(--bd);margin:0 0 72px}
+
+/* ── FOOTER ──────────────────────────────────── */
+.footer{border-top:1px solid var(--bd);padding-top:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ft-brand{display:flex;align-items:center;gap:9px}
+.ft-b{width:30px;height:30px;background:var(--or);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.ft-txt{font-size:13px;color:var(--tx2)}
+.ft-meta{font-family:'Fira Code',monospace;font-size:10px;color:var(--tx3)}
+
+.mermaid svg{max-width:100%;height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════════════════════════════════════
+     HERO
+═════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="eye">Plano de Identidade Visual</div>
+  <h1>Bolão Copa <em>RDG</em></h1>
+  <p class="hero-sub">
+    Design system inspirado no padrão Archlify — dark quase preto, laranja holandês como acento, split workspace, score gauge, tag cloud e dimension bars. Stack: <strong>Mantine UI v7</strong> + Next.js 15.
+  </p>
+  <div class="chips">
+    <div class="chip"><b>Estilo:</b> Archlify-pattern</div>
+    <div class="chip">Mantine UI v7</div>
+    <div class="chip">Next.js 15 · React 19 · TS</div>
+    <div class="chip">6 telas · 10 componentes</div>
+    <div class="chip">3 fases</div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     01 REFERÊNCIA ARCHLIFY
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">01 — Referência Visual</div>
+    <h2 class="sh-title">Padrão Archlify → RDG</h2>
+    <p class="sh-sub">O que roubamos do Archlify e como cada padrão se mapeia nas telas do bolão. Verde vira laranja. Diagramas de arquitetura viram visualização de bracket e partidas.</p>
+  </div>
+
+  <div class="tw" style="margin-bottom:24px">
+    <table>
+      <thead>
+        <tr><th>Padrão Archlify</th><th>No RDG vira</th><th>Componente</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Top nav com logo + links + avatar</td><td>AppShell Header com logo RDG + menu + foto do participante</td><td><code>AppShell.Header</code></td></tr>
+        <tr><td>Split workspace: sidebar de requisitos + área de diagrama</td><td>Sidebar de navegação + área de conteúdo principal</td><td><code>AppShell + Navbar</code></td></tr>
+        <tr><td>Tag cloud de categorias (DNS, CDN, Firewall...)</td><td>Tags de rodadas e grupos (Grupo A, Oitavas, Quartas...)</td><td><code>TagCloud</code></td></tr>
+        <tr><td>Score circular com valor principal (8.5/10)</td><td>Pontuação do participante com total de pontos possíveis</td><td><code>ScoreGauge</code></td></tr>
+        <tr><td>Dimension bars (Confiabilidade 30% · 8.5)</td><td>Breakdown de pontos por categoria (Exato 3pts, Resultado 1pt, Brasil x2...)</td><td><code>DimensionBars</code></td></tr>
+        <tr><td>Nodes no diagrama de arquitetura</td><td>Cards de partida no bracket mata-mata</td><td><code>MatchCard + BracketView</code></td></tr>
+        <tr><td>Badges de avaliação (EXCELENTE)</td><td>StatusBadge (APROVADO / PENDENTE / BLOQUEADO)</td><td><code>StatusBadge</code></td></tr>
+        <tr><td>Lista de requisitos no painel esquerdo</td><td>Lista de jogos por rodada no sidebar de palpites</td><td><code>NavLink sidebar</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Preview dos padrões Archlify adaptados -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <!-- Pattern 1: Top Nav -->
+    <div class="ref-card">
+      <div class="ref-hd"><span class="ref-dot"></span>Padrão 1 — Top Navigation</div>
+      <div class="ref-body">
+        <div class="mock-nav">
+          <div class="mock-nav-bar">
+            <div class="mock-nav-logo">
+              <div class="mock-nav-badge">R</div>
+              <span class="mock-nav-name">Copa RDG</span>
+            </div>
+            <div class="mock-nav-links">
+              <div class="mock-nav-lnk active">Dashboard</div>
+              <div class="mock-nav-lnk">Palpites</div>
+              <div class="mock-nav-lnk">Ranking</div>
+              <div class="mock-nav-lnk">Explore</div>
+            </div>
+            <div class="mock-nav-right">
+              <div class="mock-avatar">TM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pattern 2: Score Gauge + Dimension Bars -->
+    <div class="ref-card">
+      <div class="ref-hd"><span class="ref-dot"></span>Padrão 2 — Score Gauge (Ranking)</div>
+      <div class="ref-body">
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:10px">
+          <div class="score-gauge-wrap">
+            <div class="score-gauge">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#27272D" stroke-width="6"/>
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#F97316" stroke-width="6"
+                  stroke-dasharray="213.6" stroke-dashoffset="53.4" stroke-linecap="round"/>
+              </svg>
+              <div class="score-val">
+                <div class="score-num">127</div>
+                <div class="score-max">/200</div>
+              </div>
+            </div>
+            <div class="score-info">
+              <div class="score-title">Pontuação Geral</div>
+              <div class="score-tags-sm">
+                <span class="score-tag-sm">Exato ×3</span>
+                <span class="score-tag-sm">Resultado ×1</span>
+                <span class="score-tag-sm">Brasil ×2</span>
+                <span class="score-tag-sm">Campeão</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:12px">
+          <div style="font-family:'Fira Code',monospace;font-size:9px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Detalhamento</div>
+          <div class="dim-bars">
+            <div class="dim-row"><span class="dim-label">Acertos exatos</span><div class="dim-track"><div class="dim-fill" style="width:82%"></div></div><span class="dim-val">82</span></div>
+            <div class="dim-row"><span class="dim-label">Acertos resultado</span><div class="dim-track"><div class="dim-fill" style="width:60%"></div></div><span class="dim-val">24</span></div>
+            <div class="dim-row"><span class="dim-label">Bônus Brasil</span><div class="dim-track"><div class="dim-fill" style="width:70%"></div></div><span class="dim-val">14</span></div>
+            <div class="dim-row"><span class="dim-label">Campeão/artilheiro</span><div class="dim-track"><div class="dim-fill" style="width:35%"></div></div><span class="dim-val">7</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pattern 3: Tag Cloud -->
+    <div class="ref-card">
+      <div class="ref-hd"><span class="ref-dot"></span>Padrão 3 — Tag Cloud (filtro de palpites)</div>
+      <div class="ref-body">
+        <div class="mock-tags" style="margin-bottom:10px">
+          <span class="mock-tag active"><span class="mock-tag-dot"></span>Todos</span>
+          <span class="mock-tag">Grupo A</span>
+          <span class="mock-tag">Grupo B</span>
+          <span class="mock-tag">Grupo C</span>
+          <span class="mock-tag">Grupo D</span>
+          <span class="mock-tag">Oitavas</span>
+          <span class="mock-tag">Quartas</span>
+          <span class="mock-tag">Semi</span>
+          <span class="mock-tag">Final</span>
+        </div>
+        <div style="font-size:11px;color:var(--tx3);font-family:'Fira Code',monospace">
+          → Filtra MatchCards na tela de Palpites e Explore
+        </div>
+      </div>
+    </div>
+
+    <!-- Pattern 4: Split workspace -->
+    <div class="ref-card">
+      <div class="ref-hd"><span class="ref-dot"></span>Padrão 4 — Split Workspace (Palpites)</div>
+      <div class="ref-body" style="padding:8px">
+        <div class="split-ws">
+          <div class="split-left">
+            <div class="sl-section">
+              <div class="sl-title">Rodadas</div>
+              <div class="sl-item active"><span class="sl-dot"></span>Grupo A</div>
+              <div class="sl-item"><span class="sl-dot"></span>Grupo B</div>
+              <div class="sl-item"><span class="sl-dot"></span>Grupo C</div>
+              <div class="sl-item"><span class="sl-dot"></span>Oitavas</div>
+              <div class="sl-item"><span class="sl-dot"></span>Quartas</div>
+            </div>
+            <div class="sl-section">
+              <div class="sl-title">Especiais</div>
+              <div class="sl-item"><span class="sl-dot"></span>Campeão</div>
+              <div class="sl-item"><span class="sl-dot"></span>Artilheiro</div>
+            </div>
+          </div>
+          <div class="split-right">
+            <div class="match-a" style="max-width:100%">
+              <div class="match-a-lbl">Grupo A · Rodada 1</div>
+              <div class="match-a-teams">
+                <div class="mat"><div class="mat-flag">🇧🇷</div><div class="mat-name">Brasil</div></div>
+                <div class="mat-score"><div class="sc">2</div><div class="sc-sep">×</div><div class="sc">1</div></div>
+                <div class="mat"><div class="mat-flag">🇦🇷</div><div class="mat-name">Argentina</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr />
+
+<!-- ══════════════════════════════════════════
+     02 ANTES / DEPOIS
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">02 — O Problema</div>
+    <h2 class="sh-title">Antes vs Depois</h2>
+    <p class="sh-sub">HTML semântico puro em todas as 6 telas. Zero styling. Backend 100% funcional.</p>
+  </div>
+  <div class="ba">
+    <div class="ba-panel before">
+      <div class="ba-hd">✕ Hoje</div>
+      <div class="ba-body">
+        <div class="ba-row"><div class="ba-n">1</div><div class="ba-txt"><code>&lt;main&gt;</code> + <code>&lt;h1&gt;</code> + dois <code>&lt;form&gt;</code> sem estilo. Ranking é um <code>&lt;ul&gt;</code> com bullets.</div></div>
+        <div class="ba-row"><div class="ba-n">2</div><div class="ba-txt">Sem navegação, sem layout, sem identidade. Só o browser padrão.</div></div>
+        <div class="ba-row"><div class="ba-n">3</div><div class="ba-txt"><code>package.json</code>: apenas <code>next</code>, <code>react</code>, <code>react-dom</code>. Zero dependência de UI.</div></div>
+        <div class="ba-row"><div class="ba-n">4</div><div class="ba-txt">Palpites: <code>&lt;dl&gt;&lt;dt&gt;&lt;dd&gt;</code> sem input de placar, sem card, sem lock state visual.</div></div>
+      </div>
+    </div>
+    <div class="ba-panel after">
+      <div class="ba-hd">✓ Com Mantine + padrão Archlify</div>
+      <div class="ba-body">
+        <div class="ba-row"><div class="ba-n">1</div><div class="ba-txt"><code>AppShell</code> Mantine com top nav (logo RDG + links + avatar) e sidebar colapsável.</div></div>
+        <div class="ba-row"><div class="ba-n">2</div><div class="ba-txt">Ranking com <code>ScoreGauge</code> circular + <code>DimensionBars</code> por categoria + <code>LeaderboardTable</code>.</div></div>
+        <div class="ba-row"><div class="ba-n">3</div><div class="ba-txt">Palpites em split workspace: sidebar de rodadas + <code>MatchCard</code> com <code>NumberInput</code>.</div></div>
+        <div class="ba-row"><div class="ba-n">4</div><div class="ba-txt"><code>TagCloud</code> de filtro de rodadas. <code>StatusBadge</code> estilo Archlify em todas as telas.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr />
+
+<!-- ══════════════════════════════════════════
+     03 ARQUITETURA
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">03 — Arquitetura</div>
+    <h2 class="sh-title">Estrutura de Componentes</h2>
+  </div>
+  <div class="mcard">
+    <div class="mcard-bar">
+      <span class="mcard-label">component-tree.mermaid</span>
+      <div class="mcard-btns">
+        <button class="mcard-btn" onclick="zm(1.2)">+</button>
+        <button class="mcard-btn" onclick="zm(0.8)">−</button>
+        <button class="mcard-btn" onclick="zr()">⊙</button>
+      </div>
+    </div>
+    <div class="mcard-body">
+      <div class="mermaid" id="diag">
+flowchart TD
+    LP["layout.tsx\nMantineProvider + ColorSchemeScript"]
+
+    LP --> AUTH["login/page.tsx"]
+    LP --> WAIT["waiting/page.tsx"]
+    LP --> DASH["dashboard/page.tsx"]
+    LP --> PRED["predictions/page.tsx"]
+    LP --> RANK["ranking/page.tsx"]
+    LP --> EXPL["explore/page.tsx"]
+
+    LP --> SHELL["AppShell\nHeader + Navbar + main"]
+
+    SHELL --> TOPNAV["TopNav\nBrandLogo · NavLinks · UserMenu"]
+    SHELL --> SIDENAV["Sidebar NavLinks\n(desktop collapse)"]
+
+    AUTH --> LC["LoginCard + RegisterCard\nCard + TextInput + PasswordInput + Button"]
+    WAIT --> SC["StatusCard\nCard + StatusBadge + Stack"]
+    DASH --> SR["StatsRow — SimpleGrid\n+ ScoreGauge + DimensionBars"]
+    PRED --> TG["TagCloud (filtro rodada)"]
+    PRED --> SW["SplitWorkspace\n← sidebar rodadas | MatchCards →"]
+    RANK --> SG2["ScoreGauge + DimensionBars"]
+    RANK --> LBT["LeaderboardTable\nTable + Avatar + StatusBadge"]
+    EXPL --> LBT
+
+    SW --> MC["MatchCard\nCard + NumberInput + Badge"]
+    MC --> SB["StatusBadge"]
+    LBT --> SB
+
+    style LP fill:#F97316,color:#fff,stroke:#EA580C
+    style SHELL fill:#1A1A1F,color:#E8E8EA,stroke:#27272D
+    style TOPNAV fill:#1A1A1F,color:#E8E8EA,stroke:#27272D
+    style SIDENAV fill:#1A1A1F,color:#E8E8EA,stroke:#27272D
+    style MC fill:#222228,color:#E8E8EA,stroke:#33333B
+    style LBT fill:#222228,color:#E8E8EA,stroke:#33333B
+    style SB fill:#222228,color:#F97316,stroke:#33333B
+    style TG fill:#222228,color:#F97316,stroke:#33333B
+      </div>
+    </div>
+    <div class="mcard-cap">Laranja = MantineProvider (raiz). Cinza médio = layout AppShell. Cinza escuro = componentes de feature.</div>
+  </div>
+</section>
+
+<hr />
+
+<!-- ══════════════════════════════════════════
+     04 CORES
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">04 — Tokens</div>
+    <h2 class="sh-title">Sistema de Cores</h2>
+    <p class="sh-sub">Palette inspirada no Archlify: background quase preto, superfícies progressivas, acento laranja holandês. Definidos via <code>createTheme()</code> Mantine.</p>
+  </div>
+  <div class="tgrid">
+    <div class="tcard"><div class="tswatch" style="background:#F97316"></div><div class="tinfo"><div class="tname">rdg-orange[5]</div><div class="thex">#F97316</div><div class="tdesc">Primária — acento Archlify</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#09090B;border:1px solid #27272D"></div><div class="tinfo"><div class="tname">dark[9] — bg</div><div class="thex">#09090B</div><div class="tdesc">Background da página</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#0F0F12;border:1px solid #27272D"></div><div class="tinfo"><div class="tname">dark[8] — s0</div><div class="thex">#0F0F12</div><div class="tdesc">AppShell background</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#141418;border:1px solid #27272D"></div><div class="tinfo"><div class="tname">dark[7] — s1</div><div class="thex">#141418</div><div class="tdesc">Cards, Navbar</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#1A1A1F;border:1px solid #27272D"></div><div class="tinfo"><div class="tname">dark[6] — s2</div><div class="thex">#1A1A1F</div><div class="tdesc">Card headers, modals</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#E8E8EA"></div><div class="tinfo"><div class="tname">dark[0] — text</div><div class="thex">#E8E8EA</div><div class="tdesc">Texto principal</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#EAB308"></div><div class="tinfo"><div class="tname">yellow[5]</div><div class="thex">#EAB308</div><div class="tdesc">1º lugar ranking</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#94A3B8"></div><div class="tinfo"><div class="tname">gray[4]</div><div class="thex">#94A3B8</div><div class="tdesc">2º lugar ranking</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#B45309"></div><div class="tinfo"><div class="tname">orange[8]</div><div class="thex">#B45309</div><div class="tdesc">3º lugar ranking</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#22C55E"></div><div class="tinfo"><div class="tname">green[5]</div><div class="thex">#22C55E</div><div class="tdesc">APROVADO / acerto</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#F43F5E"></div><div class="tinfo"><div class="tname">red[5]</div><div class="thex">#F43F5E</div><div class="tdesc">REJEITADO / erro</div></div></div>
+    <div class="tcard"><div class="tswatch" style="background:#F59E0B"></div><div class="tinfo"><div class="tname">yellow[4]</div><div class="thex">#F59E0B</div><div class="tdesc">PENDENTE</div></div></div>
+  </div>
+</section>
+
+<hr />
+
+<!-- ══════════════════════════════════════════
+     05 COMPONENTES
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">05 — Componentes</div>
+    <h2 class="sh-title">10 Componentes</h2>
+    <p class="sh-sub">Todos baseados em primitivos Mantine. Os novos (ScoreGauge, DimensionBars, TagCloud) são Client Components leves construídos sobre <code>Paper</code>, <code>Text</code> e SVG inline.</p>
+  </div>
+  <div class="cg">
+
+    <!-- TopNav -->
+    <div class="cc">
+      <div class="cc-prev">
+        <div class="mock-nav" style="width:100%;max-width:300px">
+          <div class="mock-nav-bar" style="padding:8px 12px">
+            <div class="mock-nav-logo">
+              <div class="mock-nav-badge">R</div>
+              <span class="mock-nav-name" style="font-size:12px">Copa RDG</span>
+            </div>
+            <div class="mock-nav-links">
+              <div class="mock-nav-lnk active" style="font-size:11px;padding:4px 8px">Dashboard</div>
+              <div class="mock-nav-lnk" style="font-size:11px;padding:4px 8px">Ranking</div>
+            </div>
+            <div class="mock-nav-right"><div class="mock-avatar">TM</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cc-info">
+        <div class="cc-name">TopNav</div>
+        <div class="cc-mantine">Mantine: AppShell.Header + Group + NavLink + Avatar + Menu</div>
+        <div class="cc-desc">Header estilo Archlify. Logo RDG à esquerda, links de navegação no centro, avatar do usuário à direita.</div>
+      </div>
+    </div>
+
+    <!-- ScoreGauge -->
+    <div class="cc">
+      <div class="cc-prev">
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;width:100%;max-width:240px">
+          <div class="score-gauge-wrap">
+            <div class="score-gauge">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#222228" stroke-width="6"/>
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#F97316" stroke-width="6"
+                  stroke-dasharray="213.6" stroke-dashoffset="53.4" stroke-linecap="round"/>
+              </svg>
+              <div class="score-val">
+                <div class="score-num">127</div>
+                <div class="score-max">/200</div>
+              </div>
+            </div>
+            <div class="score-info">
+              <div class="score-title" style="font-size:12px">Pontuação</div>
+              <div style="font-size:10px;color:var(--or);font-family:'Fira Code',monospace;font-weight:600;margin-top:3px;letter-spacing:.06em">2° LUGAR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cc-info">
+        <div class="cc-name">ScoreGauge</div>
+        <div class="cc-mantine">SVG circle inline + Mantine Paper + Text</div>
+        <div class="cc-desc">Gauge circular estilo Archlify com pontuação/total e posição no ranking. Usado no Dashboard e Ranking.</div>
+      </div>
+    </div>
+
+    <!-- DimensionBars -->
+    <div class="cc">
+      <div class="cc-prev">
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;width:100%;max-width:240px">
+          <div style="font-family:'Fira Code',monospace;font-size:9px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Detalhamento</div>
+          <div class="dim-bars">
+            <div class="dim-row"><span class="dim-label">Acertos exatos</span><div class="dim-track"><div class="dim-fill" style="width:75%"></div></div><span class="dim-val">75</span></div>
+            <div class="dim-row"><span class="dim-label">Resultado</span><div class="dim-track"><div class="dim-fill" style="width:55%"></div></div><span class="dim-val">22</span></div>
+            <div class="dim-row"><span class="dim-label">Bônus Brasil</span><div class="dim-track"><div class="dim-fill" style="width:65%"></div></div><span class="dim-val">20</span></div>
+            <div class="dim-row"><span class="dim-label">Campeão</span><div class="dim-track"><div class="dim-fill" style="width:50%"></div></div><span class="dim-val">10</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="cc-info">
+        <div class="cc-name">DimensionBars</div>
+        <div class="cc-mantine">Mantine: Progress + Group + Text</div>
+        <div class="cc-desc">Breakdown de pontos por categoria. Inspirado no painel de avaliação do Archlify. Usado em Dashboard e Ranking.</div>
+      </div>
+    </div>
+
+    <!-- TagCloud -->
+    <div class="cc">
+      <div class="cc-prev">
+        <div class="mock-tags" style="max-width:260px">
+          <span class="mock-tag active"><span class="mock-tag-dot"></span>Todos</span>
+          <span class="mock-tag">Grupo A</span>
+          <span class="mock-tag">Grupo B</span>
+          <span class="mock-tag">Oitavas</span>
+          <span class="mock-tag">Quartas</span>
+          <span class="mock-tag">Semi</span>
+          <span class="mock-tag">Final</span>
+        </div>
+      </div>
+      <div class="cc-info">
+        <div class="cc-name">TagCloud</div>
+        <div class="cc-mantine">Mantine: Group + Badge (variant="outline")</div>
+        <div class="cc-desc">Filtro de rodadas/fases. Clique ativa a tag em laranja. Filtra MatchCards na tela de Palpites e Explore.</div>
+      </div>
+    </div>
+
+    <!-- StatusBadge -->
+    <div class="cc">
+      <div class="cc-prev">
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <span class="mbadge mb-ok"><span class="mb-dot"></span>Aprovado</span>
+          <span class="mbadge mb-wait"><span class="mb-dot"></span>Pendente</span>
+          <span class="mbadge mb-no"><span class="mb-dot"></span>Rejeitado</span>
+          <span class="mbadge mb-lock"><span class="mb-dot"></span>Bloqueado</span>
+        </div>
+      </div>
+      <div class="cc-info">
+        <div class="cc-name">StatusBadge</div>
+        <div class="cc-mantine">Mantine: Badge (color + variant="light")</div>
+        <div class="cc-desc">4 variantes para <code>accessStatus</code> do backend. Reutilizado em todas as telas que precisam mostrar status do usuário.</div>
+      </div>
+    </div>
+
+    <!-- MatchCard -->
+    <div class="cc">
+      <div class="cc-prev">
+        <div class="match-a">
+          <div class="match-a-lbl">Grupo A · Rodada 1</div>
+          <div class="match-a-teams">
+            <div class="mat"><div class="mat-flag">🇧🇷</div><div class="mat-name">Brasil</div></div>
+            <div class="mat-score"><div class="sc">2</div><div class="sc-sep">×</div><div class="sc">1</div></div>
+            <div class="mat"><div class="mat-flag">🇦🇷</div><div class="mat-name">Argentina</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cc-info">
+        <div class="cc-name">MatchCard</div>
+        <div class="cc-mantine">Mantine: Card + NumberInput + Badge + Group</div>
+        <div class="cc-desc">Card de partida estilo Archlify-node. Inputs de placar com borda laranja. Borda colorida por resultado (acerto/erro).</div>
+      </div>
+    </div>
+
+    <!-- LeaderboardTable -->
+    <div class="cc">
+      <div class="cc-prev">
+        <div class="lb-archlify">
+          <div class="lb-hd"><span>Participante</span><span>Pts</span></div>
+          <div class="lb-row-a lb-gold"><div class="lb-pos">1</div><div class="lb-av">JK</div><div class="lb-nm">João K.</div><div class="lb-pts" style="color:var(--gold)">127</div></div>
+          <div class="lb-row-a lb-silv"><div class="lb-pos">2</div><div class="lb-av">MA</div><div class="lb-nm">Mari A.</div><div class="lb-pts" style="color:var(--silv)">114</div></div>
+          <div class="lb-row-a lb-brnz"><div class="lb-pos">3</div><div class="lb-av">RS</div><div class="lb-nm">Rafa S.</div><div class="lb-pts" style="color:var(--brnz)">98</div></div>
+          <div class="lb-row-a lb-norm"><div class="lb-pos">4</div><div class="lb-av">TM</div><div class="lb-nm">Tiago M.</div><div class="lb-pts">87</div></div>
+        </div>
+      </div>
+      <div class="cc-info">
+        <div class="cc-name">LeaderboardTable</div>
+        <div class="cc-mantine">Mantine: Table + Avatar + Badge + Text</div>
+        <div class="cc-desc">Ranking estilo Archlify: pódio top-3 com fundos coloridos, linha do usuário atual destacada em laranja.</div>
+      </div>
+    </div>
+
+    <!-- BrandLogo -->
+    <div class="cc">
+      <div class="cc-prev">
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:32px;height:32px;background:var(--or);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">R</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;line-height:1">Copa RDG</div>
+              <div style="font-family:'Fira Code',monospace;font-size:9px;color:var(--or);letter-spacing:.12em;text-transform:uppercase;margin-top:2px">Rei do Gado</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:44px;height:44px;background:var(--or);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff">RDG</div>
+            <div>
+              <div style="font-size:18px;font-weight:700;line-height:1">Copa RDG</div>
+              <div style="font-family:'Fira Code',monospace;font-size:9px;color:var(--or);letter-spacing:.12em;text-transform:uppercase;margin-top:3px">Rei do Gado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cc-info">
+        <div class="cc-name">BrandLogo</div>
+        <div class="cc-mantine">Mantine: Group + Box + Text</div>
+        <div class="cc-desc">Badge laranja "RDG" + nome do bolão. Variantes sm (nav) e lg (login). Idêntico ao logo do Archlify no canto esquerdo.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr />
+
+<!-- ══════════════════════════════════════════
+     06 TELAS
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">06 — Páginas</div>
+    <h2 class="sh-title">6 Telas</h2>
+    <p class="sh-sub">Lógica de negócio e guards do backend intactos. Substituição de HTML puro por componentes Mantine.</p>
+  </div>
+  <div class="sg">
+    <div class="sc-card">
+      <div class="sc-thumb">
+        <div class="tb or"></div>
+        <div style="height:6px"></div>
+        <div class="tb-card"><div class="tb-row"><div class="tb-bl"></div><div class="tb-bl"></div></div><div class="tb-row"><div class="tb-bl or" style="flex:2"></div></div></div>
+        <div class="tb-card"><div class="tb-row"><div class="tb-bl"></div><div class="tb-bl"></div></div><div class="tb-row"><div class="tb-bl or" style="flex:2"></div></div></div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-route">/login</div>
+        <div class="sc-name">Login</div>
+        <div class="sc-desc">Center + BrandLogo lg + dois Cards Mantine: Entrar e Criar conta. Dark hero full-screen.</div>
+      </div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-thumb" style="align-items:center;justify-content:center">
+        <div style="text-align:center">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--amg);border:2px solid var(--am);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:20px">⏳</div>
+          <div class="tb w60" style="margin:0 auto 4px"></div>
+          <div class="tb w80" style="margin:0 auto"></div>
+        </div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-route">/waiting</div>
+        <div class="sc-name">Aguardando</div>
+        <div class="sc-desc">Center + Card com StatusBadge animado. Mensagens para pending, rejected e blocked.</div>
+      </div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-thumb">
+        <div class="tb or" style="width:22%;margin-bottom:6px"></div>
+        <!-- score gauge thumb -->
+        <div style="display:flex;gap:6px">
+          <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--or);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--or)">127</div>
+          <div style="flex:1"><div class="tb w80" style="margin-bottom:4px"></div><div class="tb w60"></div></div>
+        </div>
+        <div class="tb-card" style="margin-top:4px"><div class="tb-row"><div class="tb-bl"></div><div class="tb-bl or" style="flex:0 0 30px"></div></div></div>
+        <div class="tb-card"><div class="tb-row"><div class="tb-bl"></div><div class="tb-bl" style="flex:0 0 22px;opacity:.5"></div></div></div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-route">/dashboard</div>
+        <div class="sc-name">Dashboard</div>
+        <div class="sc-desc">ScoreGauge + DimensionBars + atalhos rápidos para Palpites, Ranking e Explore.</div>
+      </div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-thumb">
+        <div class="tb or" style="width:18%;margin-bottom:6px"></div>
+        <!-- TagCloud thumb -->
+        <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px">
+          <div style="background:var(--or-g);border:1px solid var(--or-r);border-radius:3px;width:28px;height:12px"></div>
+          <div style="background:var(--s3);border:1px solid var(--bd);border-radius:3px;width:22px;height:12px"></div>
+          <div style="background:var(--s3);border:1px solid var(--bd);border-radius:3px;width:22px;height:12px"></div>
+        </div>
+        <!-- split workspace thumb -->
+        <div style="display:flex;gap:4px">
+          <div style="width:36px;background:var(--s2);border:1px solid var(--bd);border-radius:3px;padding:4px 3px;flex-shrink:0">
+            <div class="tb" style="height:5px;width:100%;margin-bottom:3px;background:var(--or-g)"></div>
+            <div class="tb" style="height:5px;width:100%;margin-bottom:3px"></div>
+            <div class="tb" style="height:5px;width:100%"></div>
+          </div>
+          <div style="flex:1">
+            <div class="tb-card"><div class="tb-row"><div class="tb-bl or" style="flex:0 0 14px;border-radius:50%"></div><div class="tb-bl" style="flex:2"></div><div class="tb-bl or" style="flex:0 0 14px"></div></div></div>
+            <div class="tb-card" style="margin-top:4px"><div class="tb-row"><div class="tb-bl" style="flex:0 0 14px;border-radius:50%"></div><div class="tb-bl" style="flex:2"></div><div class="tb-bl" style="flex:0 0 14px;opacity:.4"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-route">/predictions</div>
+        <div class="sc-name">Palpites</div>
+        <div class="sc-desc">TagCloud de rodadas + SplitWorkspace: sidebar de grupos e MatchCards com NumberInput à direita.</div>
+      </div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-thumb">
+        <div class="tb or" style="width:16%;margin-bottom:6px"></div>
+        <!-- score gauge + leaderboard -->
+        <div style="display:flex;gap:5px;margin-bottom:5px">
+          <div style="width:32px;height:32px;border-radius:50%;border:3px solid var(--or);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--or)">1°</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+            <div class="tb w80" style="height:5px"></div>
+            <div class="tb w60" style="height:5px"></div>
+          </div>
+        </div>
+        <div style="background:var(--gold-g);border:1px solid rgba(234,179,8,.18);border-radius:3px;padding:4px 6px;margin-bottom:3px"><div class="tb-row"><div class="tb-bl" style="flex:0 0 10px;border-radius:50%;background:var(--gold)"></div><div class="tb-bl"></div><div class="tb-bl or" style="flex:0 0 16px"></div></div></div>
+        <div style="background:var(--silv-g);border:1px solid rgba(148,163,184,.12);border-radius:3px;padding:4px 6px;margin-bottom:3px"><div class="tb-row"><div class="tb-bl" style="flex:0 0 10px;border-radius:50%;background:var(--silv)"></div><div class="tb-bl"></div><div class="tb-bl" style="flex:0 0 14px;opacity:.6"></div></div></div>
+        <div class="tb-card"><div class="tb-row"><div class="tb-bl" style="flex:0 0 10px;border-radius:50%"></div><div class="tb-bl"></div><div class="tb-bl" style="flex:0 0 14px;opacity:.3"></div></div></div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-route">/ranking</div>
+        <div class="sc-name">Ranking</div>
+        <div class="sc-desc">ScoreGauge do usuário + DimensionBars + LeaderboardTable com pódio top-3.</div>
+      </div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-thumb">
+        <div style="background:var(--or-g);border:1px solid var(--or-r);border-radius:5px;padding:6px;margin-bottom:6px">
+          <div class="tb or" style="width:50%;height:5px;margin-bottom:3px"></div>
+          <div class="tb w70" style="height:5px"></div>
+        </div>
+        <div class="tb-card"><div class="tb-row"><div class="tb-bl"></div><div class="tb-bl"></div><div class="tb-bl or" style="flex:0 0 12px"></div></div></div>
+        <div class="tb-card" style="margin-top:4px"><div class="tb-row"><div class="tb-bl"></div><div class="tb-bl"></div><div class="tb-bl" style="flex:0 0 12px;opacity:.3"></div></div></div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-route">/explore</div>
+        <div class="sc-name">Explore</div>
+        <div class="sc-desc">Palpites de todos. Overlay Mantine com cadeado quando não liberado. Mesmo visual do Ranking.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr />
+
+<!-- ══════════════════════════════════════════
+     07 FASES
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">07 — Roadmap</div>
+    <h2 class="sh-title">3 Fases</h2>
+  </div>
+  <div class="phases">
+
+    <div class="phase">
+      <div class="phase-hd"><div class="phase-num">1</div><div><div class="phase-title">Fundação Mantine</div><div class="phase-sub">Setup do provider, tema dark e palette laranja</div></div></div>
+      <div class="phase-body">
+        <div>
+          <div class="t-title">Tarefas</div>
+          <div class="t"><div class="t-n">1</div><div class="t-txt">Instalar <code>@mantine/core @mantine/hooks @mantine/form</code> e <code>postcss-preset-mantine</code></div></div>
+          <div class="t"><div class="t-n">2</div><div class="t-txt">Criar <code>src/lib/theme.ts</code> com <code>createTheme()</code>: <code>primaryColor: 'rdg-orange'</code>, escala de 10 tons, <code>defaultColorScheme: 'dark'</code>, fontFamily Inter</div></div>
+          <div class="t"><div class="t-n">3</div><div class="t-txt">Atualizar <code>layout.tsx</code>: <code>MantineProvider</code>, <code>ColorSchemeScript</code> no <code>&lt;head&gt;</code></div></div>
+          <div class="t"><div class="t-n">4</div><div class="t-txt">Criar <code>globals.css</code>: importar estilos Mantine + variável <code>--rdg-bg: #09090B</code> no <code>body</code></div></div>
+          <div class="t"><div class="t-n">5</div><div class="t-txt">Criar <code>postcss.config.cjs</code> na raiz do <code>app/</code></div></div>
+        </div>
+        <div>
+          <div class="cb"><span class="cb-f">src/lib/theme.ts</span><span class="kw">import</span> { createTheme } <span class="kw">from</span> <span class="str">'@mantine/core'</span>;
+
+<span class="kw">export const</span> <span class="cn">theme</span> = createTheme({
+  <span class="hl">primaryColor</span>: <span class="str">'rdg-orange'</span>,
+  <span class="hl">defaultColorScheme</span>: <span class="str">'dark'</span>,
+  <span class="hl">fontFamily</span>: <span class="str">'Inter, system-ui, sans-serif'</span>,
+  <span class="hl">colors</span>: {
+    <span class="str">'rdg-orange'</span>: [
+      <span class="str">'#FFF7ED'</span>,<span class="str">'#FFEDD5'</span>,<span class="str">'#FED7AA'</span>,
+      <span class="str">'#FDBA74'</span>,<span class="str">'#FB923C'</span>,<span class="str">'#F97316'</span>, <span class="cm">// [5]</span>
+      <span class="str">'#EA580C'</span>,<span class="str">'#C2410C'</span>,<span class="str">'#9A3412'</span>,<span class="str">'#7C2D12'</span>,
+    ],
+  },
+  <span class="hl">components</span>: {
+    NavLink: NavLink.extend({
+      vars: () => ({ root: {
+        <span class="str">'--nl-color'</span>: <span class="str">'var(--mantine-color-rdg-orange-5)'</span>
+      }})
+    }),
+  },
+});</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-hd"><div class="phase-num">2</div><div><div class="phase-title">Componentes</div><div class="phase-sub">TopNav, ScoreGauge, DimensionBars, TagCloud, MatchCard, LeaderboardTable, StatusBadge</div></div></div>
+      <div class="phase-body">
+        <div>
+          <div class="t-title">Tarefas</div>
+          <div class="t"><div class="t-n">1</div><div class="t-txt">Criar <code>components/layout/app-shell.tsx</code> — AppShell Mantine com Header + Navbar</div></div>
+          <div class="t"><div class="t-n">2</div><div class="t-txt">Criar <code>components/brand/brand-logo.tsx</code> — Badge laranja + nome</div></div>
+          <div class="t"><div class="t-n">3</div><div class="t-txt">Criar <code>components/ui/score-gauge.tsx</code> — SVG circle + Paper (Client Component)</div></div>
+          <div class="t"><div class="t-n">4</div><div class="t-txt">Criar <code>components/ui/dimension-bars.tsx</code> — Progress + Group + Text</div></div>
+          <div class="t"><div class="t-n">5</div><div class="t-txt">Criar <code>components/ui/tag-cloud.tsx</code> — Badge interativo com filtro (Client Component)</div></div>
+          <div class="t"><div class="t-n">6</div><div class="t-txt">Criar <code>components/match/match-card.tsx</code> — Card + NumberInput + Badge</div></div>
+          <div class="t"><div class="t-n">7</div><div class="t-txt">Criar <code>components/ranking/leaderboard-table.tsx</code> — Table + Avatar com pódio</div></div>
+          <div class="t"><div class="t-n">8</div><div class="t-txt">Criar <code>components/ui/status-badge.tsx</code> — wrapper Badge com 4 variantes</div></div>
+        </div>
+        <div>
+          <div class="cb"><span class="cb-f">components/ui/score-gauge.tsx</span><span class="str">'use client'</span>;
+<span class="kw">import</span> { Paper, Text, Group } <span class="kw">from</span> <span class="str">'@mantine/core'</span>;
+
+<span class="kw">type</span> <span class="cn">Props</span> = {
+  score: <span class="kw">number</span>;
+  max: <span class="kw">number</span>;
+  rank: <span class="kw">number</span>;
+};
+
+<span class="kw">export function</span> <span class="cn">ScoreGauge</span>({ score, max, rank }: <span class="cn">Props</span>) {
+  <span class="kw">const</span> r = <span class="num">34</span>;
+  <span class="kw">const</span> circ = <span class="num">2</span> * Math.PI * r;
+  <span class="kw">const</span> offset = circ - (score / max) * circ;
+
+  <span class="kw">return</span> (
+    &lt;<span class="cn">Paper</span> p=<span class="str">"md"</span> radius=<span class="str">"md"</span>&gt;
+      &lt;<span class="cn">Group</span>&gt;
+        &lt;div style={{ position: <span class="str">'relative'</span>, width: <span class="num">80</span>, height: <span class="num">80</span> }}&gt;
+          &lt;svg width=<span class="num">80</span> height=<span class="num">80</span> style={{ transform: <span class="str">'rotate(-90deg)'</span> }}&gt;
+            &lt;circle cx=<span class="num">40</span> cy=<span class="num">40</span> r={r} fill=<span class="str">"none"</span>
+              stroke=<span class="str">"var(--mantine-color-dark-4)"</span> strokeWidth=<span class="num">6</span> /&gt;
+            &lt;circle cx=<span class="num">40</span> cy=<span class="num">40</span> r={r} fill=<span class="str">"none"</span>
+              stroke=<span class="str">"var(--mantine-color-rdg-orange-5)"</span>
+              strokeWidth=<span class="num">6</span> strokeLinecap=<span class="str">"round"</span>
+              strokeDasharray={circ}
+              strokeDashoffset={offset} /&gt;
+          &lt;/svg&gt;
+        &lt;/div&gt;
+        &lt;<span class="cn">Text</span> c=<span class="str">"rdg-orange"</span> fw=<span class="num">700</span>&gt;{rank}° lugar&lt;/<span class="cn">Text</span>&gt;
+      &lt;/<span class="cn">Group</span>&gt;
+    &lt;/<span class="cn">Paper</span>&gt;
+  );
+}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-hd"><div class="phase-num">3</div><div><div class="phase-title">Aplicar nas Telas</div><div class="phase-sub">Substituir HTML puro por componentes Mantine nas 6 páginas</div></div></div>
+      <div class="phase-body">
+        <div>
+          <div class="t-title">Tarefas</div>
+          <div class="t"><div class="t-n">1</div><div class="t-txt"><code>/login</code>: <code>Center</code> + BrandLogo lg + <code>SimpleGrid cols=2</code> com LoginCard e RegisterCard</div></div>
+          <div class="t"><div class="t-n">2</div><div class="t-txt"><code>/waiting</code>: <code>Center</code> + <code>Card</code> com StatusBadge animado e texto de instrução</div></div>
+          <div class="t"><div class="t-n">3</div><div class="t-txt"><code>/dashboard</code>: ScoreGauge + DimensionBars + <code>SimpleGrid</code> de atalhos</div></div>
+          <div class="t"><div class="t-n">4</div><div class="t-txt"><code>/predictions</code>: TagCloud de rodadas + split workspace com MatchCards e sidebar de fases</div></div>
+          <div class="t"><div class="t-n">5</div><div class="t-txt"><code>/ranking</code>: ScoreGauge do usuário + DimensionBars + LeaderboardTable completo</div></div>
+          <div class="t"><div class="t-n">6</div><div class="t-txt"><code>/explore</code>: igual ranking + <code>Overlay</code> Mantine com cadeado quando não liberado</div></div>
+        </div>
+        <div>
+          <div class="cb"><span class="cb-f">app/(member)/ranking/page.tsx (after)</span><span class="kw">import</span> { Stack, Title, Text } <span class="kw">from</span> <span class="str">'@mantine/core'</span>;
+<span class="kw">import</span> { ScoreGauge } <span class="kw">from</span> <span class="str">'../../../components/ui/score-gauge'</span>;
+<span class="kw">import</span> { DimensionBars } <span class="kw">from</span> <span class="str">'../../../components/ui/dimension-bars'</span>;
+<span class="kw">import</span> { LeaderboardTable } <span class="kw">from</span> <span class="str">'../../../components/ranking/leaderboard-table'</span>;
+
+<span class="kw">export default async function</span> <span class="cn">RankingPage</span>() {
+  <span class="cm">// redirect + session logic unchanged</span>
+  <span class="kw">const</span> { ranking, myScore } = <span class="kw">await</span> fetchRanking();
+
+  <span class="kw">return</span> (
+    &lt;<span class="cn">Stack</span> gap=<span class="str">"xl"</span>&gt;
+      &lt;<span class="cn">Title</span> order=<span class="num">1</span>&gt;Ranking&lt;/<span class="cn">Title</span>&gt;
+      &lt;<span class="cn">ScoreGauge</span>
+        score={myScore.points}
+        max={<span class="num">200</span>}
+        rank={myScore.position}
+      /&gt;
+      &lt;<span class="cn">DimensionBars</span> breakdown={myScore.breakdown} /&gt;
+      &lt;<span class="cn">LeaderboardTable</span>
+        rows={ranking}
+        currentUserId={session.user.id}
+      /&gt;
+    &lt;/<span class="cn">Stack</span>&gt;
+  );
+}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr />
+
+<!-- ══════════════════════════════════════════
+     08 MANIFEST
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">08 — Arquivos</div>
+    <h2 class="sh-title">Manifest</h2>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>Arquivo</th><th>Ação</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>app/package.json</code></td><td>Update</td><td>Adicionar <code>@mantine/core</code>, <code>@mantine/hooks</code>, <code>@mantine/form</code>, <code>postcss-preset-mantine</code></td></tr>
+        <tr><td>2</td><td><code>app/postcss.config.cjs</code></td><td>Create</td><td>Plugin PostCSS do Mantine para Next.js 15</td></tr>
+        <tr><td>3</td><td><code>app/src/lib/theme.ts</code></td><td>Create</td><td><code>createTheme()</code> com palette rdg-orange, dark default, Inter</td></tr>
+        <tr><td>4</td><td><code>app/src/app/layout.tsx</code></td><td>Update</td><td>Adicionar <code>MantineProvider</code>, <code>ColorSchemeScript</code>, import styles</td></tr>
+        <tr><td>5</td><td><code>app/src/app/globals.css</code></td><td>Create</td><td>Import Mantine styles + <code>body { background: #09090B }</code></td></tr>
+        <tr><td>6</td><td><code>components/layout/app-shell.tsx</code></td><td>Create</td><td>AppShell com Header top nav (estilo Archlify) + Navbar sidebar</td></tr>
+        <tr><td>7</td><td><code>components/brand/brand-logo.tsx</code></td><td>Create</td><td>Badge laranja RDG + nome, variantes sm/lg</td></tr>
+        <tr><td>8</td><td><code>components/ui/status-badge.tsx</code></td><td>Create</td><td>Badge 4 variantes de accessStatus</td></tr>
+        <tr><td>9</td><td><code>components/ui/score-gauge.tsx</code></td><td>Create</td><td>SVG circular gauge + Paper Mantine (Client Component)</td></tr>
+        <tr><td>10</td><td><code>components/ui/dimension-bars.tsx</code></td><td>Create</td><td>Breakdown por categoria com Progress Mantine</td></tr>
+        <tr><td>11</td><td><code>components/ui/tag-cloud.tsx</code></td><td>Create</td><td>Filtro interativo de rodadas com Badge (Client Component)</td></tr>
+        <tr><td>12</td><td><code>components/match/match-card.tsx</code></td><td>Create</td><td>Card de partida com NumberInput e lock state</td></tr>
+        <tr><td>13</td><td><code>components/ranking/leaderboard-table.tsx</code></td><td>Create</td><td>Table + Avatar com pódio top-3 e highlight do usuário</td></tr>
+        <tr><td>14</td><td><code>components/bracket/bracket-view.tsx</code></td><td>Create</td><td>Visualização mata-mata com slots TBD em laranja</td></tr>
+        <tr><td>15-19</td><td>Todas as 6 páginas</td><td>Redesign</td><td>Substituir HTML puro pelos componentes Mantine acima</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr />
+
+<!-- ══════════════════════════════════════════
+     09 NOTAS
+═════════════════════════════════════════════ -->
+<section>
+  <div class="sh">
+    <div class="sh-eye">09 — Notas</div>
+    <h2 class="sh-title">Pontos de Atenção</h2>
+  </div>
+  <div class="callouts">
+    <div class="callout rose">
+      <div class="callout-lbl">Server vs Client Components</div>
+      <p>Todas as páginas são Server Components. <code>ScoreGauge</code>, <code>TagCloud</code>, <code>MatchCard</code> (com inputs) e <code>TagCloud</code> precisam de <code>'use client'</code>. Criar como Client Components filhos e importar nas páginas — nunca adicionar <code>'use client'</code> no arquivo de página diretamente.</p>
+    </div>
+    <div class="callout amber">
+      <div class="callout-lbl">PostCSS obrigatório</div>
+      <p>Mantine requer <code>postcss-preset-mantine</code> em <code>postcss.config.cjs</code> na raiz do <code>app/</code>. Sem isso as variáveis <code>--mantine-color-*</code> não são geradas e os componentes ficam sem cor no build de produção.</p>
+    </div>
+    <div class="callout orange">
+      <div class="callout-lbl">Lógica intacta</div>
+      <p>Nenhum arquivo de negócio é alterado. <code>access-gate.tsx</code>, <code>session.ts</code>, <code>api-client.ts</code> e todos os guards do backend permanecem inalterados. O redesign é 100% aditivo — só substitui HTML puro por componentes Mantine.</p>
+    </div>
+    <div class="callout gold">
+      <div class="callout-lbl">Mantine + Next.js 15 App Router</div>
+      <p>Usar <code>ColorSchemeScript</code> no <code>&lt;head&gt;</code> do <code>layout.tsx</code> para evitar flash de tema na hidratação. Mantine v7 tem suporte nativo a App Router. Não é necessário <code>next/dynamic</code> — apenas separar Client Components corretamente.</p>
+    </div>
+    <div class="callout orange">
+      <div class="callout-lbl">Background mais escuro que o Mantine default</div>
+      <p>O Archlify usa <code>#09090B</code> — mais escuro que o dark[9] padrão do Mantine (<code>#141517</code>). Forçar no CSS global: <code>body { background-color: #09090B }</code> e sobrescrever <code>--mantine-color-body</code> no <code>:root</code>.</p>
+    </div>
+    <div class="callout gold">
+      <div class="callout-lbl">ScoreGauge — dados do backend</div>
+      <p><code>ScoreGauge</code> e <code>DimensionBars</code> recebem <code>score</code>, <code>max</code>, <code>rank</code> e <code>breakdown</code> como props — dados já calculados pelo backend. O componente é puramente visual, sem lógica de cálculo. Endpoint: <code>GET /api/member/ranking/me</code>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="ft-brand">
+    <div class="ft-b">R</div>
+    <div class="ft-txt">Bolão Copa RDG — Plano Visual · Mantine UI · Archlify pattern</div>
+  </div>
+  <div class="ft-meta">2026-05-21 · Next.js 15 · Mantine v7 · #F97316</div>
+</footer>
+
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true, theme: 'dark',
+  themeVariables: {
+    primaryColor: '#1A1A1F', primaryTextColor: '#E8E8EA',
+    primaryBorderColor: '#27272D', lineColor: '#F97316',
+    secondaryColor: '#222228', tertiaryColor: '#141418',
+    mainBkg: '#1A1A1F', nodeBorder: '#33333B',
+  },
+  flowchart: { curve: 'basis', padding: 14 }
+});
+let z=1;
+function zm(f){z=Math.max(.3,Math.min(3,z*f));const e=document.querySelector('#diag svg');if(e)e.style.transform=`scale(${z})`}
+function zr(){z=1;const e=document.querySelector('#diag svg');if(e)e.style.transform='scale(1)'}
+</script>
+</body>
+</html>

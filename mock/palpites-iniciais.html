@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copa RDG — Palpites Iniciais</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --or: #F97316;
+      --or-dk: #EA580C;
+      --or-g: rgba(249,115,22,.13);
+      --or-r: rgba(249,115,22,.26);
+      --bg: #09090B;
+      --s0: #0F0F12;
+      --s1: #141418;
+      --s2: #1A1A1F;
+      --s3: #222228;
+      --bd: #27272D;
+      --bd2: #33333B;
+      --tx: #E8E8EA;
+      --tx2: #A1A1AA;
+      --tx3: #71717A;
+      --g5: #22C55E;
+      --g5-g: rgba(34,197,94,.12);
+      --am: #F59E0B;
+      --am-g: rgba(245,158,11,.12);
+      --ro: #F43F5E;
+      --ro-g: rgba(244,63,94,.12);
+      --gold: #EAB308;
+      --gold-g: rgba(234,179,8,.12);
+      --r: 10px;
+      --rl: 18px;
+      --rxl: 28px;
+      --shadow: 0 28px 80px rgba(0,0,0,.34);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(249,115,22,.13), transparent 30%),
+        radial-gradient(circle at 90% 12%, rgba(249,115,22,.10), transparent 28%),
+        var(--bg);
+      color: var(--tx);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid var(--bd);
+      background: rgba(15,15,18,.86);
+      backdrop-filter: blur(18px);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      width: fit-content;
+      margin-bottom: 34px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--or), var(--or-dk));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      box-shadow: 0 16px 34px rgba(249,115,22,.22);
+    }
+
+    .brand-name {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brand-kicker {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: var(--or);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      margin-top: 1px;
+    }
+
+    .nav-section { margin-bottom: 26px; }
+
+    .nav-title {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: var(--tx3);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin: 0 10px 10px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 42px;
+      padding: 0 12px;
+      border-radius: 13px;
+      color: var(--tx2);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      transition: .18s ease;
+    }
+
+    .nav-item.active {
+      color: var(--or);
+      background: var(--or-g);
+      border: 1px solid var(--or-r);
+    }
+
+    .nav-icon { width: 20px; text-align: center; opacity: .9; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      border: 1px solid var(--bd);
+      background: var(--s1);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .user-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+
+    .avatar,
+    .small-avatar {
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--or-g);
+      border: 1px solid var(--or-r);
+      color: var(--or);
+      font-weight: 800;
+    }
+
+    .avatar { width: 36px; height: 36px; font-size: 12px; }
+    .small-avatar { width: 32px; height: 32px; font-size: 10px; }
+
+    .user-name { font-size: 13px; font-weight: 800; color: var(--tx); }
+    .user-role { font-family: 'Fira Code', monospace; font-size: 10px; color: var(--tx3); text-transform: uppercase; letter-spacing: .08em; }
+
+    .status-pill,
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .status-pill {
+      height: 26px;
+      padding: 0 10px;
+      background: var(--g5-g);
+      color: var(--g5);
+      border: 1px solid rgba(34,197,94,.26);
+    }
+
+    .badge { padding: 6px 10px; }
+    .badge.open { color: var(--g5); background: var(--g5-g); border: 1px solid rgba(34,197,94,.24); }
+    .badge.warn { color: var(--am); background: var(--am-g); border: 1px solid rgba(245,158,11,.24); }
+    .badge.orange { color: var(--or); background: var(--or-g); border: 1px solid var(--or-r); }
+
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .main { min-width: 0; padding: 26px 30px 44px; }
+
+    .topbar {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .breadcrumbs {
+      color: var(--tx3);
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+    }
+
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+
+    .ghost-button,
+    .primary-button,
+    .secondary-button {
+      height: 42px;
+      border-radius: 13px;
+      padding: 0 16px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .ghost-button,
+    .secondary-button {
+      border: 1px solid var(--bd2);
+      background: var(--s1);
+      color: var(--tx2);
+    }
+
+    .primary-button {
+      border: 0;
+      background: linear-gradient(135deg, var(--or), var(--or-dk));
+      color: #fff;
+      box-shadow: 0 18px 34px rgba(249,115,22,.18);
+    }
+
+    .ghost-button:hover,
+    .primary-button:hover,
+    .secondary-button:hover { transform: translateY(-1px); }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--bd);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(249,115,22,.18), rgba(20,20,24,.64) 42%, rgba(15,15,18,.96)),
+        var(--s1);
+      padding: 30px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(249,115,22,.16) 1px, transparent 1.5px),
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 18px 18px, 56px 56px, 56px 56px;
+      mask-image: linear-gradient(to bottom right, rgba(0,0,0,.9), transparent 76%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--or-r);
+      border-radius: 999px;
+      background: var(--or-g);
+      color: var(--or);
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 4.8vw, 58px);
+      line-height: .96;
+      letter-spacing: -.055em;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--or); }
+    .hero p { color: var(--tx2); font-size: 15px; max-width: 650px; }
+
+    .deadline-card {
+      border: 1px solid var(--or-r);
+      border-radius: 24px;
+      background: rgba(15,15,18,.70);
+      backdrop-filter: blur(16px);
+      padding: 20px;
+    }
+
+    .deadline-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: var(--tx3);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .deadline-main {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .deadline-number {
+      color: var(--or);
+      font-size: 44px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.06em;
+    }
+
+    .deadline-unit { color: var(--tx2); font-size: 13px; font-weight: 800; }
+    .deadline-note { color: var(--tx3); font-size: 12px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--bd);
+      border-radius: 24px;
+      background: rgba(20,20,24,.88);
+      box-shadow: 0 20px 50px rgba(0,0,0,.16);
+      overflow: hidden;
+    }
+
+    .champion-card { grid-column: span 6; }
+    .scorer-card { grid-column: span 6; }
+    .rules-card { grid-column: span 4; }
+    .summary-card { grid-column: span 5; }
+    .status-card { grid-column: span 3; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--bd);
+      background: rgba(26,26,31,.72);
+    }
+
+    .card-title { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -.01em; }
+    .card-subtitle { font-family: 'Fira Code', monospace; font-size: 10px; color: var(--tx3); text-transform: uppercase; letter-spacing: .12em; margin-top: 2px; }
+    .card-body { padding: 20px; }
+
+    .pick-search {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .pick-search input {
+      width: 100%;
+      height: 46px;
+      border: 1px solid var(--bd2);
+      border-radius: 14px;
+      background: var(--s0);
+      color: var(--tx);
+      outline: none;
+      padding: 0 14px 0 42px;
+      font-size: 13px;
+      transition: .18s ease;
+    }
+
+    .pick-search input:focus {
+      border-color: var(--or);
+      box-shadow: 0 0 0 4px rgba(249,115,22,.10);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--tx3);
+      font-size: 14px;
+    }
+
+    .option-grid {
+      display: grid;
+      gap: 10px;
+      max-height: 390px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .option-card {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--bd);
+      border-radius: 17px;
+      background: var(--s2);
+      padding: 12px;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .option-card:hover,
+    .option-card.selected {
+      border-color: var(--or-r);
+      background: rgba(249,115,22,.08);
+      transform: translateY(-1px);
+    }
+
+    .option-card.selected { box-shadow: inset 0 0 0 1px var(--or-r); }
+
+    .flag,
+    .player-face {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--s0);
+      border: 1px solid var(--bd2);
+      font-size: 22px;
+      flex: 0 0 auto;
+    }
+
+    .player-face { color: var(--or); font-size: 13px; font-weight: 900; }
+
+    .option-name { color: #fff; font-size: 14px; font-weight: 800; }
+    .option-meta { color: var(--tx3); font-size: 12px; margin-top: 2px; }
+
+    .pick-points {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--or-g);
+      color: var(--or);
+      border: 1px solid var(--or-r);
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid var(--bd2);
+      background: var(--s0);
+      display: grid;
+      place-items: center;
+      color: transparent;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .option-card.selected .check {
+      color: #fff;
+      background: var(--or);
+      border-color: var(--or);
+    }
+
+    .rules-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .rule-row {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid var(--bd);
+      border-radius: 16px;
+      background: var(--s2);
+      padding: 13px;
+    }
+
+    .rule-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--or-g);
+      border: 1px solid var(--or-r);
+      color: var(--or);
+      font-weight: 900;
+    }
+
+    .rule-title { color: #fff; font-size: 13px; font-weight: 800; margin-bottom: 3px; }
+    .rule-text { color: var(--tx3); font-size: 12px; }
+
+    .summary-box {
+      display: grid;
+      gap: 12px;
+    }
+
+    .selected-row {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--bd);
+      border-radius: 17px;
+      background: var(--s2);
+      padding: 14px;
+    }
+
+    .selected-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 10px;
+      color: var(--tx3);
+      text-transform: uppercase;
+      letter-spacing: .10em;
+      margin-bottom: 3px;
+    }
+
+    .selected-name { color: #fff; font-size: 14px; font-weight: 900; }
+
+    .total-box {
+      border: 1px solid var(--or-r);
+      border-radius: 18px;
+      background: var(--or-g);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 4px;
+    }
+
+    .total-label { color: var(--tx2); font-size: 13px; font-weight: 700; }
+    .total-value { color: var(--or); font-size: 28px; font-weight: 900; letter-spacing: -.05em; }
+
+    .save-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .save-row .primary-button { flex: 1; height: 48px; }
+    .save-row .secondary-button { height: 48px; }
+
+    .lock-card {
+      border: 1px solid var(--am);
+      border-radius: 18px;
+      background: var(--am-g);
+      padding: 16px;
+      color: var(--am);
+      margin-top: 16px;
+    }
+
+    .lock-title { font-size: 13px; font-weight: 900; margin-bottom: 3px; }
+    .lock-text { font-size: 12px; color: var(--tx2); }
+
+    .progress-ring {
+      width: 136px;
+      height: 136px;
+      margin: 0 auto 18px;
+      position: relative;
+    }
+
+    .progress-ring svg { transform: rotate(-90deg); }
+
+    .progress-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .progress-value { color: var(--or); font-size: 32px; font-weight: 900; letter-spacing: -.06em; line-height: 1; }
+    .progress-label { color: var(--tx3); font-family: 'Fira Code', monospace; font-size: 10px; text-transform: uppercase; margin-top: 4px; }
+
+    .mini-status-list { display: grid; gap: 10px; }
+
+    .mini-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--tx2);
+      font-size: 13px;
+      border-top: 1px solid var(--bd);
+      padding-top: 10px;
+    }
+
+    .mini-status strong { color: #fff; }
+
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--bd); }
+      .nav-section { display: none; }
+      .sidebar-footer { display: none; }
+      .hero-content { grid-template-columns: 1fr; }
+      .champion-card, .scorer-card, .rules-card, .summary-card, .status-card { grid-column: span 12; }
+    }
+
+    @media (max-width: 720px) {
+      .main { padding: 18px 14px 34px; }
+      .topbar { height: auto; align-items: flex-start; flex-direction: column; }
+      .top-actions { width: 100%; }
+      .ghost-button, .primary-button { flex: 1; }
+      .hero { padding: 22px; border-radius: 24px; }
+      .option-card, .selected-row { grid-template-columns: 42px 1fr; }
+      .pick-points, .check { grid-column: 2; justify-self: start; }
+      .save-row { flex-direction: column; align-items: stretch; }
+      .save-row .secondary-button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-logo">
+        <div class="brand-mark">RDG</div>
+        <div>
+          <div class="brand-name">Copa RDG</div>
+          <div class="brand-kicker">Bolão da Copa</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-section">
+          <div class="nav-title">Principal</div>
+          <a class="nav-item" href="#"><span class="nav-icon">◈</span> Dashboard</a>
+          <a class="nav-item active" href="#"><span class="nav-icon">★</span> Palpites iniciais</a>
+          <a class="nav-item" href="#"><span class="nav-icon">▦</span> Palpites por fase</a>
+          <a class="nav-item" href="#"><span class="nav-icon">◆</span> Resultados</a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-title">Competição</div>
+          <a class="nav-item" href="#"><span class="nav-icon">#</span> Ranking</a>
+          <a class="nav-item" href="#"><span class="nav-icon">⌁</span> Chaveamento</a>
+          <a class="nav-item" href="#"><span class="nav-icon">◎</span> Explore</a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-row">
+          <div class="avatar">SF</div>
+          <div>
+            <div class="user-name">Sebastiao</div>
+            <div class="user-role">Participante</div>
+          </div>
+        </div>
+        <div class="status-pill"><span class="dot"></span> Approved</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumbs">Copa RDG / Palpites iniciais</div>
+        <div class="top-actions">
+          <button class="ghost-button" type="button">Ver regras</button>
+          <button class="primary-button" type="button">Salvar palpites →</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-content">
+          <div>
+            <div class="eyebrow"><span class="dot"></span> Valem até 25 pontos</div>
+            <h1>Escolha seu <span>campeão</span> e artilheiro.</h1>
+            <p>Esses palpites só podem ser alterados até o fechamento definido pelo administrador. O campeão vale 10 pontos e o artilheiro vale 15 pontos, considerando gols e assistências como critério de desempate.</p>
+          </div>
+
+          <div class="deadline-card">
+            <div class="deadline-label">Prazo para alterar</div>
+            <div class="deadline-main">
+              <div class="deadline-number">12</div>
+              <div class="deadline-unit">dias restantes</div>
+            </div>
+            <div class="deadline-note">Fechamento: 10/06/2026 às 23:59. Depois disso, os palpites ficam bloqueados.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="card champion-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Palpite de campeão</div>
+              <div class="card-subtitle">10 pontos</div>
+            </div>
+            <div class="badge open"><span class="dot"></span> Aberto</div>
+          </div>
+          <div class="card-body">
+            <div class="pick-search">
+              <span class="search-icon">⌕</span>
+              <input type="text" placeholder="Buscar seleção..." />
+            </div>
+
+            <div class="option-grid">
+              <div class="option-card selected">
+                <div class="flag">🇧🇷</div>
+                <div>
+                  <div class="option-name">Brasil</div>
+                  <div class="option-meta">Favorito do seu palpite · CONMEBOL</div>
+                </div>
+                <div class="check">✓</div>
+              </div>
+              <div class="option-card">
+                <div class="flag">🇫🇷</div>
+                <div>
+                  <div class="option-name">França</div>
+                  <div class="option-meta">Europa · forte no mata-mata</div>
+                </div>
+                <div class="check">✓</div>
+              </div>
+              <div class="option-card">
+                <div class="flag">🇦🇷</div>
+                <div>
+                  <div class="option-name">Argentina</div>
+                  <div class="option-meta">CONMEBOL · campeã recente</div>
+                </div>
+                <div class="check">✓</div>
+              </div>
+              <div class="option-card">
+                <div class="flag">🇪🇸</div>
+                <div>
+                  <div class="option-name">Espanha</div>
+                  <div class="option-meta">Europa · posse e juventude</div>
+                </div>
+                <div class="check">✓</div>
+              </div>
+              <div class="option-card">
+                <div class="flag">🇩🇪</div>
+                <div>
+                  <div class="option-name">Alemanha</div>
+                  <div class="option-meta">Europa · tradição em Copa</div>
+                </div>
+                <div class="check">✓</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card scorer-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Palpite de artilheiro</div>
+              <div class="card-subtitle">15 pontos · gols + assistências</div>
+            </div>
+            <div class="badge open"><span class="dot"></span> Aberto</div>
+          </div>
+          <div class="card-body">
+            <div class="pick-search">
+              <span class="search-icon">⌕</span>
+              <input type="text" placeholder="Buscar jogador..." />
+            </div>
+
+            <div class="option-grid">
+              <div class="option-card selected">
+                <div class="player-face">VN</div>
+                <div>
+                  <div class="option-name">Vinícius Jr.</div>
+                  <div class="option-meta">Brasil · atacante</div>
+                </div>
+                <div class="pick-points">15 pts</div>
+              </div>
+              <div class="option-card">
+                <div class="player-face">KM</div>
+                <div>
+                  <div class="option-name">Kylian Mbappé</div>
+                  <div class="option-meta">França · atacante</div>
+                </div>
+                <div class="pick-points">15 pts</div>
+              </div>
+              <div class="option-card">
+                <div class="player-face">HL</div>
+                <div>
+                  <div class="option-name">Harry Kane</div>
+                  <div class="option-meta">Inglaterra · centroavante</div>
+                </div>
+                <div class="pick-points">15 pts</div>
+              </div>
+              <div class="option-card">
+                <div class="player-face">JM</div>
+                <div>
+                  <div class="option-name">Julián Álvarez</div>
+                  <div class="option-meta">Argentina · atacante</div>
+                </div>
+                <div class="pick-points">15 pts</div>
+              </div>
+              <div class="option-card">
+                <div class="player-face">RO</div>
+                <div>
+                  <div class="option-name">Rodrygo</div>
+                  <div class="option-meta">Brasil · atacante</div>
+                </div>
+                <div class="pick-points">15 pts</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card rules-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Regras rápidas</div>
+              <div class="card-subtitle">Pontuação inicial</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="rules-list">
+              <div class="rule-row">
+                <div class="rule-icon">🏆</div>
+                <div>
+                  <div class="rule-title">Campeão</div>
+                  <div class="rule-text">Acertar o campeão oficial vale 10 pontos.</div>
+                </div>
+              </div>
+              <div class="rule-row">
+                <div class="rule-icon">⚽</div>
+                <div>
+                  <div class="rule-title">Artilheiro</div>
+                  <div class="rule-text">Acertar o artilheiro vale 15 pontos após aplicar o critério de assistências.</div>
+                </div>
+              </div>
+              <div class="rule-row">
+                <div class="rule-icon">🔒</div>
+                <div>
+                  <div class="rule-title">Bloqueio</div>
+                  <div class="rule-text">Após o fechamento, campeão e artilheiro não podem mais ser alterados.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card summary-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Resumo dos palpites</div>
+              <div class="card-subtitle">Antes de salvar</div>
+            </div>
+            <div class="badge orange"><span class="dot"></span> Rascunho</div>
+          </div>
+          <div class="card-body">
+            <div class="summary-box">
+              <div class="selected-row">
+                <div class="flag">🇧🇷</div>
+                <div>
+                  <div class="selected-label">Campeão escolhido</div>
+                  <div class="selected-name">Brasil</div>
+                </div>
+                <div class="pick-points">10 pts</div>
+              </div>
+              <div class="selected-row">
+                <div class="player-face">VN</div>
+                <div>
+                  <div class="selected-label">Artilheiro escolhido</div>
+                  <div class="selected-name">Vinícius Jr.</div>
+                </div>
+                <div class="pick-points">15 pts</div>
+              </div>
+              <div class="total-box">
+                <div>
+                  <div class="total-label">Potencial máximo nesta tela</div>
+                  <div class="deadline-note">Somado ao ranking final caso os palpites estejam corretos.</div>
+                </div>
+                <div class="total-value">25</div>
+              </div>
+            </div>
+
+            <div class="save-row">
+              <button class="primary-button" type="button">Salvar palpites iniciais →</button>
+              <button class="secondary-button" type="button">Limpar</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card status-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Status</div>
+              <div class="card-subtitle">Preenchimento</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="progress-ring">
+              <svg width="136" height="136" viewBox="0 0 136 136">
+                <circle cx="68" cy="68" r="54" fill="none" stroke="#222228" stroke-width="10" />
+                <circle cx="68" cy="68" r="54" fill="none" stroke="#F97316" stroke-width="10" stroke-linecap="round" stroke-dasharray="339" stroke-dashoffset="0" />
+              </svg>
+              <div class="progress-center">
+                <div>
+                  <div class="progress-value">2/2</div>
+                  <div class="progress-label">completo</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini-status-list">
+              <div class="mini-status"><span>Campeão</span><strong>Selecionado</strong></div>
+              <div class="mini-status"><span>Artilheiro</span><strong>Selecionado</strong></div>
+              <div class="mini-status"><span>Prazo</span><strong>Aberto</strong></div>
+            </div>
+
+            <div class="lock-card">
+              <div class="lock-title">Ainda editável</div>
+              <div class="lock-text">Você pode alterar esses palpites até o fechamento configurado pelo admin.</div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

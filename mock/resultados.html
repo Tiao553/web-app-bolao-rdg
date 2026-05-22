@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copa RDG — Resultados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --or:#F97316;--or-dk:#EA580C;--or-g:rgba(249,115,22,.13);--or-r:rgba(249,115,22,.26);
+      --bg:#09090B;--s0:#0F0F12;--s1:#141418;--s2:#1A1A1F;--s3:#222228;
+      --bd:#27272D;--bd2:#33333B;--tx:#E8E8EA;--tx2:#A1A1AA;--tx3:#71717A;
+      --g5:#22C55E;--g5-g:rgba(34,197,94,.12);--am:#F59E0B;--am-g:rgba(245,158,11,.12);
+      --ro:#F43F5E;--ro-g:rgba(244,63,94,.12);--gold:#EAB308;--gold-g:rgba(234,179,8,.12);
+      --shadow:0 28px 80px rgba(0,0,0,.34);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:radial-gradient(circle at 18% 8%,rgba(249,115,22,.13),transparent 30%),radial-gradient(circle at 90% 12%,rgba(249,115,22,.10),transparent 28%),var(--bg);color:var(--tx);font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.5;overflow-x:hidden}
+    .app{min-height:100vh;display:grid;grid-template-columns:260px 1fr}.sidebar{position:sticky;top:0;height:100vh;border-right:1px solid var(--bd);background:rgba(15,15,18,.86);backdrop-filter:blur(18px);padding:24px 18px;display:flex;flex-direction:column}
+    .brand-logo{display:inline-flex;align-items:center;gap:12px;width:fit-content;margin-bottom:34px}.brand-mark{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;font-size:14px;font-weight:800;letter-spacing:-.04em;box-shadow:0 16px 34px rgba(249,115,22,.22)}.brand-name{font-size:16px;font-weight:800;letter-spacing:-.02em}.brand-kicker{font-family:'Fira Code',monospace;font-size:10px;color:var(--or);text-transform:uppercase;letter-spacing:.14em;margin-top:1px}
+    .nav-section{margin-bottom:26px}.nav-title{font-family:'Fira Code',monospace;font-size:10px;color:var(--tx3);letter-spacing:.14em;text-transform:uppercase;margin:0 10px 10px}.nav-item{display:flex;align-items:center;gap:10px;height:42px;padding:0 12px;border-radius:13px;color:var(--tx2);text-decoration:none;font-size:13px;font-weight:700;margin-bottom:4px;transition:.18s}.nav-item.active{color:var(--or);background:var(--or-g);border:1px solid var(--or-r)}.nav-icon{width:20px;text-align:center;opacity:.9}
+    .sidebar-footer{margin-top:auto;border:1px solid var(--bd);background:var(--s1);border-radius:18px;padding:14px}.user-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}.avatar,.mini-avatar{border-radius:50%;display:grid;place-items:center;background:var(--or-g);border:1px solid var(--or-r);color:var(--or);font-weight:800}.avatar{width:36px;height:36px;font-size:12px}.mini-avatar{width:30px;height:30px;font-size:9px}.user-name{font-size:13px;font-weight:800}.user-role{font-family:'Fira Code',monospace;font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em}
+    .pill,.status-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;font-family:'Fira Code',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}.status-pill{height:26px;padding:0 10px;background:var(--g5-g);color:var(--g5);border:1px solid rgba(34,197,94,.26)}.pill{padding:6px 10px}.pill.ok{color:var(--g5);background:var(--g5-g);border:1px solid rgba(34,197,94,.24)}.pill.warn{color:var(--am);background:var(--am-g);border:1px solid rgba(245,158,11,.24)}.pill.bad{color:var(--ro);background:var(--ro-g);border:1px solid rgba(244,63,94,.24)}.pill.orange{color:var(--or);background:var(--or-g);border:1px solid var(--or-r)}.pill.lock{color:var(--tx3);background:var(--s2);border:1px solid var(--bd2)}.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+    .main{min-width:0;padding:26px 30px 44px}.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}.breadcrumbs{color:var(--tx3);font-family:'Fira Code',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.10em}.top-actions{display:flex;gap:10px}.ghost-button,.primary-button{height:42px;border-radius:13px;padding:0 16px;font-size:13px;font-weight:800;cursor:pointer;transition:.18s}.ghost-button{border:1px solid var(--bd2);background:var(--s1);color:var(--tx2)}.primary-button{border:0;background:linear-gradient(135deg,var(--or),var(--or-dk));color:#fff;box-shadow:0 18px 34px rgba(249,115,22,.18)}button:hover{transform:translateY(-1px)}
+    .hero{position:relative;overflow:hidden;border:1px solid var(--bd);border-radius:30px;background:linear-gradient(135deg,rgba(249,115,22,.18),rgba(20,20,24,.64) 42%,rgba(15,15,18,.96)),var(--s1);padding:30px;box-shadow:var(--shadow);margin-bottom:18px}.hero:before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(249,115,22,.16) 1px,transparent 1.5px),linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:18px 18px,56px 56px,56px 56px;mask-image:linear-gradient(to bottom right,rgba(0,0,0,.9),transparent 76%);pointer-events:none}.hero-content{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:28px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--or-r);border-radius:999px;background:var(--or-g);color:var(--or);font-family:'Fira Code',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.10em;margin-bottom:18px}.hero h1{font-size:clamp(34px,4.8vw,58px);line-height:.96;letter-spacing:-.055em;margin-bottom:16px}.hero h1 span{color:var(--or)}.hero p{color:var(--tx2);font-size:15px;max-width:650px}
+    .score-summary{border:1px solid var(--or-r);border-radius:24px;background:rgba(15,15,18,.70);backdrop-filter:blur(16px);padding:20px}.summary-label{font-family:'Fira Code',monospace;font-size:10px;color:var(--tx3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:13px}.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.summary-box{border:1px solid var(--bd2);border-radius:16px;background:var(--s0);padding:12px;text-align:center}.summary-num{font-size:28px;font-weight:900;line-height:1;letter-spacing:-.05em;color:#fff}.summary-num.orange{color:var(--or)}.summary-text{font-family:'Fira Code',monospace;font-size:9px;color:var(--tx3);text-transform:uppercase;margin-top:6px}
+    .filters{display:flex;gap:8px;overflow:auto;padding:2px 0 18px;margin-bottom:2px}.filter{flex:0 0 auto;height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--bd2);background:var(--s1);color:var(--tx2);font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:8px}.filter.active{color:var(--or);background:var(--or-g);border-color:var(--or-r)}
+    .grid{display:grid;grid-template-columns:1fr 340px;gap:18px}.card{border:1px solid var(--bd);border-radius:24px;background:rgba(20,20,24,.88);box-shadow:0 20px 50px rgba(0,0,0,.16);overflow:hidden}.card-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid var(--bd);background:rgba(26,26,31,.72)}.card-title{font-size:15px;font-weight:800;color:#fff}.card-subtitle{font-family:'Fira Code',monospace;font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.12em;margin-top:2px}.card-body{padding:16px}
+    .result-list{display:grid;gap:14px}.result-card{border:1px solid var(--bd);border-radius:20px;background:var(--s2);overflow:hidden}.result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border-bottom:1px solid var(--bd);background:rgba(15,15,18,.44)}.match-date{font-family:'Fira Code',monospace;color:var(--tx3);font-size:10px;text-transform:uppercase;letter-spacing:.10em}.match-source{font-family:'Fira Code',monospace;color:var(--or);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.result-body{padding:15px}.scoreline{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;margin-bottom:15px}.team{display:flex;align-items:center;gap:10px;min-width:0}.team.right{justify-content:flex-end}.flag{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--s0);border:1px solid var(--bd2);font-size:18px;flex:0 0 auto}.team-name{color:#fff;font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score{display:flex;align-items:center;gap:7px}.score-num{width:42px;height:42px;border-radius:14px;background:var(--s0);border:1px solid var(--or-r);display:grid;place-items:center;color:var(--or);font-family:'Fira Code',monospace;font-size:20px;font-weight:900}.score-sep{color:var(--tx3);font-family:'Fira Code',monospace;font-size:12px}.comparison{display:grid;grid-template-columns:1fr 1fr 92px;gap:12px;align-items:center;border-top:1px solid var(--bd);padding-top:14px}.compare-box{border:1px solid var(--bd);border-radius:15px;background:var(--s0);padding:11px}.compare-label{font-family:'Fira Code',monospace;color:var(--tx3);font-size:9px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px}.compare-value{color:#fff;font-size:13px;font-weight:900}.compare-value span{color:var(--or)}.points-earned{height:58px;border-radius:17px;display:grid;place-items:center;text-align:center;font-family:'Fira Code',monospace;font-weight:900;border:1px solid}.points-earned.good{color:var(--g5);background:var(--g5-g);border-color:rgba(34,197,94,.24)}.points-earned.mid{color:var(--am);background:var(--am-g);border-color:rgba(245,158,11,.24)}.points-earned.zero{color:var(--ro);background:var(--ro-g);border-color:rgba(244,63,94,.24)}.points-earned small{display:block;font-size:9px;color:var(--tx3);font-weight:700;text-transform:uppercase;margin-top:2px}
+    .side-stack{display:grid;gap:18px}.breakdown{display:grid;gap:12px}.bar-row{display:grid;grid-template-columns:105px 1fr 40px;gap:10px;align-items:center}.bar-label{font-size:12px;color:var(--tx2);font-weight:800}.bar-track{height:8px;border-radius:999px;background:var(--s3);overflow:hidden}.bar-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--or),var(--or-dk))}.bar-val{font-family:'Fira Code',monospace;font-size:11px;color:var(--or);font-weight:900;text-align:right}
+    .table-list{display:grid;gap:8px}.player-row{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--bd);border-radius:15px;background:var(--s2)}.player-pos{font-family:'Fira Code',monospace;color:var(--tx3);font-size:11px;font-weight:900;text-align:center}.player-name{color:#fff;font-size:13px;font-weight:900}.player-meta{color:var(--tx3);font-size:11px}.player-stat{font-family:'Fira Code',monospace;color:var(--or);font-size:12px;font-weight:900}.official-box{border:1px solid var(--gold);border-radius:18px;background:var(--gold-g);padding:14px}.official-label{font-family:'Fira Code',monospace;color:var(--gold);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;margin-bottom:7px}.official-title{color:#fff;font-size:16px;font-weight:900;margin-bottom:5px}.official-text{color:var(--tx2);font-size:12px}
+    @media(max-width:1180px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--bd)}.nav-section,.sidebar-footer{display:none}.hero-content,.grid{grid-template-columns:1fr}}
+    @media(max-width:720px){.main{padding:18px 14px 34px}.topbar{height:auto;align-items:flex-start;flex-direction:column}.top-actions{width:100%}.ghost-button,.primary-button{flex:1}.hero{padding:22px;border-radius:24px}.summary-grid,.comparison{grid-template-columns:1fr}.scoreline{grid-template-columns:1fr}.team.right{justify-content:flex-start}.score{justify-content:flex-start}.bar-row{grid-template-columns:1fr;gap:5px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-logo"><div class="brand-mark">RDG</div><div><div class="brand-name">Copa RDG</div><div class="brand-kicker">Bolão da Copa</div></div></div>
+      <nav>
+        <div class="nav-section"><div class="nav-title">Principal</div><a class="nav-item" href="#"><span class="nav-icon">◈</span> Dashboard</a><a class="nav-item" href="#"><span class="nav-icon">★</span> Palpites iniciais</a><a class="nav-item" href="#"><span class="nav-icon">▦</span> Palpites por fase</a><a class="nav-item active" href="#"><span class="nav-icon">◆</span> Resultados</a></div>
+        <div class="nav-section"><div class="nav-title">Competição</div><a class="nav-item" href="#"><span class="nav-icon">#</span> Ranking</a><a class="nav-item" href="#"><span class="nav-icon">⌁</span> Chaveamento</a><a class="nav-item" href="#"><span class="nav-icon">◎</span> Explore</a></div>
+      </nav>
+      <div class="sidebar-footer"><div class="user-row"><div class="avatar">SF</div><div><div class="user-name">Sebastiao</div><div class="user-role">Participante</div></div></div><div class="status-pill"><span class="dot"></span> Approved</div></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumbs">Copa RDG / Resultados</div>
+        <div class="top-actions"><button class="ghost-button" type="button">Exportar</button><button class="primary-button" type="button">Ver ranking →</button></div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-content">
+          <div>
+            <div class="eyebrow"><span class="dot"></span> Resultados oficiais</div>
+            <h1>Confira seus pontos por <span>partida</span>.</h1>
+            <p>Veja o resultado oficial importado ou corrigido pelo administrador, compare com seu palpite e acompanhe a pontuação gerada por placar exato, vencedor/empate ou jogos do Brasil.</p>
+          </div>
+          <div class="score-summary">
+            <div class="summary-label">Resumo desta fase</div>
+            <div class="summary-grid">
+              <div class="summary-box"><div class="summary-num orange">23</div><div class="summary-text">pontos</div></div>
+              <div class="summary-box"><div class="summary-num">4</div><div class="summary-text">exatos</div></div>
+              <div class="summary-box"><div class="summary-num">2</div><div class="summary-text">Brasil ×2</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="filters">
+        <button class="filter active"><span class="dot"></span> Todos</button>
+        <button class="filter">Placar exato</button>
+        <button class="filter">Acertou resultado</button>
+        <button class="filter">Errou</button>
+        <button class="filter">Brasil ×2</button>
+        <button class="filter">Grupo A</button>
+        <button class="filter">Mata-mata</button>
+      </div>
+
+      <section class="grid">
+        <article class="card">
+          <div class="card-header"><div><div class="card-title">Partidas finalizadas</div><div class="card-subtitle">Resultado oficial × seu palpite</div></div><div class="pill ok"><span class="dot"></span> atualizado</div></div>
+          <div class="card-body">
+            <div class="result-list">
+              <div class="result-card">
+                <div class="result-head"><span class="match-date">15 Jun · Grupo A</span><span class="match-source">manual override</span></div>
+                <div class="result-body">
+                  <div class="scoreline"><div class="team"><div class="flag">🇧🇷</div><div class="team-name">Brasil</div></div><div class="score"><div class="score-num">2</div><div class="score-sep">×</div><div class="score-num">1</div></div><div class="team right"><div class="team-name">Alemanha</div><div class="flag">🇩🇪</div></div></div>
+                  <div class="comparison"><div class="compare-box"><div class="compare-label">Seu palpite</div><div class="compare-value"><span>2</span> × <span>1</span> · Brasil vence</div></div><div class="compare-box"><div class="compare-label">Regra aplicada</div><div class="compare-value">Placar exato + Brasil ×2</div></div><div class="points-earned good">+6<small>pts</small></div></div>
+                </div>
+              </div>
+
+              <div class="result-card">
+                <div class="result-head"><span class="match-date">15 Jun · Grupo A</span><span class="match-source">google api</span></div>
+                <div class="result-body">
+                  <div class="scoreline"><div class="team"><div class="flag">🇲🇽</div><div class="team-name">México</div></div><div class="score"><div class="score-num">0</div><div class="score-sep">×</div><div class="score-num">0</div></div><div class="team right"><div class="team-name">Japão</div><div class="flag">🇯🇵</div></div></div>
+                  <div class="comparison"><div class="compare-box"><div class="compare-label">Seu palpite</div><div class="compare-value"><span>1</span> × <span>1</span> · empate</div></div><div class="compare-box"><div class="compare-label">Regra aplicada</div><div class="compare-value">Acertou empate</div></div><div class="points-earned mid">+1<small>pt</small></div></div>
+                </div>
+              </div>
+
+              <div class="result-card">
+                <div class="result-head"><span class="match-date">16 Jun · Grupo A</span><span class="match-source">google api</span></div>
+                <div class="result-body">
+                  <div class="scoreline"><div class="team"><div class="flag">🇪🇸</div><div class="team-name">Espanha</div></div><div class="score"><div class="score-num">1</div><div class="score-sep">×</div><div class="score-num">2</div></div><div class="team right"><div class="team-name">Estados Unidos</div><div class="flag">🇺🇸</div></div></div>
+                  <div class="comparison"><div class="compare-box"><div class="compare-label">Seu palpite</div><div class="compare-value"><span>3</span> × <span>0</span> · Espanha vence</div></div><div class="compare-box"><div class="compare-label">Regra aplicada</div><div class="compare-value">Errou vencedor</div></div><div class="points-earned zero">+0<small>pts</small></div></div>
+                </div>
+              </div>
+
+              <div class="result-card">
+                <div class="result-head"><span class="match-date">17 Jun · Grupo B</span><span class="match-source">google api</span></div>
+                <div class="result-body">
+                  <div class="scoreline"><div class="team"><div class="flag">🇫🇷</div><div class="team-name">França</div></div><div class="score"><div class="score-num">3</div><div class="score-sep">×</div><div class="score-num">0</div></div><div class="team right"><div class="team-name">Canadá</div><div class="flag">🇨🇦</div></div></div>
+                  <div class="comparison"><div class="compare-box"><div class="compare-label">Seu palpite</div><div class="compare-value"><span>2</span> × <span>0</span> · França vence</div></div><div class="compare-box"><div class="compare-label">Regra aplicada</div><div class="compare-value">Acertou vencedor</div></div><div class="points-earned mid">+1<small>pt</small></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="side-stack">
+          <div class="card"><div class="card-header"><div><div class="card-title">Breakdown</div><div class="card-subtitle">Pontos por regra</div></div></div><div class="card-body"><div class="breakdown"><div class="bar-row"><div class="bar-label">Exatos</div><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><div class="bar-val">12</div></div><div class="bar-row"><div class="bar-label">Resultado</div><div class="bar-track"><div class="bar-fill" style="width:45%"></div></div><div class="bar-val">5</div></div><div class="bar-row"><div class="bar-label">Brasil ×2</div><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><div class="bar-val">6</div></div><div class="bar-row"><div class="bar-label">Total</div><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div><div class="bar-val">23</div></div></div></div></div>
+
+          <div class="card"><div class="card-header"><div><div class="card-title">Artilharia</div><div class="card-subtitle">Gols + assistências</div></div></div><div class="card-body"><div class="official-box"><div class="official-label">critério oficial</div><div class="official-title">Gols, depois assistências</div><div class="official-text">Em caso de empate em gols, vence quem tiver mais assistências. Se continuar empatado, todos seguem válidos.</div></div><div style="height:14px"></div><div class="table-list"><div class="player-row"><div class="player-pos">1</div><div><div class="player-name">Mbappé</div><div class="player-meta">França · 6 gols · 2 ast</div></div><div class="player-stat">6G</div></div><div class="player-row"><div class="player-pos">2</div><div><div class="player-name">Vinícius Jr.</div><div class="player-meta">Brasil · 6 gols · 1 ast</div></div><div class="player-stat">6G</div></div><div class="player-row"><div class="player-pos">3</div><div><div class="player-name">Kane</div><div class="player-meta">Inglaterra · 5 gols · 1 ast</div></div><div class="player-stat">5G</div></div></div></div></div>
+
+          <div class="card"><div class="card-header"><div><div class="card-title">Campeão oficial</div><div class="card-subtitle">Resultado do torneio</div></div></div><div class="card-body"><div class="result-card"><div class="result-body"><div class="scoreline" style="grid-template-columns:1fr"><div class="team"><div class="flag">🇧🇷</div><div><div class="team-name">Brasil</div><div style="color:var(--tx3);font-size:12px">Seu palpite: Brasil</div></div></div></div><div class="comparison" style="grid-template-columns:1fr 80px"><div class="compare-box"><div class="compare-label">Regra aplicada</div><div class="compare-value">Acertou campeão</div></div><div class="points-earned good">+10<small>pts</small></div></div></div></div></div></div>
+        </aside>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

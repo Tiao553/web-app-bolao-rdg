@@ -1,0 +1,115 @@
+{
+  "_meta": {
+    "source": "Fox Sports / Yahoo Sports / Al Jazeera — World Cup 2026 Official Schedule",
+    "generatedAt": "2026-05-21",
+    "totalMatches": 72,
+    "phase": "GROUP_STAGE",
+    "rounds": 3,
+    "note": "Horários em UTC. Partidas do Brasil têm hasSpecialMultiplier=true e multiplierValue=2. Rodada 3 de cada grupo é sempre simultânea para evitar conluio.",
+    "venues": {
+      "estadio_azteca":      { "city": "Mexico City",   "country": "Mexico" },
+      "estadio_akron":       { "city": "Guadalajara",   "country": "Mexico" },
+      "estadio_bbva":        { "city": "Monterrey",     "country": "Mexico" },
+      "sofi_stadium":        { "city": "Los Angeles",   "state": "CA", "country": "USA" },
+      "levis_stadium":       { "city": "Santa Clara",   "state": "CA", "country": "USA" },
+      "lumen_field":         { "city": "Seattle",       "state": "WA", "country": "USA" },
+      "arrowhead_stadium":   { "city": "Kansas City",   "state": "MO", "country": "USA" },
+      "metlife_stadium":     { "city": "East Rutherford","state": "NJ", "country": "USA" },
+      "lincoln_financial":   { "city": "Philadelphia",  "state": "PA", "country": "USA" },
+      "gillette_stadium":    { "city": "Foxborough",    "state": "MA", "country": "USA" },
+      "hard_rock_stadium":   { "city": "Miami Gardens", "state": "FL", "country": "USA" },
+      "mercedes_benz":       { "city": "Atlanta",       "state": "GA", "country": "USA" },
+      "nrg_stadium":         { "city": "Houston",       "state": "TX", "country": "USA" },
+      "att_stadium":         { "city": "Arlington",     "state": "TX", "country": "USA" },
+      "bmo_field":           { "city": "Toronto",       "country": "Canada" },
+      "bc_place":            { "city": "Vancouver",     "country": "Canada" }
+    }
+  },
+  "matches": [
+
+    { "id": 1,  "group": "A", "round": 1, "homeTeam": "MEX", "awayTeam": "RSA", "startsAt": "2026-06-11T19:00:00Z", "venue": "estadio_azteca",    "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 2,  "group": "A", "round": 1, "homeTeam": "KOR", "awayTeam": "CZE", "startsAt": "2026-06-12T02:00:00Z", "venue": "estadio_akron",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 3,  "group": "A", "round": 2, "homeTeam": "CZE", "awayTeam": "RSA", "startsAt": "2026-06-18T16:00:00Z", "venue": "mercedes_benz",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 4,  "group": "A", "round": 2, "homeTeam": "MEX", "awayTeam": "KOR", "startsAt": "2026-06-19T01:00:00Z", "venue": "estadio_akron",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 5,  "group": "A", "round": 3, "homeTeam": "CZE", "awayTeam": "MEX", "startsAt": null,                   "venue": null,                "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 6,  "group": "A", "round": 3, "homeTeam": "RSA", "awayTeam": "KOR", "startsAt": null,                   "venue": null,                "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 7,  "group": "B", "round": 1, "homeTeam": "CAN", "awayTeam": "BIH", "startsAt": "2026-06-12T19:00:00Z", "venue": "bmo_field",         "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 8,  "group": "B", "round": 1, "homeTeam": "QAT", "awayTeam": "SUI", "startsAt": "2026-06-13T19:00:00Z", "venue": "levis_stadium",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 9,  "group": "B", "round": 2, "homeTeam": "SUI", "awayTeam": "BIH", "startsAt": "2026-06-18T19:00:00Z", "venue": "sofi_stadium",      "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 10, "group": "B", "round": 2, "homeTeam": "CAN", "awayTeam": "QAT", "startsAt": "2026-06-18T22:00:00Z", "venue": "bc_place",          "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 11, "group": "B", "round": 3, "homeTeam": "SUI", "awayTeam": "CAN", "startsAt": "2026-06-24T19:00:00Z", "venue": "bc_place",          "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 12, "group": "B", "round": 3, "homeTeam": "BIH", "awayTeam": "QAT", "startsAt": "2026-06-24T19:00:00Z", "venue": "lumen_field",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 13, "group": "C", "round": 1, "homeTeam": "BRA", "awayTeam": "MAR", "startsAt": "2026-06-13T22:00:00Z", "venue": "metlife_stadium",   "hasSpecialMultiplier": true,  "multiplierValue": 2 },
+    { "id": 14, "group": "C", "round": 1, "homeTeam": "HAI", "awayTeam": "SCO", "startsAt": "2026-06-14T01:00:00Z", "venue": "gillette_stadium",  "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 15, "group": "C", "round": 2, "homeTeam": "SCO", "awayTeam": "MAR", "startsAt": "2026-06-19T19:00:00Z", "venue": "gillette_stadium",  "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 16, "group": "C", "round": 2, "homeTeam": "BRA", "awayTeam": "HAI", "startsAt": "2026-06-20T01:00:00Z", "venue": "lincoln_financial", "hasSpecialMultiplier": true,  "multiplierValue": 2 },
+    { "id": 17, "group": "C", "round": 3, "homeTeam": "BRA", "awayTeam": "SCO", "startsAt": "2026-06-24T22:00:00Z", "venue": "hard_rock_stadium", "hasSpecialMultiplier": true,  "multiplierValue": 2 },
+    { "id": 18, "group": "C", "round": 3, "homeTeam": "MAR", "awayTeam": "HAI", "startsAt": "2026-06-24T22:00:00Z", "venue": "mercedes_benz",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 19, "group": "D", "round": 1, "homeTeam": "USA", "awayTeam": "PAR", "startsAt": "2026-06-13T01:00:00Z", "venue": "sofi_stadium",      "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 20, "group": "D", "round": 1, "homeTeam": "AUS", "awayTeam": "TUR", "startsAt": "2026-06-13T04:00:00Z", "venue": "bc_place",          "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 21, "group": "D", "round": 2, "homeTeam": "USA", "awayTeam": "AUS", "startsAt": "2026-06-19T19:00:00Z", "venue": "lumen_field",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 22, "group": "D", "round": 2, "homeTeam": "TUR", "awayTeam": "PAR", "startsAt": "2026-06-19T04:00:00Z", "venue": "levis_stadium",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 23, "group": "D", "round": 3, "homeTeam": "USA", "awayTeam": "TUR", "startsAt": "2026-06-26T02:00:00Z", "venue": "sofi_stadium",      "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 24, "group": "D", "round": 3, "homeTeam": "PAR", "awayTeam": "AUS", "startsAt": "2026-06-26T02:00:00Z", "venue": "levis_stadium",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 25, "group": "E", "round": 1, "homeTeam": "GER", "awayTeam": "CUW", "startsAt": "2026-06-14T17:00:00Z", "venue": "nrg_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 26, "group": "E", "round": 1, "homeTeam": "CIV", "awayTeam": "ECU", "startsAt": "2026-06-14T23:00:00Z", "venue": "lincoln_financial", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 27, "group": "E", "round": 2, "homeTeam": "GER", "awayTeam": "CIV", "startsAt": "2026-06-20T20:00:00Z", "venue": "bmo_field",         "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 28, "group": "E", "round": 2, "homeTeam": "ECU", "awayTeam": "CUW", "startsAt": "2026-06-21T00:00:00Z", "venue": "arrowhead_stadium", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 29, "group": "E", "round": 3, "homeTeam": "ECU", "awayTeam": "GER", "startsAt": "2026-06-25T20:00:00Z", "venue": "metlife_stadium",   "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 30, "group": "E", "round": 3, "homeTeam": "CUW", "awayTeam": "CIV", "startsAt": "2026-06-25T20:00:00Z", "venue": "lincoln_financial", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 31, "group": "F", "round": 1, "homeTeam": "NED", "awayTeam": "JPN", "startsAt": "2026-06-14T20:00:00Z", "venue": "att_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 32, "group": "F", "round": 1, "homeTeam": "SWE", "awayTeam": "TUN", "startsAt": "2026-06-15T02:00:00Z", "venue": "estadio_bbva",      "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 33, "group": "F", "round": 2, "homeTeam": "NED", "awayTeam": "SWE", "startsAt": "2026-06-20T17:00:00Z", "venue": "nrg_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 34, "group": "F", "round": 2, "homeTeam": "TUN", "awayTeam": "JPN", "startsAt": "2026-06-21T04:00:00Z", "venue": "estadio_bbva",      "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 35, "group": "F", "round": 3, "homeTeam": "JPN", "awayTeam": "SWE", "startsAt": "2026-06-25T23:00:00Z", "venue": "att_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 36, "group": "F", "round": 3, "homeTeam": "TUN", "awayTeam": "NED", "startsAt": "2026-06-25T23:00:00Z", "venue": "arrowhead_stadium", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 37, "group": "G", "round": 1, "homeTeam": "BEL", "awayTeam": "EGY", "startsAt": "2026-06-15T19:00:00Z", "venue": "lumen_field",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 38, "group": "G", "round": 1, "homeTeam": "IRN", "awayTeam": "NZL", "startsAt": "2026-06-16T01:00:00Z", "venue": "sofi_stadium",      "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 39, "group": "G", "round": 2, "homeTeam": "BEL", "awayTeam": "IRN", "startsAt": "2026-06-21T19:00:00Z", "venue": "sofi_stadium",      "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 40, "group": "G", "round": 2, "homeTeam": "NZL", "awayTeam": "EGY", "startsAt": "2026-06-22T01:00:00Z", "venue": "bc_place",          "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 41, "group": "G", "round": 3, "homeTeam": "EGY", "awayTeam": "IRN", "startsAt": "2026-06-27T03:00:00Z", "venue": "lumen_field",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 42, "group": "G", "round": 3, "homeTeam": "NZL", "awayTeam": "BEL", "startsAt": "2026-06-27T03:00:00Z", "venue": "bc_place",          "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 43, "group": "H", "round": 1, "homeTeam": "ESP", "awayTeam": "CPV", "startsAt": "2026-06-15T16:00:00Z", "venue": "mercedes_benz",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 44, "group": "H", "round": 1, "homeTeam": "KSA", "awayTeam": "URU", "startsAt": "2026-06-15T22:00:00Z", "venue": "hard_rock_stadium", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 45, "group": "H", "round": 2, "homeTeam": "ESP", "awayTeam": "KSA", "startsAt": "2026-06-21T16:00:00Z", "venue": "mercedes_benz",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 46, "group": "H", "round": 2, "homeTeam": "URU", "awayTeam": "CPV", "startsAt": "2026-06-21T22:00:00Z", "venue": "hard_rock_stadium", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 47, "group": "H", "round": 3, "homeTeam": "URU", "awayTeam": "ESP", "startsAt": "2026-06-27T00:00:00Z", "venue": "estadio_akron",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 48, "group": "H", "round": 3, "homeTeam": "CPV", "awayTeam": "KSA", "startsAt": "2026-06-27T00:00:00Z", "venue": "nrg_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 49, "group": "I", "round": 1, "homeTeam": "FRA", "awayTeam": "SEN", "startsAt": "2026-06-16T19:00:00Z", "venue": "metlife_stadium",   "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 50, "group": "I", "round": 1, "homeTeam": "IRQ", "awayTeam": "NOR", "startsAt": "2026-06-16T22:00:00Z", "venue": "gillette_stadium",  "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 51, "group": "I", "round": 2, "homeTeam": "FRA", "awayTeam": "IRQ", "startsAt": "2026-06-22T21:00:00Z", "venue": "lincoln_financial", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 52, "group": "I", "round": 2, "homeTeam": "NOR", "awayTeam": "SEN", "startsAt": "2026-06-23T00:00:00Z", "venue": "metlife_stadium",   "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 53, "group": "I", "round": 3, "homeTeam": "NOR", "awayTeam": "FRA", "startsAt": "2026-06-26T19:00:00Z", "venue": "gillette_stadium",  "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 54, "group": "I", "round": 3, "homeTeam": "SEN", "awayTeam": "IRQ", "startsAt": "2026-06-26T19:00:00Z", "venue": "bmo_field",         "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 55, "group": "J", "round": 1, "homeTeam": "ARG", "awayTeam": "ALG", "startsAt": "2026-06-17T01:00:00Z", "venue": "arrowhead_stadium", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 56, "group": "J", "round": 1, "homeTeam": "AUT", "awayTeam": "JOR", "startsAt": "2026-06-17T04:00:00Z", "venue": "levis_stadium",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 57, "group": "J", "round": 2, "homeTeam": "ARG", "awayTeam": "AUT", "startsAt": "2026-06-22T17:00:00Z", "venue": "att_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 58, "group": "J", "round": 2, "homeTeam": "JOR", "awayTeam": "ALG", "startsAt": "2026-06-23T03:00:00Z", "venue": "levis_stadium",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 59, "group": "J", "round": 3, "homeTeam": "JOR", "awayTeam": "ARG", "startsAt": "2026-06-28T02:00:00Z", "venue": "att_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 60, "group": "J", "round": 3, "homeTeam": "ALG", "awayTeam": "AUT", "startsAt": "2026-06-28T02:00:00Z", "venue": "arrowhead_stadium", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 61, "group": "K", "round": 1, "homeTeam": "POR", "awayTeam": "COD", "startsAt": "2026-06-17T17:00:00Z", "venue": "nrg_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 62, "group": "K", "round": 1, "homeTeam": "UZB", "awayTeam": "COL", "startsAt": "2026-06-18T02:00:00Z", "venue": "estadio_azteca",    "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 63, "group": "K", "round": 2, "homeTeam": "POR", "awayTeam": "UZB", "startsAt": "2026-06-23T17:00:00Z", "venue": "nrg_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 64, "group": "K", "round": 2, "homeTeam": "COL", "awayTeam": "COD", "startsAt": "2026-06-24T02:00:00Z", "venue": "estadio_akron",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 65, "group": "K", "round": 3, "homeTeam": "COL", "awayTeam": "POR", "startsAt": "2026-06-27T23:30:00Z", "venue": "hard_rock_stadium", "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 66, "group": "K", "round": 3, "homeTeam": "COD", "awayTeam": "UZB", "startsAt": "2026-06-27T23:30:00Z", "venue": "mercedes_benz",     "hasSpecialMultiplier": false, "multiplierValue": 1 },
+
+    { "id": 67, "group": "L", "round": 1, "homeTeam": "ENG", "awayTeam": "CRO", "startsAt": "2026-06-17T20:00:00Z", "venue": "att_stadium",       "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 68, "group": "L", "round": 1, "homeTeam": "GHA", "awayTeam": "PAN", "startsAt": "2026-06-17T23:00:00Z", "venue": "bmo_field",         "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 69, "group": "L", "round": 2, "homeTeam": "ENG", "awayTeam": "GHA", "startsAt": "2026-06-23T20:00:00Z", "venue": "gillette_stadium",  "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 70, "group": "L", "round": 2, "homeTeam": "PAN", "awayTeam": "CRO", "startsAt": "2026-06-23T23:00:00Z", "venue": "bmo_field",         "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 71, "group": "L", "round": 3, "homeTeam": "PAN", "awayTeam": "ENG", "startsAt": "2026-06-27T21:00:00Z", "venue": "metlife_stadium",   "hasSpecialMultiplier": false, "multiplierValue": 1 },
+    { "id": 72, "group": "L", "round": 3, "homeTeam": "CRO", "awayTeam": "GHA", "startsAt": "2026-06-27T21:00:00Z", "venue": "lincoln_financial", "hasSpecialMultiplier": false, "multiplierValue": 1 }
+
+  ]
+}

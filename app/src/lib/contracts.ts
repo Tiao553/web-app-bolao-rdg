@@ -1,0 +1,266 @@
+import type { SessionPayload } from './api-client';
+
+export type SessionContract = SessionPayload;
+
+export type MemberCompetitionWindowContract = {
+  predictionCloseAt: string;
+  exploreReleaseAt: string;
+  predictionLocked: boolean;
+  exploreReleased: boolean;
+};
+
+export type MemberDashboardContract = {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    accessStatus: string;
+    isAdmin: boolean;
+  };
+  competition: MemberCompetitionWindowContract;
+  rankingPosition: number | null;
+  totalPoints: number;
+  savedMatchPredictions: number;
+  savedBonusPredictions: number;
+};
+
+export type MatchPredictionContract = {
+  id: string;
+  matchId: string;
+  homeGoals: number;
+  awayGoals: number;
+  pointsAwarded: number | null;
+  lockedAt: string | null;
+};
+
+export type CompetitionPredictionContract = {
+  id: string;
+  predictionType: 'CHAMPION' | 'TOP_SCORER';
+  selectionKey: string;
+  selectionLabel: string;
+  pointsAwarded: number | null;
+  lockedAt: string | null;
+};
+
+export type MemberPredictionsContract = {
+  competition: MemberCompetitionWindowContract;
+  matchPredictions: MatchPredictionContract[];
+  competitionPredictions: CompetitionPredictionContract[];
+};
+
+export type RankingRowContract = {
+  rank: number;
+  userId: string;
+  fullName: string;
+  totalPoints: number;
+  matchPoints: number;
+  bonusPoints: number;
+};
+
+export type RankingContract = {
+  rows: RankingRowContract[];
+  currentUserRank: number | null;
+};
+
+export type ExploreMatchPredictionContract = {
+  userId: string;
+  userName: string;
+  matchId: string;
+  homeGoals: number;
+  awayGoals: number;
+  pointsAwarded: number | null;
+};
+
+export type ExploreCompetitionPredictionContract = {
+  userId: string;
+  userName: string;
+  predictionType: 'CHAMPION' | 'TOP_SCORER';
+  selectionKey: string;
+  selectionLabel: string;
+  pointsAwarded: number | null;
+};
+
+export type ExploreContract = {
+  exploreReleased: boolean;
+  matchPredictions: ExploreMatchPredictionContract[];
+  competitionPredictions: ExploreCompetitionPredictionContract[];
+};
+
+export type AdminUserContract = {
+  id: string;
+  email: string;
+  full_name: string;
+  access_status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'BLOCKED';
+  is_admin: boolean;
+  created_at: string;
+  updated_at: string;
+  last_login_at: string | null;
+};
+
+export type AdminCompetitionWindowContract = {
+  id: string;
+  name: string;
+  prediction_close_at: string;
+  explore_release_at: string;
+  is_active: boolean;
+};
+
+export type AdminSyncRunContract = {
+  provider: string;
+  status: string;
+  operation: string;
+  message: string;
+  recalculation: {
+    matchesProcessed?: number;
+    predictionsUpdated?: number;
+    rankingEntries?: number;
+  } | null;
+};
+
+export type MemberResultMatchContract = {
+  matchId: string;
+  phase: string;
+  slot: string | null;
+  groupName: string | null;
+  status: string;
+  startsAt: string | null;
+  homeTeam: string;
+  awayTeam: string;
+  officialHomeGoals: number | null;
+  officialAwayGoals: number | null;
+  predictedHomeGoals: number | null;
+  predictedAwayGoals: number | null;
+  pointsAwarded: number | null;
+  involvesBrazil: boolean;
+};
+
+export type MemberResultsContract = {
+  summary: {
+    totalPoints: number;
+    exactHits: number;
+    correctOutcomes: number;
+    brazilBonusHits: number;
+    championPoints: number;
+    topScorerPoints: number;
+  };
+  matches: MemberResultMatchContract[];
+};
+
+export type BracketMatchContract = {
+  matchId: string | null;
+  phase: string;
+  slot: string;
+  startsAt: string | null;
+  homeTeam: string | null;
+  awayTeam: string | null;
+  winnerTeam: string | null;
+  feederHomeKey: string | null;
+  feederAwayKey: string | null;
+  hasManualOverride: boolean;
+};
+
+export type MemberBracketContract = {
+  championPrediction: string | null;
+  thirdPlaceSlots: Array<{
+    slot: string;
+    assignedGroup: string | null;
+    assignedTeam: string | null;
+  }>;
+  matches: BracketMatchContract[];
+};
+
+export type AdminDashboardContract = {
+  users: {
+    total: number;
+    approved: number;
+    pending: number;
+    rejected: number;
+    blocked: number;
+  };
+  matches: {
+    total: number;
+    scheduled: number;
+    finished: number;
+    overridden: number;
+  };
+  latestSyncs: Array<{
+    id: string;
+    provider: string;
+    status: string;
+    operation: string;
+    message: string;
+    createdAt: string;
+  }>;
+  predictionCloseAt: string;
+  exploreReleaseAt: string;
+};
+
+export type AdminIntegrationContract = {
+  primaryProvider: string;
+  fallbackProvider: string;
+  apiConfigured: boolean;
+  dailyRunLimit: number;
+  allowedTerminalStatuses: string[];
+  lastSyncs: Array<{
+    id: string;
+    provider: string;
+    status: string;
+    operation: string;
+    message: string;
+    createdAt: string;
+  }>;
+};
+
+export type AdminMatchRowContract = {
+  id: string;
+  phase: string;
+  groupName: string | null;
+  bracketSlot: string | null;
+  status: string;
+  startsAt: string | null;
+  venue: string | null;
+  homeTeam: string;
+  awayTeam: string;
+  officialHomeGoals: number | null;
+  officialAwayGoals: number | null;
+  winnerTeam: string | null;
+  hasManualOverride: boolean;
+  externalProvider: string | null;
+  externalId: string | null;
+};
+
+export type AdminMatchesContract = {
+  summary: {
+    total: number;
+    scheduled: number;
+    finished: number;
+    overridden: number;
+  };
+  matches: AdminMatchRowContract[];
+};
+
+export type AdminPlayersContract = {
+  topScorerPoints: number;
+  leaders: Array<{
+    selectionKey: string;
+    selectionLabel: string;
+    predictionCount: number;
+    pointsAwardedTotal: number;
+  }>;
+};
+
+export type AdminSettingsContract = {
+  competitionWindow: AdminCompetitionWindowContract;
+  scoring: {
+    exact_points: number;
+    result_points: number;
+    brazil_multiplier: number;
+    champion_points: number;
+    top_scorer_points: number;
+  };
+  sync: {
+    post_match_offset_minutes: number;
+    allowed_terminal_statuses: string[];
+    max_runs_per_day: number;
+  };
+};
