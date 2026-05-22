@@ -9,6 +9,7 @@ from fastapi import Depends
 from sqlalchemy import create_engine, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
+from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import Select
 
 from app.core.config import Settings, get_settings
@@ -25,6 +26,7 @@ from app.models.schema import (
 
 
 def normalize_database_url(database_url: str) -> str:
+    database_url = database_url.strip().strip("'\"")
     if database_url.startswith("postgres://"):
         return database_url.replace("postgres://", "postgresql+psycopg://", 1)
     if database_url.startswith("postgresql://") and "+" not in database_url.split("://", 1)[0]:
@@ -66,6 +68,8 @@ def get_engine() -> Engine:
         settings = get_runtime_settings()
         _engine = create_engine(
             normalize_database_url(settings.database_url),
+            connect_args={"connect_timeout": 10},
+            poolclass=NullPool,
             pool_pre_ping=True,
             future=True,
         )

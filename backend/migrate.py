@@ -8,6 +8,16 @@ import os
 import sys
 
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.pool import NullPool
+
+
+def normalize_database_url(database_url: str) -> str:
+    database_url = database_url.strip().strip("'\"")
+    if database_url.startswith("postgres://"):
+        return database_url.replace("postgres://", "postgresql+psycopg://", 1)
+    if database_url.startswith("postgresql://") and "+" not in database_url.split("://", 1)[0]:
+        return database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return database_url
 
 
 def run_migrations() -> None:
@@ -19,7 +29,11 @@ def run_migrations() -> None:
     # Delay import so DATABASE_URL is set before settings load
     from app.models.schema import Base
 
-    engine = create_engine(database_url)
+    engine = create_engine(
+        normalize_database_url(database_url),
+        connect_args={"connect_timeout": 10},
+        poolclass=NullPool,
+    )
 
     print("Running schema migration (create_all) …", flush=True)
     with engine.begin() as conn:
