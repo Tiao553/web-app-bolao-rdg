@@ -28,7 +28,13 @@ class MemberResultMatchDto(BaseModel):
     status: str
     startsAt: datetime | None
     homeTeam: str
+    homeCode: str | None
+    homeIso2: str | None
+    homeFlag: str
     awayTeam: str
+    awayCode: str | None
+    awayIso2: str | None
+    awayFlag: str
     officialHomeGoals: int | None
     officialAwayGoals: int | None
     predictedHomeGoals: int | None
@@ -52,7 +58,13 @@ class BracketMatchDto(BaseModel):
     slot: str
     startsAt: datetime | None
     homeTeam: str | None
+    homeCode: str | None
+    homeIso2: str | None
+    homeFlag: str | None
     awayTeam: str | None
+    awayCode: str | None
+    awayIso2: str | None
+    awayFlag: str | None
     winnerTeam: str | None
     feederHomeKey: str | None
     feederAwayKey: str | None
@@ -137,7 +149,13 @@ class AdminMatchRowDto(BaseModel):
     startsAt: datetime | None
     venue: str | None
     homeTeam: str
+    homeCode: str | None
+    homeIso2: str | None
+    homeFlag: str
     awayTeam: str
+    awayCode: str | None
+    awayIso2: str | None
+    awayFlag: str
     officialHomeGoals: int | None
     officialAwayGoals: int | None
     winnerTeam: str | None
@@ -158,6 +176,10 @@ class AdminPlayerRowDto(BaseModel):
 
     selectionKey: str
     selectionLabel: str
+    teamCode: str | None
+    teamName: str | None
+    teamIso2: str | None
+    teamFlag: str | None
     predictionCount: int
     pointsAwardedTotal: int
 

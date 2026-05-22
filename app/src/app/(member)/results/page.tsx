@@ -1,3 +1,4 @@
+import { TeamBadge } from '../../../components/ui/team-badge';
 import type { MemberResultsContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
 
@@ -45,13 +46,13 @@ export default async function ResultsPage() {
                     </div>
                     <div className="result-body">
                       <div className="scoreline">
-                        <div className="team"><span className="flag">🏳️</span><div className="team-name">{m.homeTeam}</div></div>
+                        <div className="team"><TeamBadge name={m.homeTeam} flag={m.homeFlag} code={m.homeCode} align="center" /></div>
                         <div className="score">
                           <span>{m.officialHomeGoals ?? '—'}</span>
                           <span className="score-sep">×</span>
                           <span>{m.officialAwayGoals ?? '—'}</span>
                         </div>
-                        <div className="team right"><span className="flag">🏳️</span><div className="team-name">{m.awayTeam}</div></div>
+                        <div className="team right"><TeamBadge name={m.awayTeam} flag={m.awayFlag} code={m.awayCode} align="center" /></div>
                       </div>
                       <div className="comparison">
                         <div className="compare-box">

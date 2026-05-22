@@ -1,3 +1,4 @@
+import { TeamBadge } from '../../../../components/ui/team-badge';
 import type { AdminMatchesContract } from '../../../../lib/contracts';
 import { fetchBackendData } from '../../../../lib/session';
 
@@ -61,9 +62,9 @@ export default async function AdminMatchesPage() {
                 <div key={m.id} className="match-row-admin">
                   <div className="admin-date">J{String(i + 1).padStart(2, '0')}</div>
                   <div className="admin-teams">
-                    <div className="admin-team">{m.homeTeam}</div>
+                    <div className="admin-team"><TeamBadge name={m.homeTeam} flag={m.homeFlag} code={m.homeCode} compact /></div>
                     <span className="admin-vs">vs</span>
-                    <div className="admin-team">{m.awayTeam}</div>
+                    <div className="admin-team"><TeamBadge name={m.awayTeam} flag={m.awayFlag} code={m.awayCode} compact /></div>
                   </div>
                   <div className="admin-date">{m.startsAt ? new Date(m.startsAt).toLocaleDateString('pt-BR') : '—'}</div>
                   <div>

@@ -1,13 +1,11 @@
 'use client';
 import { useState, useMemo } from 'react';
+import { TeamBadge } from '../../../components/ui/team-badge';
 
-type Team = { id: string; name: string; code: string; iso2: string; group: string };
+type Team = { id: string; name: string; code: string; iso2: string; flag?: string; group: string };
 type Player = { id: string; name: string; teamCode: string; position: string; club: string; nationality: string };
 type Prediction = { predictionType: string; selectionKey: string; selectionLabel: string; pointsAwarded: number | null; lockedAt: string | null };
 
-function iso2Flag(iso2: string) {
-  return iso2.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397));
-}
 function initials(name: string) {
   return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
@@ -28,6 +26,8 @@ export function InitialPredictionsClient({
   const [editingChampion, setEditingChampion] = useState(!champion?.selectionKey);
   const [editingScorer, setEditingScorer] = useState(!scorer?.selectionKey);
 
+  const teamsByCode = useMemo(() => new Map(teams.map(t => [t.code, t])), [teams]);
+
   const filteredTeams = useMemo(() =>
     teamSearch.trim()
       ? teams.filter(t => t.name.toLowerCase().includes(teamSearch.toLowerCase()))
@@ -38,12 +38,14 @@ export function InitialPredictionsClient({
     playerSearch.trim()
       ? players.filter(p =>
           p.name.toLowerCase().includes(playerSearch.toLowerCase()) ||
-          p.nationality.toLowerCase().includes(playerSearch.toLowerCase()))
+          p.nationality.toLowerCase().includes(playerSearch.toLowerCase()) ||
+          (teamsByCode.get(p.teamCode)?.name.toLowerCase().includes(playerSearch.toLowerCase()) ?? false))
       : players,
-    [players, playerSearch]);
+    [players, playerSearch, teamsByCode]);
 
   const championTeam = teams.find(t => t.code === selectedChampion);
   const scorerPlayer = players.find(p => p.id === selectedScorer);
+  const scorerTeam = scorerPlayer ? teamsByCode.get(scorerPlayer.teamCode) : undefined;
 
   return (
     <>
@@ -75,10 +77,9 @@ export function InitialPredictionsClient({
             {!editingChampion && championTeam && (
               <div>
                 <div className="pick-selected-card">
-                  <div className="flag" style={{ fontSize: 28 }}>{iso2Flag(championTeam.iso2)}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 11, color: 'var(--tx3)', fontFamily: 'Fira Code', textTransform: 'uppercase', letterSpacing: '.08em' }}>Campeão selecionado</div>
-                    <div style={{ fontSize: 16, fontWeight: 800 }}>{championTeam.name}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800 }}><TeamBadge name={championTeam.name} flag={championTeam.flag} code={championTeam.code} /></div>
                     <div style={{ fontSize: 12, color: 'var(--tx3)' }}>Grupo {championTeam.group}</div>
                   </div>
                   <div className="pick-points">10 pts</div>
@@ -122,9 +123,8 @@ export function InitialPredictionsClient({
                           disabled={locked}
                           style={{ display: 'none' }}
                         />
-                        <div className="flag" style={{ fontSize: 22 }}>{iso2Flag(t.iso2)}</div>
                         <div>
-                          <div className="option-name">{t.name}</div>
+                          <div className="option-name"><TeamBadge name={t.name} flag={t.flag} code={t.code} compact /></div>
                           <div className="option-meta">Grupo {t.group}</div>
                         </div>
                         <div className="check">✓</div>
@@ -166,7 +166,9 @@ export function InitialPredictionsClient({
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 11, color: 'var(--tx3)', fontFamily: 'Fira Code', textTransform: 'uppercase', letterSpacing: '.08em' }}>Artilheiro selecionado</div>
                       <div style={{ fontSize: 16, fontWeight: 800 }}>{scorerPlayer.name}</div>
-                      <div style={{ fontSize: 12, color: 'var(--tx3)' }}>{scorerPlayer.nationality} · {scorerPlayer.position === 'FW' ? 'atacante' : scorerPlayer.position}</div>
+                      <div style={{ fontSize: 12, color: 'var(--tx3)' }}>
+                        {scorerTeam ? <TeamBadge name={scorerTeam.name} flag={scorerTeam.flag} code={scorerTeam.code} compact /> : scorerPlayer.nationality} · {scorerPlayer.position === 'FW' ? 'atacante' : scorerPlayer.position}
+                      </div>
                     </div>
                     <div className="pick-points">15 pts</div>
                   </div>
@@ -198,6 +200,7 @@ export function InitialPredictionsClient({
                     )}
                     {filteredPlayers.map(p => {
                       const sel = selectedScorer === p.id;
+                      const team = teamsByCode.get(p.teamCode);
                       return (
                         <label key={p.id} className={`option-card${sel ? ' selected' : ''}`}>
                           <input
@@ -212,7 +215,9 @@ export function InitialPredictionsClient({
                           <div className="player-face">{initials(p.name)}</div>
                           <div>
                             <div className="option-name">{p.name}</div>
-                            <div className="option-meta">{p.nationality} · {p.position === 'FW' ? 'atacante' : p.position}</div>
+                            <div className="option-meta">
+                              {team ? <TeamBadge name={team.name} flag={team.flag} code={team.code} compact /> : p.nationality} · {p.position === 'FW' ? 'atacante' : p.position}
+                            </div>
                           </div>
                           <div className="pick-points">15 pts</div>
                         </label>
@@ -245,10 +250,10 @@ export function InitialPredictionsClient({
             <div className="card-body">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '42px 1fr auto', gap: 12, alignItems: 'center', padding: '12px 14px', borderRadius: 12, background: 'var(--s2)', border: '1px solid var(--bd)' }}>
-                  <div className="flag" style={{ fontSize: 22 }}>{championTeam ? iso2Flag(championTeam.iso2) : '🏆'}</div>
+                  <div className="flag" style={{ fontSize: 22 }}>{championTeam?.flag ?? '🏆'}</div>
                   <div>
                     <div style={{ fontSize: 11, color: 'var(--tx3)', fontFamily: 'Fira Code', textTransform: 'uppercase', letterSpacing: '.08em' }}>Campeão escolhido</div>
-                    <div style={{ fontSize: 14, fontWeight: 800 }}>{championTeam?.name ?? champion?.selectionLabel ?? 'Não definido'}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800 }}>{championTeam ? <TeamBadge name={championTeam.name} flag={championTeam.flag} code={championTeam.code} compact /> : champion?.selectionLabel ?? 'Não definido'}</div>
                   </div>
                   <div className="pick-points">10 pts</div>
                 </div>
@@ -257,6 +262,7 @@ export function InitialPredictionsClient({
                   <div>
                     <div style={{ fontSize: 11, color: 'var(--tx3)', fontFamily: 'Fira Code', textTransform: 'uppercase', letterSpacing: '.08em' }}>Artilheiro escolhido</div>
                     <div style={{ fontSize: 14, fontWeight: 800 }}>{scorerPlayer?.name ?? scorer?.selectionLabel ?? 'Não definido'}</div>
+                    {scorerTeam && <div style={{ marginTop: 2 }}><TeamBadge name={scorerTeam.name} flag={scorerTeam.flag} code={scorerTeam.code} compact /></div>}
                   </div>
                   <div className="pick-points">15 pts</div>
                 </div>

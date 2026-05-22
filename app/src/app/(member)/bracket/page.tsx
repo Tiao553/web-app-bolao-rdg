@@ -1,3 +1,4 @@
+import { TeamBadge } from '../../../components/ui/team-badge';
 import type { MemberBracketContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
 
@@ -47,11 +48,11 @@ export default async function BracketPage() {
                           <div style={{ padding: '8px 12px', background: 'var(--s3)', fontFamily: 'Fira Code', fontSize: 10, color: 'var(--tx3)', textTransform: 'uppercase' }}>{m.slot}</div>
                           <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: m.winnerTeam === m.homeTeam ? 800 : 400, color: m.winnerTeam === m.homeTeam ? 'var(--or)' : 'var(--tx2)' }}>
-                              <span>{m.homeTeam ?? 'TBD'}</span>
+                              <TeamBadge name={m.homeTeam ?? 'TBD'} flag={m.homeFlag} code={m.homeCode} compact />
                             </div>
                             <div style={{ height: 1, background: 'var(--bd)' }} />
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: m.winnerTeam === m.awayTeam ? 800 : 400, color: m.winnerTeam === m.awayTeam ? 'var(--or)' : 'var(--tx2)' }}>
-                              <span>{m.awayTeam ?? 'TBD'}</span>
+                              <TeamBadge name={m.awayTeam ?? 'TBD'} flag={m.awayFlag} code={m.awayCode} compact />
                             </div>
                           </div>
                           {m.winnerTeam && <div style={{ padding: '6px 12px', background: 'var(--or-g)', borderTop: '1px solid var(--or-r)', fontSize: 11, color: 'var(--or)', fontFamily: 'Fira Code' }}>✓ {m.winnerTeam}</div>}

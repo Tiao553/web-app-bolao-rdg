@@ -1,3 +1,4 @@
+import { TeamBadge } from '../../../components/ui/team-badge';
 import type { ExploreContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
 
@@ -33,11 +34,24 @@ export default async function ExplorePage() {
     );
   }
 
-  const grouped = new Map<string, { name: string; champion?: string; scorer?: string; exact?: number; brazil?: number; similarity?: number }>();
+  const grouped = new Map<string, {
+    name: string;
+    champion?: { label: string; teamName?: string | null; teamCode?: string | null; teamFlag?: string | null };
+    scorer?: { label: string; teamName?: string | null; teamCode?: string | null; teamFlag?: string | null };
+    exact?: number;
+    brazil?: number;
+    similarity?: number;
+  }>();
   data.competitionPredictions.forEach(item => {
     const entry = grouped.get(item.userId) ?? { name: item.userName };
-    if (item.predictionType === 'CHAMPION') entry.champion = item.selectionLabel;
-    else entry.scorer = item.selectionLabel;
+    const selection = {
+      label: item.selectionLabel,
+      teamName: item.selectionTeamName,
+      teamCode: item.selectionTeamCode,
+      teamFlag: item.selectionTeamFlag,
+    };
+    if (item.predictionType === 'CHAMPION') entry.champion = selection;
+    else entry.scorer = selection;
     grouped.set(item.userId, entry);
   });
 
@@ -69,12 +83,21 @@ export default async function ExplorePage() {
                     <div className="explore-card-name">{entry.name}</div>
                     <div className="prediction-row">
                       <div className="prediction-label">Campeão</div>
-                      <div className="prediction-value">{entry.champion ?? '—'}</div>
+                      <div className="prediction-value">
+                        {entry.champion ? <TeamBadge name={entry.champion.teamName ?? entry.champion.label} flag={entry.champion.teamFlag} code={entry.champion.teamCode} compact /> : '—'}
+                      </div>
                       <div className="points">{entry.champion ? '+10' : '—'}</div>
                     </div>
                     <div className="prediction-row">
                       <div className="prediction-label">Artilheiro</div>
-                      <div className="prediction-value">{entry.scorer ?? '—'}</div>
+                      <div className="prediction-value">
+                        {entry.scorer ? (
+                          <span className="player-team-inline">
+                            <span>{entry.scorer.label}</span>
+                            {entry.scorer.teamName && <TeamBadge name={entry.scorer.teamName} flag={entry.scorer.teamFlag} code={entry.scorer.teamCode} compact />}
+                          </span>
+                        ) : '—'}
+                      </div>
                       <div className="points">{entry.scorer ? '+15' : '—'}</div>
                     </div>
                     <div className="compare-strip">

@@ -1,3 +1,4 @@
+import { TeamBadge } from '../../../../components/ui/team-badge';
 import type { AdminPlayersContract } from '../../../../lib/contracts';
 import { fetchBackendData } from '../../../../lib/session';
 
@@ -18,6 +19,7 @@ export default async function AdminPlayersPage() {
           </div>
           <div className="top-scorer-card">
             <div className="top-name">{topScorer?.selectionLabel ?? 'Sem dados'}</div>
+            {topScorer?.teamName && <div style={{ marginTop: 4 }}><TeamBadge name={topScorer.teamName} flag={topScorer.teamFlag} code={topScorer.teamCode} compact /></div>}
             <div className="top-meta">{topScorer ? `${topScorer.predictionCount} palpites · líder atual` : 'Aguardando palpites'}</div>
           </div>
         </div>
@@ -56,7 +58,10 @@ export default async function AdminPlayersPage() {
                     <div className="avatar" style={{ width: 36, height: 36, fontSize: 12 }}>{i + 1}</div>
                     <div>
                       <div className="player-name-admin">{l.selectionLabel}</div>
-                      <div className="player-detail-admin">escolhido por {l.predictionCount} palpiteiro{l.predictionCount !== 1 ? 's' : ''}</div>
+                      <div className="player-detail-admin">
+                        {l.teamName ? <><TeamBadge name={l.teamName} flag={l.teamFlag} code={l.teamCode} compact /> · </> : null}
+                        escolhido por {l.predictionCount} palpiteiro{l.predictionCount !== 1 ? 's' : ''}
+                      </div>
                     </div>
                     <div className="num-admin gold">—</div>
                     <div className="num-admin">—</div>
@@ -97,6 +102,7 @@ export default async function AdminPlayersPage() {
               <div className="editor-admin">
                 <div className="editor-summary">
                   <div className="editor-title-admin">{topScorer?.selectionLabel ?? 'Selecione um jogador'}</div>
+                  {topScorer?.teamName && <div style={{ marginTop: 4 }}><TeamBadge name={topScorer.teamName} flag={topScorer.teamFlag} code={topScorer.teamCode} compact /></div>}
                   <div className="editor-sub-admin">{topScorer ? `líder atual · ${topScorer.predictionCount} palpites` : 'Clique em Editar para carregar'}</div>
                 </div>
                 <div className="field-admin">

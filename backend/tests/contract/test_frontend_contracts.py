@@ -101,7 +101,8 @@ def test_member_contracts_expose_mock_driven_shapes() -> None:
         results = service.build_member_results(user=user)
         bracket = service.build_member_bracket(user=user)
         assert results.summary.totalPoints == 16
-        assert results.matches[0].homeTeam == "Brazil"
+        assert results.matches[0].homeTeam == "Brasil"
+        assert results.matches[0].homeFlag == "🇧🇷"
         assert bracket.championPrediction == "Brazil"
         assert len(bracket.thirdPlaceSlots) == 8
     finally:

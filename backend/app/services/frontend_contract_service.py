@@ -38,6 +38,7 @@ from app.models.schema import (
     User,
 )
 from app.repositories.queries import get_active_competition_window
+from app.services.team_metadata import get_players_by_id, get_team_metadata
 
 
 class FrontendContractService:
@@ -71,6 +72,8 @@ class FrontendContractService:
         total_points = champion_points + top_scorer_points
         for match in matches:
             prediction = by_match_id[match.id]
+            home_team = get_team_metadata(match.home_team_fifa_code, match.home_team_name)
+            away_team = get_team_metadata(match.away_team_fifa_code, match.away_team_name)
             points_awarded = prediction.points_awarded or 0
             total_points += points_awarded
             is_exact = (
@@ -103,8 +106,14 @@ class FrontendContractService:
                     groupName=match.group_name,
                     status=match.status,
                     startsAt=match.starts_at,
-                    homeTeam=match.home_team_name,
-                    awayTeam=match.away_team_name,
+                    homeTeam=home_team.name,
+                    homeCode=home_team.code,
+                    homeIso2=home_team.iso2,
+                    homeFlag=home_team.flag,
+                    awayTeam=away_team.name,
+                    awayCode=away_team.code,
+                    awayIso2=away_team.iso2,
+                    awayFlag=away_team.flag,
                     officialHomeGoals=match.official_home_goals,
                     officialAwayGoals=match.official_away_goals,
                     predictedHomeGoals=prediction.home_goals,
@@ -140,21 +149,7 @@ class FrontendContractService:
             ).all()
         )
         seed_matches = self._load_knockout_seed_matches() if not knockout_matches else []
-        rows = [
-            BracketMatchDto(
-                matchId=getattr(match, "id", None),
-                phase=match.phase.value if isinstance(match, Match) else str(match["phase"]),
-                slot=(match.bracket_slot or "TBD") if isinstance(match, Match) else str(match["slot"]),
-                startsAt=match.starts_at if isinstance(match, Match) else self._coerce_datetime(match.get("startsAt")),
-                homeTeam=match.home_team_name if isinstance(match, Match) else self._coerce_string(match.get("homeTeam")),
-                awayTeam=match.away_team_name if isinstance(match, Match) else self._coerce_string(match.get("awayTeam")),
-                winnerTeam=match.winner_team_name if isinstance(match, Match) else None,
-                feederHomeKey=match.feeder_home_key if isinstance(match, Match) else self._coerce_string(match.get("feederHomeKey")),
-                feederAwayKey=match.feeder_away_key if isinstance(match, Match) else self._coerce_string(match.get("feederAwayKey")),
-                hasManualOverride=match.has_manual_override if isinstance(match, Match) else False,
-            )
-            for match in (knockout_matches if knockout_matches else seed_matches)
-        ]
+        rows = [self._bracket_match_to_dto(match) for match in (knockout_matches if knockout_matches else seed_matches)]
         third_place_slots = [
             BracketThirdPlaceSlotDto(
                 slot=slot,
@@ -246,12 +241,7 @@ class FrontendContractService:
         for prediction in predictions:
             points[(prediction.selection_key, prediction.selection_label)] += prediction.points_awarded or 0
         leaders = [
-            AdminPlayerRowDto(
-                selectionKey=selection_key,
-                selectionLabel=selection_label,
-                predictionCount=count,
-                pointsAwardedTotal=points[(selection_key, selection_label)],
-            )
+            self._admin_player_to_dto(selection_key, selection_label, count, points[(selection_key, selection_label)])
             for (selection_key, selection_label), count in counts.most_common(12)
         ]
         return AdminPlayersScreenDto(
@@ -317,6 +307,8 @@ class FrontendContractService:
         )
 
     def _admin_match_to_dto(self, match: Match) -> AdminMatchRowDto:
+        home_team = get_team_metadata(match.home_team_fifa_code, match.home_team_name)
+        away_team = get_team_metadata(match.away_team_fifa_code, match.away_team_name)
         return AdminMatchRowDto(
             id=match.id,
             phase=match.phase.value,
@@ -325,14 +317,92 @@ class FrontendContractService:
             status=match.status,
             startsAt=match.starts_at,
             venue=match.venue,
-            homeTeam=match.home_team_name,
-            awayTeam=match.away_team_name,
+            homeTeam=home_team.name,
+            homeCode=home_team.code,
+            homeIso2=home_team.iso2,
+            homeFlag=home_team.flag,
+            awayTeam=away_team.name,
+            awayCode=away_team.code,
+            awayIso2=away_team.iso2,
+            awayFlag=away_team.flag,
             officialHomeGoals=match.official_home_goals,
             officialAwayGoals=match.official_away_goals,
             winnerTeam=match.winner_team_name,
             hasManualOverride=match.has_manual_override,
             externalProvider=match.external_provider.value if match.external_provider is not None else None,
             externalId=match.external_id,
+        )
+
+    def _bracket_match_to_dto(self, match: Match | dict[str, object]) -> BracketMatchDto:
+        if isinstance(match, Match):
+            home_team = get_team_metadata(match.home_team_fifa_code, match.home_team_name)
+            away_team = get_team_metadata(match.away_team_fifa_code, match.away_team_name)
+            home_name = None if match.home_team_name == "TBD" else home_team.name
+            away_name = None if match.away_team_name == "TBD" else away_team.name
+            return BracketMatchDto(
+                matchId=match.id,
+                phase=match.phase.value,
+                slot=match.bracket_slot or "TBD",
+                startsAt=match.starts_at,
+                homeTeam=home_name,
+                homeCode=None if home_name is None else home_team.code,
+                homeIso2=None if home_name is None else home_team.iso2,
+                homeFlag=None if home_name is None else home_team.flag,
+                awayTeam=away_name,
+                awayCode=None if away_name is None else away_team.code,
+                awayIso2=None if away_name is None else away_team.iso2,
+                awayFlag=None if away_name is None else away_team.flag,
+                winnerTeam=match.winner_team_name,
+                feederHomeKey=match.feeder_home_key,
+                feederAwayKey=match.feeder_away_key,
+                hasManualOverride=match.has_manual_override,
+            )
+
+        raw_home = self._coerce_string(match.get("homeTeam"))
+        raw_away = self._coerce_string(match.get("awayTeam"))
+        home_team = get_team_metadata(raw_home, raw_home)
+        away_team = get_team_metadata(raw_away, raw_away)
+        home_name = None if raw_home in (None, "TBD") else home_team.name
+        away_name = None if raw_away in (None, "TBD") else away_team.name
+        return BracketMatchDto(
+            matchId=None,
+            phase=str(match["phase"]),
+            slot=str(match["slot"]),
+            startsAt=self._coerce_datetime(match.get("startsAt")),
+            homeTeam=home_name,
+            homeCode=None if home_name is None else home_team.code,
+            homeIso2=None if home_name is None else home_team.iso2,
+            homeFlag=None if home_name is None else home_team.flag,
+            awayTeam=away_name,
+            awayCode=None if away_name is None else away_team.code,
+            awayIso2=None if away_name is None else away_team.iso2,
+            awayFlag=None if away_name is None else away_team.flag,
+            winnerTeam=None,
+            feederHomeKey=self._coerce_string(match.get("feederHomeKey")),
+            feederAwayKey=self._coerce_string(match.get("feederAwayKey")),
+            hasManualOverride=False,
+        )
+
+    def _admin_player_to_dto(
+        self,
+        selection_key: str,
+        selection_label: str,
+        prediction_count: int,
+        points_awarded_total: int,
+    ) -> AdminPlayerRowDto:
+        player = get_players_by_id().get(selection_key)
+        team_code = player.get("teamCode") if isinstance(player, dict) else None
+        team = get_team_metadata(team_code if isinstance(team_code, str) else None, None)
+        has_team = isinstance(team_code, str) and team_code.strip() != ""
+        return AdminPlayerRowDto(
+            selectionKey=selection_key,
+            selectionLabel=selection_label,
+            teamCode=team.code if has_team else None,
+            teamName=team.name if has_team else None,
+            teamIso2=team.iso2 if has_team else None,
+            teamFlag=team.flag if has_team else None,
+            predictionCount=prediction_count,
+            pointsAwardedTotal=points_awarded_total,
         )
 
     def _load_knockout_seed_matches(self) -> list[dict[str, object]]:

@@ -8,159 +8,159 @@
   },
   "teams": [
     {
-      "id": "MEX", "name": "Mexico",                 "code": "MEX", "iso2": "MX", "group": "A", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "MEX", "name": "México",                 "code": "MEX", "iso2": "MX", "group": "A", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "RSA", "name": "South Africa",            "code": "RSA", "iso2": "ZA", "group": "A", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "RSA", "name": "África do Sul",           "code": "RSA", "iso2": "ZA", "group": "A", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "KOR", "name": "South Korea",             "code": "KOR", "iso2": "KR", "group": "A", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "KOR", "name": "Coreia do Sul",           "code": "KOR", "iso2": "KR", "group": "A", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "CZE", "name": "Czechia",                 "code": "CZE", "iso2": "CZ", "group": "A", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-
-    {
-      "id": "CAN", "name": "Canada",                  "code": "CAN", "iso2": "CA", "group": "B", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "BIH", "name": "Bosnia and Herzegovina",  "code": "BIH", "iso2": "BA", "group": "B", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "QAT", "name": "Qatar",                   "code": "QAT", "iso2": "QA", "group": "B", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "SUI", "name": "Switzerland",             "code": "SUI", "iso2": "CH", "group": "B", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "CZE", "name": "Tchéquia",                "code": "CZE", "iso2": "CZ", "group": "A", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
 
     {
-      "id": "BRA", "name": "Brazil",                  "code": "BRA", "iso2": "BR", "group": "C", "isSpecialMultiplierTeam": true,  "multiplierValue": 2
+      "id": "CAN", "name": "Canadá",                  "code": "CAN", "iso2": "CA", "group": "B", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "MAR", "name": "Morocco",                 "code": "MAR", "iso2": "MA", "group": "C", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "BIH", "name": "Bósnia e Herzegovina",    "code": "BIH", "iso2": "BA", "group": "B", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+    {
+      "id": "QAT", "name": "Catar",                   "code": "QAT", "iso2": "QA", "group": "B", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+    {
+      "id": "SUI", "name": "Suíça",                   "code": "SUI", "iso2": "CH", "group": "B", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+
+    {
+      "id": "BRA", "name": "Brasil",                  "code": "BRA", "iso2": "BR", "group": "C", "isSpecialMultiplierTeam": true,  "multiplierValue": 2
+    },
+    {
+      "id": "MAR", "name": "Marrocos",                "code": "MAR", "iso2": "MA", "group": "C", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
       "id": "HAI", "name": "Haiti",                   "code": "HAI", "iso2": "HT", "group": "C", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "SCO", "name": "Scotland",                "code": "SCO", "iso2": "GB-SCT", "group": "C", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "SCO", "name": "Escócia",                 "code": "SCO", "iso2": "GB-SCT", "group": "C", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
 
     {
-      "id": "USA", "name": "United States",           "code": "USA", "iso2": "US", "group": "D", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "USA", "name": "Estados Unidos",          "code": "USA", "iso2": "US", "group": "D", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "PAR", "name": "Paraguay",                "code": "PAR", "iso2": "PY", "group": "D", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "PAR", "name": "Paraguai",                "code": "PAR", "iso2": "PY", "group": "D", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "AUS", "name": "Australia",               "code": "AUS", "iso2": "AU", "group": "D", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "AUS", "name": "Austrália",               "code": "AUS", "iso2": "AU", "group": "D", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "TUR", "name": "Türkiye",                 "code": "TUR", "iso2": "TR", "group": "D", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "TUR", "name": "Turquia",                 "code": "TUR", "iso2": "TR", "group": "D", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
 
     {
-      "id": "GER", "name": "Germany",                 "code": "GER", "iso2": "DE", "group": "E", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "GER", "name": "Alemanha",                "code": "GER", "iso2": "DE", "group": "E", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
       "id": "CUW", "name": "Curaçao",                 "code": "CUW", "iso2": "CW", "group": "E", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "CIV", "name": "Ivory Coast",             "code": "CIV", "iso2": "CI", "group": "E", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "CIV", "name": "Costa do Marfim",         "code": "CIV", "iso2": "CI", "group": "E", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "ECU", "name": "Ecuador",                 "code": "ECU", "iso2": "EC", "group": "E", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-
-    {
-      "id": "NED", "name": "Netherlands",             "code": "NED", "iso2": "NL", "group": "F", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "JPN", "name": "Japan",                   "code": "JPN", "iso2": "JP", "group": "F", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "SWE", "name": "Sweden",                  "code": "SWE", "iso2": "SE", "group": "F", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "TUN", "name": "Tunisia",                 "code": "TUN", "iso2": "TN", "group": "F", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "ECU", "name": "Equador",                 "code": "ECU", "iso2": "EC", "group": "E", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
 
     {
-      "id": "BEL", "name": "Belgium",                 "code": "BEL", "iso2": "BE", "group": "G", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "NED", "name": "Países Baixos",           "code": "NED", "iso2": "NL", "group": "F", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "EGY", "name": "Egypt",                   "code": "EGY", "iso2": "EG", "group": "G", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "JPN", "name": "Japão",                   "code": "JPN", "iso2": "JP", "group": "F", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "IRN", "name": "Iran",                    "code": "IRN", "iso2": "IR", "group": "G", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "SWE", "name": "Suécia",                  "code": "SWE", "iso2": "SE", "group": "F", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "NZL", "name": "New Zealand",             "code": "NZL", "iso2": "NZ", "group": "G", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-
-    {
-      "id": "ESP", "name": "Spain",                   "code": "ESP", "iso2": "ES", "group": "H", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "CPV", "name": "Cape Verde",              "code": "CPV", "iso2": "CV", "group": "H", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "KSA", "name": "Saudi Arabia",            "code": "KSA", "iso2": "SA", "group": "H", "isSpecialMultiplierTeam": false, "multiplierValue": 1
-    },
-    {
-      "id": "URU", "name": "Uruguay",                 "code": "URU", "iso2": "UY", "group": "H", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "TUN", "name": "Tunísia",                 "code": "TUN", "iso2": "TN", "group": "F", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
 
     {
-      "id": "FRA", "name": "France",                  "code": "FRA", "iso2": "FR", "group": "I", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "BEL", "name": "Bélgica",                 "code": "BEL", "iso2": "BE", "group": "G", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+    {
+      "id": "EGY", "name": "Egito",                   "code": "EGY", "iso2": "EG", "group": "G", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+    {
+      "id": "IRN", "name": "Irã",                     "code": "IRN", "iso2": "IR", "group": "G", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+    {
+      "id": "NZL", "name": "Nova Zelândia",           "code": "NZL", "iso2": "NZ", "group": "G", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+
+    {
+      "id": "ESP", "name": "Espanha",                 "code": "ESP", "iso2": "ES", "group": "H", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+    {
+      "id": "CPV", "name": "Cabo Verde",              "code": "CPV", "iso2": "CV", "group": "H", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+    {
+      "id": "KSA", "name": "Arábia Saudita",          "code": "KSA", "iso2": "SA", "group": "H", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+    {
+      "id": "URU", "name": "Uruguai",                 "code": "URU", "iso2": "UY", "group": "H", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+    },
+
+    {
+      "id": "FRA", "name": "França",                  "code": "FRA", "iso2": "FR", "group": "I", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
       "id": "SEN", "name": "Senegal",                 "code": "SEN", "iso2": "SN", "group": "I", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "IRQ", "name": "Iraq",                    "code": "IRQ", "iso2": "IQ", "group": "I", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "IRQ", "name": "Iraque",                  "code": "IRQ", "iso2": "IQ", "group": "I", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "NOR", "name": "Norway",                  "code": "NOR", "iso2": "NO", "group": "I", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "NOR", "name": "Noruega",                 "code": "NOR", "iso2": "NO", "group": "I", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
 
     {
       "id": "ARG", "name": "Argentina",               "code": "ARG", "iso2": "AR", "group": "J", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "ALG", "name": "Algeria",                 "code": "ALG", "iso2": "DZ", "group": "J", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "ALG", "name": "Argélia",                 "code": "ALG", "iso2": "DZ", "group": "J", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "AUT", "name": "Austria",                 "code": "AUT", "iso2": "AT", "group": "J", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "AUT", "name": "Áustria",                 "code": "AUT", "iso2": "AT", "group": "J", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "JOR", "name": "Jordan",                  "code": "JOR", "iso2": "JO", "group": "J", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "JOR", "name": "Jordânia",                "code": "JOR", "iso2": "JO", "group": "J", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
 
     {
       "id": "POR", "name": "Portugal",                "code": "POR", "iso2": "PT", "group": "K", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "COD", "name": "DR Congo",                "code": "COD", "iso2": "CD", "group": "K", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "COD", "name": "RD Congo",                "code": "COD", "iso2": "CD", "group": "K", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "UZB", "name": "Uzbekistan",              "code": "UZB", "iso2": "UZ", "group": "K", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "UZB", "name": "Uzbequistão",             "code": "UZB", "iso2": "UZ", "group": "K", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "COL", "name": "Colombia",                "code": "COL", "iso2": "CO", "group": "K", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "COL", "name": "Colômbia",                "code": "COL", "iso2": "CO", "group": "K", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
 
     {
-      "id": "ENG", "name": "England",                 "code": "ENG", "iso2": "GB-ENG", "group": "L", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "ENG", "name": "Inglaterra",              "code": "ENG", "iso2": "GB-ENG", "group": "L", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "CRO", "name": "Croatia",                 "code": "CRO", "iso2": "HR", "group": "L", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "CRO", "name": "Croácia",                 "code": "CRO", "iso2": "HR", "group": "L", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "GHA", "name": "Ghana",                   "code": "GHA", "iso2": "GH", "group": "L", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "GHA", "name": "Gana",                    "code": "GHA", "iso2": "GH", "group": "L", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     },
     {
-      "id": "PAN", "name": "Panama",                  "code": "PAN", "iso2": "PA", "group": "L", "isSpecialMultiplierTeam": false, "multiplierValue": 1
+      "id": "PAN", "name": "Panamá",                  "code": "PAN", "iso2": "PA", "group": "L", "isSpecialMultiplierTeam": false, "multiplierValue": 1
     }
   ]
 }

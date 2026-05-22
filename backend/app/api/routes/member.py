@@ -12,31 +12,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-_DATA_DIR = Path(__file__).parent.parent.parent.parent / "data"
-
-
-@lru_cache(maxsize=1)
-def _load_teams() -> list[dict]:
-    path = _DATA_DIR / "teams-groups.json"
-    if not path.exists():
-        return []
-    with path.open() as f:
-        return json.load(f).get("teams", [])
-
-
-@lru_cache(maxsize=1)
-def _load_players() -> list[dict]:
-    path = _DATA_DIR / "players-attackers.json"
-    if not path.exists():
-        return []
-    with path.open() as f:
-        return json.load(f).get("players", [])
-
 from app.api.schemas.frontend import MemberBracketScreenDto, MemberResultsScreenDto
 from app.core.security import build_auth_error, require_approved_user
 from app.models.schema import (
-    CompetitionPrediction,
     CompetitionPhase,
+    CompetitionPrediction,
     CompetitionWindow,
     Match,
     MatchPrediction,
@@ -55,6 +35,36 @@ from app.repositories.queries import (
     visible_match_predictions_select,
 )
 from app.services.frontend_contract_service import FrontendContractService
+from app.services.team_metadata import (
+    get_players_by_id,
+    get_team_metadata,
+    iso2_to_flag,
+)
+
+_DATA_DIR = Path(__file__).parent.parent.parent.parent / "data"
+
+
+@lru_cache(maxsize=1)
+def _load_teams() -> list[dict]:
+    path = _DATA_DIR / "teams-groups.json"
+    if not path.exists():
+        return []
+    with path.open() as f:
+        teams = json.load(f).get("teams", [])
+    return [
+        {**team, "flag": iso2_to_flag(team.get("iso2") if isinstance(team, dict) else None)}
+        for team in teams
+        if isinstance(team, dict)
+    ]
+
+
+@lru_cache(maxsize=1)
+def _load_players() -> list[dict]:
+    path = _DATA_DIR / "players-attackers.json"
+    if not path.exists():
+        return []
+    with path.open() as f:
+        return json.load(f).get("players", [])
 
 router = APIRouter(prefix="/api/member", tags=["member"])
 
@@ -93,7 +103,13 @@ class NextMatchResponse(BaseModel):
 
     id: UUID
     homeTeam: str
+    homeCode: str | None
+    homeIso2: str | None
+    homeFlag: str
     awayTeam: str
+    awayCode: str | None
+    awayIso2: str | None
+    awayFlag: str
     startsAt: str
     involvesBrazil: bool
 
@@ -191,6 +207,10 @@ class ExploreCompetitionPredictionResponse(BaseModel):
     predictionType: PredictionType
     selectionKey: str
     selectionLabel: str
+    selectionTeamCode: str | None
+    selectionTeamName: str | None
+    selectionTeamIso2: str | None
+    selectionTeamFlag: str | None
     pointsAwarded: int | None
 
 
@@ -200,6 +220,44 @@ class ExploreResponse(BaseModel):
     exploreReleased: bool
     matchPredictions: list[ExploreMatchPredictionResponse]
     competitionPredictions: list[ExploreCompetitionPredictionResponse]
+
+
+def build_explore_competition_prediction_response(
+    prediction: CompetitionPrediction,
+) -> ExploreCompetitionPredictionResponse:
+    if prediction.prediction_type == PredictionType.CHAMPION:
+        team = get_team_metadata(prediction.selection_key, prediction.selection_label)
+        team_code = team.code
+        team_name = team.name
+        team_iso2 = team.iso2
+        team_flag = team.flag
+    else:
+        player = get_players_by_id().get(prediction.selection_key)
+        player_team_code = player.get("teamCode") if isinstance(player, dict) else None
+        if isinstance(player_team_code, str) and player_team_code.strip():
+            team = get_team_metadata(player_team_code, None)
+            team_code = team.code
+            team_name = team.name
+            team_iso2 = team.iso2
+            team_flag = team.flag
+        else:
+            team_code = None
+            team_name = None
+            team_iso2 = None
+            team_flag = None
+
+    return ExploreCompetitionPredictionResponse(
+        userId=prediction.user_id,
+        userName=prediction.user.full_name,
+        predictionType=prediction.prediction_type,
+        selectionKey=prediction.selection_key,
+        selectionLabel=prediction.selection_label,
+        selectionTeamCode=team_code,
+        selectionTeamName=team_name,
+        selectionTeamIso2=team_iso2,
+        selectionTeamFlag=team_flag,
+        pointsAwarded=prediction.points_awarded,
+    )
 
 
 def utc_now() -> datetime:
@@ -329,8 +387,14 @@ def get_dashboard(
         nextMatches=[
             NextMatchResponse(
                 id=m.id,
-                homeTeam=m.home_team_name,
-                awayTeam=m.away_team_name,
+                homeTeam=get_team_metadata(m.home_team_fifa_code, m.home_team_name).name,
+                homeCode=get_team_metadata(m.home_team_fifa_code, m.home_team_name).code,
+                homeIso2=get_team_metadata(m.home_team_fifa_code, m.home_team_name).iso2,
+                homeFlag=get_team_metadata(m.home_team_fifa_code, m.home_team_name).flag,
+                awayTeam=get_team_metadata(m.away_team_fifa_code, m.away_team_name).name,
+                awayCode=get_team_metadata(m.away_team_fifa_code, m.away_team_name).code,
+                awayIso2=get_team_metadata(m.away_team_fifa_code, m.away_team_name).iso2,
+                awayFlag=get_team_metadata(m.away_team_fifa_code, m.away_team_name).flag,
                 startsAt=m.starts_at.isoformat(),
                 involvesBrazil=m.involves_brazil,
             )
@@ -360,7 +424,7 @@ def get_predictions(
     competition_predictions = list(db_session.scalars(competition_predictions_statement).all())
 
     # Initial predictions lock when round1 is locked (auto or force)
-    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active == True))
+    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active.is_(True)))
     bitmask = cw.force_locked_phases if cw else None
     phase_locks = _compute_phase_locks(db_session, now, bitmask)
     initial_locked = (
@@ -577,14 +641,7 @@ def get_explore(
             for prediction in match_predictions
         ],
         competitionPredictions=[
-            ExploreCompetitionPredictionResponse(
-                userId=prediction.user_id,
-                userName=prediction.user.full_name,
-                predictionType=prediction.prediction_type,
-                selectionKey=prediction.selection_key,
-                selectionLabel=prediction.selection_label,
-                pointsAwarded=prediction.points_awarded,
-            )
+            build_explore_competition_prediction_response(prediction)
             for prediction in competition_predictions
         ],
     )
@@ -679,7 +736,11 @@ class PhaseMatchResponse(BaseModel):
     homeTeam: str
     awayTeam: str
     homeCode: str | None
+    homeIso2: str | None
+    homeFlag: str
     awayCode: str | None
+    awayIso2: str | None
+    awayFlag: str
     groupName: str | None
     startsAt: str
     involvesBrazil: bool
@@ -730,7 +791,7 @@ def get_phase_screen(
     now = utc_now()
 
     # Load active competition window for force_locked_phases bitmask
-    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active == True))  # noqa: E712
+    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active.is_(True)))
     bitmask = cw.force_locked_phases if cw else None
 
     phase_locks = _compute_phase_locks(db_session, now, bitmask)
@@ -743,7 +804,7 @@ def get_phase_screen(
     }
 
     rounds: list[PhaseRoundResponse] = []
-    for idx, (key, phase, stage_round) in enumerate(_ROUND_PHASES):
+    for key, phase, stage_round in _ROUND_PHASES:
         # Load matches for this round
         stmt = select(Match).where(Match.phase == phase)
         if stage_round is not None:
@@ -757,12 +818,18 @@ def get_phase_screen(
         match_responses: list[PhaseMatchResponse] = []
         for m in matches:
             pred = preds_by_match.get(m.id)
+            home_team = get_team_metadata(m.home_team_fifa_code, m.home_team_name)
+            away_team = get_team_metadata(m.away_team_fifa_code, m.away_team_name)
             match_responses.append(PhaseMatchResponse(
                 id=m.id,
-                homeTeam=m.home_team_name,
-                awayTeam=m.away_team_name,
-                homeCode=m.home_team_fifa_code,
-                awayCode=m.away_team_fifa_code,
+                homeTeam=home_team.name,
+                awayTeam=away_team.name,
+                homeCode=home_team.code,
+                homeIso2=home_team.iso2,
+                homeFlag=home_team.flag,
+                awayCode=away_team.code,
+                awayIso2=away_team.iso2,
+                awayFlag=away_team.flag,
                 groupName=m.group_name,
                 startsAt=m.starts_at.isoformat(),
                 involvesBrazil=m.involves_brazil,
@@ -795,6 +862,8 @@ class StandingEntryResponse(BaseModel):
 
     teamCode: str
     teamName: str
+    teamIso2: str | None
+    teamFlag: str
     played: int
     won: int
     drawn: int
@@ -844,7 +913,18 @@ def get_standings(
             (m.away_team_fifa_code or m.away_team_name, m.away_team_name),
         ]:
             if code not in team_data[grp]:
-                team_data[grp][code] = {"name": name, "p": 0, "w": 0, "d": 0, "l": 0, "gf": 0, "ga": 0}
+                team = get_team_metadata(code, name)
+                team_data[grp][code] = {
+                    "name": team.name,
+                    "iso2": team.iso2,
+                    "flag": team.flag,
+                    "p": 0,
+                    "w": 0,
+                    "d": 0,
+                    "l": 0,
+                    "gf": 0,
+                    "ga": 0,
+                }
 
     # Apply finished results
     for m in group_matches:
@@ -882,6 +962,8 @@ def get_standings(
             entries.append(StandingEntryResponse(
                 teamCode=code,
                 teamName=d["name"],
+                teamIso2=d["iso2"],
+                teamFlag=d["flag"],
                 played=d["p"],
                 won=d["w"],
                 drawn=d["d"],

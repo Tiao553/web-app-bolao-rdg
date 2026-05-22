@@ -2,7 +2,7 @@ import type { MemberPredictionsContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
 import { InitialPredictionsClient } from './client';
 
-type Team = { id: string; name: string; code: string; iso2: string; group: string };
+type Team = { id: string; name: string; code: string; iso2: string; flag?: string; group: string };
 type Player = { id: string; name: string; teamCode: string; position: string; club: string; nationality: string };
 
 export default async function InitialPredictionsPage() {

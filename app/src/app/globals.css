@@ -25,12 +25,34 @@
 
 body {
   min-height: 100vh;
-  background: var(--bg);
+  position: relative;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(249,115,22,.20), transparent 28%),
+    radial-gradient(circle at 85% 14%, rgba(249,115,22,.12), transparent 26%),
+    radial-gradient(circle at 50% 96%, rgba(234,88,12,.10), transparent 34%),
+    linear-gradient(180deg, #070708 0%, var(--bg) 42%, #050506 100%);
+  background-attachment: fixed;
   color: var(--tx);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.72), rgba(0,0,0,.36));
+  opacity: .55;
+}
+
+body > * { position: relative; z-index: 1; }
 
 /* ── Brand Logo ─────────────────────────────────── */
 .brand-logo {
@@ -521,6 +543,23 @@ body {
 .flag { font-size: 28px; line-height: 1; }
 .team-name { font-size: 14px; font-weight: 700; }
 .team-meta { font-size: 11px; color: var(--tx3); }
+.team-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  color: inherit;
+}
+.team-badge.center { justify-content: center; flex-direction: column; gap: 6px; }
+.team-badge.right { justify-content: flex-end; }
+.team-badge.compact { gap: 6px; }
+.team-badge-flag { flex-shrink: 0; font-size: 20px; line-height: 1; filter: drop-shadow(0 5px 12px rgba(0,0,0,.22)); }
+.team-badge.compact .team-badge-flag { font-size: 16px; }
+.team-badge.center .team-badge-flag { font-size: 28px; }
+.team-badge-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-badge.center .team-badge-name { white-space: normal; text-align: center; }
+.player-team-inline { display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; flex-wrap: wrap; }
 .score {
   display: flex;
   align-items: center;

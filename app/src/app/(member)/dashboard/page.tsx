@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { TeamBadge } from '../../../components/ui/team-badge';
 import { Countdown } from '../../../components/ui/countdown';
 import { ScoreGauge } from '../../../components/ui/score-gauge';
 import type { MemberDashboardContract, RankingContract } from '../../../lib/contracts';
@@ -118,9 +119,9 @@ export default async function DashboardPage() {
                   <div key={m.id} className="next-match-row">
                     <div className="next-match-date">{fmtMatchDate(m.startsAt)}</div>
                     <div className="next-teams">
-                      <div className="next-team">{m.homeTeam}</div>
+                      <div className="next-team"><TeamBadge name={m.homeTeam} flag={m.homeFlag} code={m.homeCode} compact /></div>
                       <div className="next-versus">vs</div>
-                      <div className="next-team">{m.awayTeam}</div>
+                      <div className="next-team"><TeamBadge name={m.awayTeam} flag={m.awayFlag} code={m.awayCode} compact /></div>
                     </div>
                     <div className={`match-badge ${m.involvesBrazil ? 'brazil' : 'open'}`}>
                       <span className="dot" />{m.involvesBrazil ? 'Brasil ×2' : 'Aberto'}

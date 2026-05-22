@@ -1,27 +1,7 @@
 'use client';
 import { useState } from 'react';
+import { TeamBadge } from '../../../components/ui/team-badge';
 import type { PhaseRoundContract, PhaseMatchContract } from '../../../lib/contracts';
-
-const FIFA_TO_ISO2: Record<string, string> = {
-  BRA:'BR',MEX:'MX',ARG:'AR',FRA:'FR',ESP:'ES',GER:'DE',ENG:'GB',POR:'PT',
-  ITA:'IT',NED:'NL',BEL:'BE',URU:'UY',COL:'CO',CHI:'CL',PER:'PE',ECU:'EC',
-  PAR:'PY',BOL:'BO',VEN:'VE',USA:'US',CAN:'CA',CRC:'CR',JAM:'JM',HON:'HN',
-  PAN:'PA',HAI:'HT',ELS:'SV',GUA:'GT',NCA:'NI',TRI:'TT',CUB:'CU',RSA:'ZA',
-  NGA:'NG',GHA:'GH',MAR:'MA',SEN:'SN',CMR:'CM',EGY:'EG',ALG:'DZ',TUN:'TN',
-  CIV:'CI',MLI:'ML',BFA:'BF',COD:'CD',ZIM:'ZW',MOZ:'MZ',ANG:'AO',KOR:'KR',
-  JPN:'JP',CHN:'CN',AUS:'AU',IRN:'IR',SAU:'SA',QAT:'QA',UAE:'AE',IRQ:'IQ',
-  JOR:'JO',KUW:'KW',BHR:'BH',OMA:'OM',SYR:'SY',LEB:'LB',YEM:'YE',POL:'PL',
-  CRO:'HR',SRB:'RS',SVK:'SK',CZE:'CZ',HUN:'HU',ROU:'RO',BUL:'BG',GRE:'GR',
-  TUR:'TR',UKR:'UA',SUI:'CH',AUT:'AT',DEN:'DK',NOR:'NO',SWE:'SE',FIN:'FI',
-  ISL:'IS',IRL:'IE',SCO:'GB',WAL:'GB',NZL:'NZ',BIH:'BA',MKD:'MK',MNE:'ME',
-  SVN:'SI',ALB:'AL',KOS:'XK',
-};
-
-function flag(code: string | null) {
-  if (!code || code === 'TBD') return '🏳';
-  const iso = FIFA_TO_ISO2[code] ?? code.slice(0, 2);
-  return iso.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397));
-}
 
 function fmtMatchDate(iso: string) {
   const d = new Date(iso);
@@ -67,9 +47,8 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
       <div className="pp-teams">
         <div className="pp-team-row">
           <div className="pp-team-info">
-            <div className="pp-flag-circle">{flag(m.homeCode)}</div>
             <div>
-              <div className="pp-team-name">{m.homeTeam}</div>
+              <TeamBadge name={m.homeTeam} flag={m.homeFlag} code={m.homeCode} />
               <div className="pp-team-role">Mandante</div>
             </div>
           </div>
@@ -86,9 +65,8 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
         </div>
         <div className="pp-team-row">
           <div className="pp-team-info">
-            <div className="pp-flag-circle">{flag(m.awayCode)}</div>
             <div>
-              <div className="pp-team-name">{m.awayTeam}</div>
+              <TeamBadge name={m.awayTeam} flag={m.awayFlag} code={m.awayCode} />
               <div className="pp-team-role">Visitante</div>
             </div>
           </div>

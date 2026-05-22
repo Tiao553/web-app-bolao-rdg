@@ -14,7 +14,11 @@ export type PhaseMatchContract = {
   homeTeam: string;
   awayTeam: string;
   homeCode: string | null;
+  homeIso2: string | null;
+  homeFlag: string;
   awayCode: string | null;
+  awayIso2: string | null;
+  awayFlag: string;
   groupName: string | null;
   startsAt: string;
   involvesBrazil: boolean;
@@ -44,6 +48,8 @@ export type PhaseScreenContract = {
 export type GroupStandingEntryContract = {
   teamCode: string;
   teamName: string;
+  teamIso2: string | null;
+  teamFlag: string;
   played: number;
   won: number;
   drawn: number;
@@ -66,7 +72,13 @@ export type StandingsContract = {
 export type NextMatchContract = {
   id: string;
   homeTeam: string;
+  homeCode: string | null;
+  homeIso2: string | null;
+  homeFlag: string;
   awayTeam: string;
+  awayCode: string | null;
+  awayIso2: string | null;
+  awayFlag: string;
   startsAt: string;
   involvesBrazil: boolean;
 };
@@ -140,6 +152,10 @@ export type ExploreCompetitionPredictionContract = {
   predictionType: 'CHAMPION' | 'TOP_SCORER';
   selectionKey: string;
   selectionLabel: string;
+  selectionTeamCode: string | null;
+  selectionTeamName: string | null;
+  selectionTeamIso2: string | null;
+  selectionTeamFlag: string | null;
   pointsAwarded: number | null;
 };
 
@@ -188,7 +204,13 @@ export type MemberResultMatchContract = {
   status: string;
   startsAt: string | null;
   homeTeam: string;
+  homeCode: string | null;
+  homeIso2: string | null;
+  homeFlag: string;
   awayTeam: string;
+  awayCode: string | null;
+  awayIso2: string | null;
+  awayFlag: string;
   officialHomeGoals: number | null;
   officialAwayGoals: number | null;
   predictedHomeGoals: number | null;
@@ -215,7 +237,13 @@ export type BracketMatchContract = {
   slot: string;
   startsAt: string | null;
   homeTeam: string | null;
+  homeCode: string | null;
+  homeIso2: string | null;
+  homeFlag: string | null;
   awayTeam: string | null;
+  awayCode: string | null;
+  awayIso2: string | null;
+  awayFlag: string | null;
   winnerTeam: string | null;
   feederHomeKey: string | null;
   feederAwayKey: string | null;
@@ -283,7 +311,13 @@ export type AdminMatchRowContract = {
   startsAt: string | null;
   venue: string | null;
   homeTeam: string;
+  homeCode: string | null;
+  homeIso2: string | null;
+  homeFlag: string;
   awayTeam: string;
+  awayCode: string | null;
+  awayIso2: string | null;
+  awayFlag: string;
   officialHomeGoals: number | null;
   officialAwayGoals: number | null;
   winnerTeam: string | null;
@@ -307,6 +341,10 @@ export type AdminPlayersContract = {
   leaders: Array<{
     selectionKey: string;
     selectionLabel: string;
+    teamCode: string | null;
+    teamName: string | null;
+    teamIso2: string | null;
+    teamFlag: string | null;
     predictionCount: number;
     pointsAwardedTotal: number;
   }>;
