@@ -21,6 +21,9 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const email = formData.get('email');
   const password = formData.get('password');
+  const intent = formData.get('_intent') === 'admin' ? 'admin' : 'participant';
+
+  const errorBase = intent === 'admin' ? '/admin/login' : '/login';
 
   let backendRes: Response;
   try {
@@ -30,20 +33,24 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ email, password }),
     });
   } catch {
-    return NextResponse.redirect(new URL('/login?error=server_error', req.url), 303);
+    return NextResponse.redirect(new URL(`${errorBase}?error=server_error`, req.url), 303);
   }
 
   if (!backendRes.ok) {
-    const code = await backendRes.json().then((d) => d?.code ?? 'unknown').catch(() => 'unknown');
-    return NextResponse.redirect(new URL(`/login?error=${code}`, req.url), 303);
+    const code = await backendRes.json().then((d) => d?.error?.code ?? d?.code ?? 'unknown').catch(() => 'unknown');
+    return NextResponse.redirect(new URL(`${errorBase}?error=${code}`, req.url), 303);
   }
 
   const session = await backendRes.json();
-  const dest = session?.user?.accessStatus === 'APPROVED'
-    ? session?.user?.isAdmin
-      ? '/admin/dashboard'
-      : '/dashboard'
-    : '/waiting';
+  const isAdmin: boolean = session?.user?.isAdmin === true;
+  const isApproved: boolean = session?.user?.accessStatus === 'APPROVED';
+
+  let dest: string;
+  if (intent === 'admin') {
+    dest = isAdmin ? '/admin/dashboard' : `${errorBase}?error=not_admin`;
+  } else {
+    dest = isApproved ? '/dashboard' : '/waiting';
+  }
 
   const setCookieHeader = backendRes.headers.get('set-cookie');
   const tokenValue = extractCookieValue(setCookieHeader);

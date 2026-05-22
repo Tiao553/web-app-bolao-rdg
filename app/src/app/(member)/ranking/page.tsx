@@ -1,48 +1,127 @@
-import { Badge, SimpleGrid, Stack, Text } from '@mantine/core';
-import { HeroPanel, EmptyPanel, MetricCard, SurfaceCard } from '../../../components/layout/page-primitives';
 import type { RankingContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
 
 export default async function RankingPage() {
-  const { data, error } = await fetchBackendData<RankingContract>('/api/member/ranking');
-  const podium = data?.rows.slice(0, 3) ?? [];
+  const { data } = await fetchBackendData<RankingContract>('/api/member/ranking');
+  const rows = data?.rows ?? [];
+  const myRank = data?.currentUserRank;
+  const podium = rows.slice(0, 3);
+  const rest = rows.slice(3);
+
+  const maxPts = rows[0]?.totalPoints ?? 200;
+  const barPct = (n: number) => Math.min(100, maxPts > 0 ? (n / maxPts) * 100 : 0);
 
   return (
-    <Stack gap="lg">
-      <HeroPanel
-        eyebrow="Apenas usuários aprovados"
-        title="Ranking geral do"
-        highlight="bolão"
-        description="A classificação já usa somente aprovados, preservando a regra canônica no backend e refletindo o visual do mock com pódio, tabela e critérios de desempate."
-        side={
-          <SurfaceCard title="Sua posição" subtitle="Resumo pessoal">
-            <MetricCard value={data?.currentUserRank ?? '—'} label="posição atual" color="var(--mantine-color-rdg-orange-5)" />
-          </SurfaceCard>
-        }
-      />
-      <SimpleGrid cols={{ base: 1, md: 3 }}>
-        {podium.map((row) => (
-          <SurfaceCard key={row.userId} title={`#${row.rank}`} subtitle={row.fullName}>
-            <Text fw={900} fz={32} c="rdg-orange.5">{row.totalPoints}</Text>
-            <Text c="dimmed">Partidas {row.matchPoints} · bônus {row.bonusPoints}</Text>
-          </SurfaceCard>
-        ))}
-      </SimpleGrid>
-      <SurfaceCard title="Classificação geral" subtitle="Pontos totais e critérios de desempate" action={<Badge color="green" variant="light">atualizado</Badge>}>
-        {error && !data ? <EmptyPanel title="Não foi possível carregar o ranking" description={error} /> : (
-          <Stack gap="sm">
-            {data?.rows.map((row) => (
-              <SimpleGrid key={row.userId} cols={{ base: 1, md: 5 }} p="md" style={{ border: '1px solid var(--rdg-bd)', borderRadius: 17, background: row.rank === data.currentUserRank ? 'var(--rdg-or-g)' : 'var(--rdg-s2)' }}>
-                <Text ff="monospace" fw={900}>{row.rank}</Text>
-                <Text fw={800}>{row.fullName}</Text>
-                <Text c="dimmed">Partidas: {row.matchPoints}</Text>
-                <Text c="dimmed">Bônus: {row.bonusPoints}</Text>
-                <Text ff="monospace" fw={900} c="rdg-orange.5">{row.totalPoints}</Text>
-              </SimpleGrid>
-            ))}
-          </Stack>
-        )}
-      </SurfaceCard>
-    </Stack>
+    <>
+      <section className="hero">
+        <div className="hero-content">
+          <div>
+            <div className="eyebrow"><span className="dot" />Apenas usuários aprovados</div>
+            <h1>Ranking geral do <span>bolão</span>.</h1>
+            <p>Classificação atualizada com pontos totais, critérios de desempate e movimentação da última rodada.</p>
+          </div>
+          <div className="deadline-card" style={{ minWidth: 200 }}>
+            <div className="deadline-label">Sua posição</div>
+            <div style={{ fontSize: 48, fontWeight: 900, color: 'var(--or)', letterSpacing: '-.04em', lineHeight: 1, margin: '10px 0 6px' }}>{myRank ?? '—'}<span style={{ fontSize: 20 }}>º</span></div>
+            <div className="pill ok" style={{ width: 'fit-content' }}><span className="dot" />no ranking</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pódio */}
+      {podium.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <div><div className="card-title">Classificação geral</div><div className="card-subtitle">Pontos totais e critérios de desempate</div></div>
+            <div className="pill ok"><span className="dot" />atualizado</div>
+          </div>
+          <div className="card-body">
+            <div className="podium">
+              {podium[1] && (
+                <div className="podium-card second">
+                  <div className="podium-pos">#2</div>
+                  <div className="podium-avatar">{podium[1].fullName.split(' ').map((p: string) => p[0]).slice(0,2).join('')}</div>
+                  <div className="podium-name">{podium[1].fullName.split(' ')[0]}</div>
+                  <div className="podium-points">{podium[1].totalPoints}</div>
+                  <div className="podium-meta">{podium[1].matchPoints} partidas · {podium[1].bonusPoints} bônus</div>
+                </div>
+              )}
+              {podium[0] && (
+                <div className="podium-card first">
+                  <div className="podium-pos">#1</div>
+                  <div className="podium-avatar">{podium[0].fullName.split(' ').map((p: string) => p[0]).slice(0,2).join('')}</div>
+                  <div className="podium-name">{podium[0].fullName.split(' ')[0]}</div>
+                  <div className="podium-points">{podium[0].totalPoints}</div>
+                  <div className="podium-meta">{podium[0].matchPoints} partidas · {podium[0].bonusPoints} bônus</div>
+                </div>
+              )}
+              {podium[2] && (
+                <div className="podium-card third">
+                  <div className="podium-pos">#3</div>
+                  <div className="podium-avatar">{podium[2].fullName.split(' ').map((p: string) => p[0]).slice(0,2).join('')}</div>
+                  <div className="podium-name">{podium[2].fullName.split(' ')[0]}</div>
+                  <div className="podium-points">{podium[2].totalPoints}</div>
+                  <div className="podium-meta">{podium[2].matchPoints} partidas · {podium[2].bonusPoints} bônus</div>
+                </div>
+              )}
+            </div>
+
+            {/* Tabela */}
+            <div className="ranking-table">
+              <div className="rank-row header">
+                <div className="th">Pos</div><div />
+                <div className="th">Participante</div>
+                <div className="th hide-sm">Jogos</div>
+                <div className="th hide-sm">Exatos</div>
+                <div className="th hide-md">Brasil</div>
+                <div className="th hide-md">Camp.</div>
+                <div className="th">Total</div>
+              </div>
+              {rows.map(row => (
+                <div key={row.userId} className={`rank-row${row.rank === 1 ? ' top1' : ''}${row.rank === myRank ? ' me' : ''}`}>
+                  <div className="rank-pos">{row.rank}</div>
+                  <div className="mini-avatar">{row.fullName.split(' ').map((p: string) => p[0]).slice(0,2).join('')}</div>
+                  <div><div className="rank-name">{row.fullName}{row.rank === myRank ? ' (você)' : ''}</div></div>
+                  <div className="metric hide-sm">{row.matchPoints}</div>
+                  <div className="metric good hide-sm">—</div>
+                  <div className="metric hide-md">—</div>
+                  <div className="metric gold hide-md">{row.bonusPoints}</div>
+                  <div className="metric total">{row.totalPoints}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid-2">
+        {/* Breakdown */}
+        <div className="card">
+          <div className="card-header"><div><div className="card-title">Seus pontos</div><div className="card-subtitle">Breakdown geral</div></div></div>
+          <div className="card-body">
+            {rows.find(r => r.rank === myRank) ? (
+              <div className="bar-list">
+                <div className="bar-row"><div className="bar-label">Partidas</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(rows.find(r => r.rank === myRank)?.matchPoints ?? 0)}%` }} /></div><div className="bar-value">{rows.find(r => r.rank === myRank)?.matchPoints ?? 0}</div></div>
+                <div className="bar-row"><div className="bar-label">Bônus</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(rows.find(r => r.rank === myRank)?.bonusPoints ?? 0)}%` }} /></div><div className="bar-value">{rows.find(r => r.rank === myRank)?.bonusPoints ?? 0}</div></div>
+                <div className="bar-row"><div className="bar-label">Total</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(rows.find(r => r.rank === myRank)?.totalPoints ?? 0)}%` }} /></div><div className="bar-value">{rows.find(r => r.rank === myRank)?.totalPoints ?? 0}</div></div>
+              </div>
+            ) : <div style={{ fontSize: 13, color: 'var(--tx3)' }}>Dados indisponíveis.</div>}
+          </div>
+        </div>
+
+        {/* Desempate */}
+        <div className="card">
+          <div className="card-header"><div><div className="card-title">Desempate</div><div className="card-subtitle">Ordem aplicada</div></div></div>
+          <div className="card-body">
+            <div className="rules-list">
+              <div className="rule-row"><div className="rule-icon">1</div><div><div className="rule-title">Placares exatos</div><div className="rule-text">Quem acertar mais placares exatos fica à frente.</div></div></div>
+              <div className="rule-row"><div className="rule-icon">2</div><div><div className="rule-title">Vencedor ou empate</div><div className="rule-text">Mais acertos de resultado sem placar exato.</div></div></div>
+              <div className="rule-row"><div className="rule-icon">3</div><div><div className="rule-title">Jogos do Brasil</div><div className="rule-text">Maior pontuação em partidas com multiplicador.</div></div></div>
+              <div className="rule-row"><div className="rule-icon">4</div><div><div className="rule-title">Mata-mata</div><div className="rule-text">Maior pontuação nas fases eliminatórias.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

@@ -166,6 +166,9 @@ class CompetitionWindow(TimestampMixin, Base):
         index=True,
         nullable=False,
     )
+    # Bitmask: bit 0 = round1 force-locked, bit 1 = round2, bit 2 = round3, etc.
+    # If bit is set, that round is locked regardless of schedule. -1 = all unlocked override.
+    force_locked_phases: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_by_user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL")
     )

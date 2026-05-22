@@ -15,6 +15,9 @@ from app.api.routes.admin import router as admin_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.member import router as member_router
 from app.core.config import Settings, get_settings
+from app.models.schema import Base
+from app.repositories.queries import get_engine
+from app.seed.seeder import run_seed
 
 
 class ErrorDetail(BaseModel):
@@ -139,6 +142,8 @@ def register_exception_handlers(app: FastAPI) -> None:
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.settings = get_settings()
+    Base.metadata.create_all(get_engine())
+    run_seed()
     yield
 
 

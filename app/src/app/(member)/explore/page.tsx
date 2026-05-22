@@ -1,66 +1,107 @@
-import { SimpleGrid, Stack, Text } from '@mantine/core';
-import { AccessGate } from '../../../components/access/access-gate';
-import { HeroPanel, EmptyPanel, SurfaceCard } from '../../../components/layout/page-primitives';
 import type { ExploreContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
 
 export default async function ExplorePage() {
-  const { data, error } = await fetchBackendData<ExploreContract>('/api/member/explore');
-  const grouped = new Map<string, { champion?: string; scorer?: string; sample?: string }>();
+  const { data } = await fetchBackendData<ExploreContract>('/api/member/explore');
 
-  data?.competitionPredictions.forEach((item) => {
-    const entry = grouped.get(item.userId) ?? {};
-    if (item.predictionType === 'CHAMPION') {
-      entry.champion = item.selectionLabel;
-    } else {
-      entry.scorer = item.selectionLabel;
-    }
+  if (!data?.exploreReleased) {
+    return (
+      <>
+        <section className="hero">
+          <div className="hero-content">
+            <div>
+              <div className="eyebrow"><span className="dot" />Explore</div>
+              <h1>Veja os palpites dos <span>outros participantes</span>.</h1>
+              <p>Esta área fica disponível apenas após o horário oficial de fechamento dos palpites.</p>
+            </div>
+          </div>
+        </section>
+        <div className="card">
+          <div className="card-header"><div><div className="card-title">Estado bloqueado</div><div className="card-subtitle">Exemplo antes do fechamento</div></div></div>
+          <div className="card-body">
+            <div className="locked-preview">
+              <div className="blur-lines">
+                <div className="blur-line" /><div className="blur-line short" /><div className="blur-line" /><div className="blur-line short" />
+              </div>
+              <div className="locked-text">
+                <div><strong>Explore bloqueado</strong><span>Disponível somente após fechamento dos palpites.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  const grouped = new Map<string, { name: string; champion?: string; scorer?: string; exact?: number; brazil?: number; similarity?: number }>();
+  data.competitionPredictions.forEach(item => {
+    const entry = grouped.get(item.userId) ?? { name: item.userName };
+    if (item.predictionType === 'CHAMPION') entry.champion = item.selectionLabel;
+    else entry.scorer = item.selectionLabel;
     grouped.set(item.userId, entry);
   });
 
-  data?.matchPredictions.forEach((item) => {
-    const entry = grouped.get(item.userId) ?? {};
-    entry.sample = `${item.homeGoals} × ${item.awayGoals}`;
-    grouped.set(item.userId, entry);
-  });
+  const entries = Array.from(grouped.entries());
 
   return (
-    <Stack gap="lg">
-      <HeroPanel
-        eyebrow="Palpites liberados"
-        title="Veja os palpites dos"
-        highlight="outros participantes"
-        description="Antes do fechamento, esta área permanece bloqueada. Depois, o Explore mostra somente usuários aprovados e publica os palpites com segurança."
-        side={<SurfaceCard title="Explore disponível" subtitle="Janela de liberação"><Text>{data?.exploreReleased ? 'Fechamento concluído' : 'Ainda bloqueado'}</Text></SurfaceCard>}
-      />
-      <AccessGate
-        released={data?.exploreReleased}
-        loading={!data && !error}
-        error={error}
-        lockedFallback={<EmptyPanel title="Explore bloqueado" description="Disponível somente após o horário de fechamento dos palpites." />}
-        errorFallback={<EmptyPanel title="Não foi possível abrir o Explore" description={error ?? 'Tente novamente depois.'} />}
-      >
-        <SimpleGrid cols={{ base: 1, xl: 3 }}>
-          <div style={{ gridColumn: 'span 2' }}>
-            <SurfaceCard title="Palpites dos participantes" subtitle="Visão liberada após fechamento">
-              {grouped.size === 0 ? <EmptyPanel title="Sem palpites públicos" description="Nenhum participante aprovado teve palpites liberados até agora." /> : (
-                <SimpleGrid cols={{ base: 1, md: 2 }}>
-                  {Array.from(grouped.entries()).map(([userId, entry], index) => (
-                    <SurfaceCard key={userId} title={`#${index + 1}`} subtitle={data?.competitionPredictions.find((item) => item.userId === userId)?.userName ?? 'Participante'}>
-                      <Text>Campeão: {entry.champion ?? '—'}</Text>
-                      <Text>Artilheiro: {entry.scorer ?? '—'}</Text>
-                      <Text>Amostra: {entry.sample ?? 'Sem partida liberada'}</Text>
-                    </SurfaceCard>
-                  ))}
-                </SimpleGrid>
-              )}
-            </SurfaceCard>
+    <>
+      <section className="hero">
+        <div className="hero-content">
+          <div>
+            <div className="eyebrow"><span className="dot" />Palpites liberados</div>
+            <h1>Veja os palpites dos <span>outros participantes</span>.</h1>
+            <p>Após o fechamento, o Explore publica os palpites de todos os participantes aprovados.</p>
           </div>
-          <SurfaceCard title="Insights" subtitle="Comparativo geral">
-            <Text c="dimmed">Quando o backend expuser agregações específicas do Explore, esta coluna poderá refletir campeões mais escolhidos, artilheiros líderes e proximidade com seus palpites.</Text>
-          </SurfaceCard>
-        </SimpleGrid>
-      </AccessGate>
-    </Stack>
+          <div className="pill ok" style={{ alignSelf: 'flex-start', marginTop: 4 }}><span className="dot" />público</div>
+        </div>
+      </section>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+        <div className="card">
+          <div className="card-header"><div><div className="card-title">Palpites dos participantes</div><div className="card-subtitle">Visão liberada após fechamento</div></div></div>
+          <div className="card-body">
+            {entries.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 32, color: 'var(--tx3)', fontSize: 14 }}>Nenhum palpite público disponível ainda.</div>
+            ) : (
+              <div className="explore-grid">
+                {entries.map(([uid, entry]) => (
+                  <div key={uid} className="explore-card">
+                    <div className="explore-card-name">{entry.name}</div>
+                    <div className="prediction-row">
+                      <div className="prediction-label">Campeão</div>
+                      <div className="prediction-value">{entry.champion ?? '—'}</div>
+                      <div className="points">{entry.champion ? '+10' : '—'}</div>
+                    </div>
+                    <div className="prediction-row">
+                      <div className="prediction-label">Artilheiro</div>
+                      <div className="prediction-value">{entry.scorer ?? '—'}</div>
+                      <div className="points">{entry.scorer ? '+15' : '—'}</div>
+                    </div>
+                    <div className="compare-strip">
+                      <div className="mini-stat"><div className="mini-num">—</div><div className="mini-label">exatos</div></div>
+                      <div className="mini-stat"><div className="mini-num">—</div><div className="mini-label">Brasil</div></div>
+                      <div className="mini-stat"><div className="mini-num">—%</div><div className="mini-label">igual a você</div></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="card">
+            <div className="card-header"><div><div className="card-title">Insights</div><div className="card-subtitle">Comparativo geral</div></div></div>
+            <div className="card-body">
+              <div className="insight-list">
+                <div className="insight"><div className="insight-icon">🇧🇷</div><div><div className="insight-title">Campeão mais escolhido</div><div className="insight-text">Disponível quando o backend expuser agregações do Explore.</div></div></div>
+                <div className="insight"><div className="insight-icon">⚽</div><div><div className="insight-title">Artilheiro favorito</div><div className="insight-text">A seleção mais votada aparecerá aqui após os dados.</div></div></div>
+                <div className="insight"><div className="insight-icon">≠</div><div><div className="insight-title">Participante mais diferente</div><div className="insight-text">Menor similaridade com seus palpites.</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

@@ -18,6 +18,7 @@ from app.api.schemas.frontend import (
 )
 from app.core.security import build_auth_error, require_admin_user
 from app.models.schema import (
+    CompetitionPhase,
     AccessStatus,
     CompetitionWindow,
     Match,
@@ -397,3 +398,56 @@ def trigger_sync(
         message=message,
         recalculation=recalculation,
     )
+
+
+# ── Force phase lock / unlock ──────────────────────────────────────────────────
+
+_ROUND_KEYS = ["round1", "round2", "round3", "roundOf32", "roundOf16", "quarterFinal", "semiFinal", "final"]
+
+
+class PhaseLockRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    roundKey: str
+    locked: bool  # True = force lock, False = release force lock
+
+
+class PhaseLockResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    roundKey: str
+    locked: bool
+    forceLockedPhases: int
+
+
+@router.post("/phase-lock", response_model=PhaseLockResponse, status_code=status.HTTP_200_OK)
+def set_phase_lock(
+    payload: PhaseLockRequest,
+    admin_user: User = Depends(require_admin_user),
+    db_session: Session = Depends(get_db_session),
+) -> PhaseLockResponse:
+    if payload.roundKey not in _ROUND_KEYS:
+        raise build_auth_error(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            code="invalid_round_key",
+            message=f"roundKey must be one of {_ROUND_KEYS}",
+        )
+    idx = _ROUND_KEYS.index(payload.roundKey)
+    bit = 1 << idx
+
+    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active == True))  # noqa: E712
+    if cw is None:
+        raise build_auth_error(
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="competition_window_not_found",
+            message="No active competition window",
+        )
+
+    current = cw.force_locked_phases or 0
+    if payload.locked:
+        current = current | bit
+    else:
+        current = current & ~bit
+
+    cw.force_locked_phases = current
+    db_session.flush()
+
+    return PhaseLockResponse(roundKey=payload.roundKey, locked=payload.locked, forceLockedPhases=current)

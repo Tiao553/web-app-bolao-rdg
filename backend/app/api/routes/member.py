@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from functools import lru_cache
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
@@ -9,10 +12,33 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+_DATA_DIR = Path(__file__).parent.parent.parent.parent / "data"
+
+
+@lru_cache(maxsize=1)
+def _load_teams() -> list[dict]:
+    path = _DATA_DIR / "teams-groups.json"
+    if not path.exists():
+        return []
+    with path.open() as f:
+        return json.load(f).get("teams", [])
+
+
+@lru_cache(maxsize=1)
+def _load_players() -> list[dict]:
+    path = _DATA_DIR / "players-attackers.json"
+    if not path.exists():
+        return []
+    with path.open() as f:
+        return json.load(f).get("players", [])
+
 from app.api.schemas.frontend import MemberBracketScreenDto, MemberResultsScreenDto
 from app.core.security import build_auth_error, require_approved_user
 from app.models.schema import (
     CompetitionPrediction,
+    CompetitionPhase,
+    CompetitionWindow,
+    Match,
     MatchPrediction,
     PredictionType,
     User,
@@ -62,6 +88,16 @@ class DashboardUserResponse(BaseModel):
     isAdmin: bool
 
 
+class NextMatchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: UUID
+    homeTeam: str
+    awayTeam: str
+    startsAt: str
+    involvesBrazil: bool
+
+
 class DashboardResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -71,6 +107,7 @@ class DashboardResponse(BaseModel):
     totalPoints: int
     savedMatchPredictions: int
     savedBonusPredictions: int
+    nextMatches: list[NextMatchResponse]
 
 
 class MatchPredictionRequest(BaseModel):
@@ -264,6 +301,18 @@ def get_dashboard(
     )
     total_points = next((row.total_points for row in ranking_rows if row.user_id == user.id), 0)
 
+    next_matches_stmt = (
+        select(Match)
+        .where(
+            Match.status == "SCHEDULED",
+            Match.home_team_name != "TBD",
+            Match.away_team_name != "TBD",
+        )
+        .order_by(Match.starts_at.asc())
+        .limit(3)
+    )
+    next_matches = list(db_session.scalars(next_matches_stmt).all())
+
     return DashboardResponse(
         user=DashboardUserResponse(
             id=user.id,
@@ -277,6 +326,16 @@ def get_dashboard(
         totalPoints=total_points,
         savedMatchPredictions=int(db_session.scalar(match_prediction_count_statement) or 0),
         savedBonusPredictions=int(db_session.scalar(competition_prediction_count_statement) or 0),
+        nextMatches=[
+            NextMatchResponse(
+                id=m.id,
+                homeTeam=m.home_team_name,
+                awayTeam=m.away_team_name,
+                startsAt=m.starts_at.isoformat(),
+                involvesBrazil=m.involves_brazil,
+            )
+            for m in next_matches
+        ],
     )
 
 
@@ -300,8 +359,19 @@ def get_predictions(
     match_predictions = list(db_session.scalars(match_predictions_statement).all())
     competition_predictions = list(db_session.scalars(competition_predictions_statement).all())
 
+    # Initial predictions lock when round1 is locked (auto or force)
+    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active == True))
+    bitmask = cw.force_locked_phases if cw else None
+    phase_locks = _compute_phase_locks(db_session, now, bitmask)
+    initial_locked = (
+        now >= as_utc(competition_window.prediction_close_at)
+        or phase_locks.get("round1", False)
+    )
+    base_comp = build_competition_window_response(competition_window, now=now)
+    comp_response = base_comp.model_copy(update={"predictionLocked": initial_locked})
+
     return MemberPredictionsResponse(
-        competition=build_competition_window_response(competition_window, now=now),
+        competition=comp_response,
         matchPredictions=[
             MatchPredictionResponse(
                 id=prediction.id,
@@ -534,3 +604,295 @@ def get_bracket_screen(
     db_session: Session = Depends(get_db_session),
 ) -> MemberBracketScreenDto:
     return FrontendContractService(db_session).build_member_bracket(user=user)
+
+
+@router.get("/available-teams", status_code=status.HTTP_200_OK)
+def get_available_teams(user: User = Depends(require_approved_user)) -> list[dict]:
+    return _load_teams()
+
+
+@router.get("/available-players", status_code=status.HTTP_200_OK)
+def get_available_players(user: User = Depends(require_approved_user)) -> list[dict]:
+    return _load_players()
+
+
+# ── Phase helpers ─────────────────────────────────────────────────────────────
+
+PHASE_LOCK_OFFSET = timedelta(hours=1)
+
+_ROUND_PHASES = [
+    ("round1", CompetitionPhase.GROUP_STAGE, 1),
+    ("round2", CompetitionPhase.GROUP_STAGE, 2),
+    ("round3", CompetitionPhase.GROUP_STAGE, 3),
+    ("roundOf32", CompetitionPhase.ROUND_OF_32, None),
+    ("roundOf16", CompetitionPhase.ROUND_OF_16, None),
+    ("quarterFinal", CompetitionPhase.QUARTER_FINAL, None),
+    ("semiFinal", CompetitionPhase.SEMI_FINAL, None),
+    ("final", CompetitionPhase.FINAL, None),
+]
+
+
+def _phase_lock_time(db_session: Session, phase: CompetitionPhase, stage_round: int | None) -> datetime | None:
+    """Return the lock time for a phase = first match starts_at - 1h."""
+    stmt = select(Match.starts_at).where(Match.phase == phase)
+    if stage_round is not None:
+        stmt = stmt.where(Match.stage_round == stage_round)
+    stmt = stmt.where(
+        Match.home_team_name != "TBD",
+        Match.away_team_name != "TBD",
+    ).order_by(Match.starts_at.asc()).limit(1)
+    first = db_session.scalar(stmt)
+    if first is None:
+        return None
+    return as_utc(first) - PHASE_LOCK_OFFSET
+
+
+def _compute_phase_locks(
+    db_session: Session,
+    now: datetime,
+    force_bitmask: int | None,
+) -> dict[str, bool]:
+    """Return a dict key→is_locked for each round."""
+    result: dict[str, bool] = {}
+    for idx, (key, phase, stage_round) in enumerate(_ROUND_PHASES):
+        force_bit = bool(force_bitmask and (force_bitmask & (1 << idx)))
+        lock_time = _phase_lock_time(db_session, phase, stage_round)
+        auto_locked = lock_time is not None and now >= lock_time
+        result[key] = force_bit or auto_locked
+    return result
+
+
+def _compute_explore_open(phase_locks: dict[str, bool]) -> dict[str, bool]:
+    """Explore for round N opens once round N is locked (additive)."""
+    explore: dict[str, bool] = {}
+    for key, _ in [(k, v) for k, v in phase_locks.items()]:
+        explore[key] = phase_locks[key]
+    return explore
+
+
+# ── Phase matches response models ────────────────────────────────────────────
+
+class PhaseMatchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: UUID
+    homeTeam: str
+    awayTeam: str
+    homeCode: str | None
+    awayCode: str | None
+    groupName: str | None
+    startsAt: str
+    involvesBrazil: bool
+    status: str
+    officialHomeGoals: int | None
+    officialAwayGoals: int | None
+    predictedHomeGoals: int | None
+    predictedAwayGoals: int | None
+    pointsAwarded: int | None
+
+
+class PhaseRoundResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    key: str
+    label: str
+    phase: str
+    stageRound: int | None
+    locked: bool
+    exploreOpen: bool
+    lockTime: str | None
+    matches: list[PhaseMatchResponse]
+
+
+class PhaseScreenResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    rounds: list[PhaseRoundResponse]
+
+
+_ROUND_LABELS = {
+    "round1": "Grupos · Rodada 1",
+    "round2": "Grupos · Rodada 2",
+    "round3": "Grupos · Rodada 3",
+    "roundOf32": "16 avos",
+    "roundOf16": "Oitavas",
+    "quarterFinal": "Quartas",
+    "semiFinal": "Semifinal",
+    "final": "Final",
+}
+
+
+@router.get("/phase-screen", response_model=PhaseScreenResponse, status_code=status.HTTP_200_OK)
+def get_phase_screen(
+    user: User = Depends(require_approved_user),
+    db_session: Session = Depends(get_db_session),
+) -> PhaseScreenResponse:
+    now = utc_now()
+
+    # Load active competition window for force_locked_phases bitmask
+    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active == True))  # noqa: E712
+    bitmask = cw.force_locked_phases if cw else None
+
+    phase_locks = _compute_phase_locks(db_session, now, bitmask)
+    explore_open = _compute_explore_open(phase_locks)
+
+    # Load all match predictions for this user
+    predictions_stmt = select(MatchPrediction).where(MatchPrediction.user_id == user.id)
+    preds_by_match: dict[UUID, MatchPrediction] = {
+        p.match_id: p for p in db_session.scalars(predictions_stmt).all()
+    }
+
+    rounds: list[PhaseRoundResponse] = []
+    for idx, (key, phase, stage_round) in enumerate(_ROUND_PHASES):
+        # Load matches for this round
+        stmt = select(Match).where(Match.phase == phase)
+        if stage_round is not None:
+            stmt = stmt.where(Match.stage_round == stage_round)
+        stmt = stmt.order_by(Match.starts_at.asc())
+        matches = list(db_session.scalars(stmt).all())
+
+        lock_time = _phase_lock_time(db_session, phase, stage_round)
+        locked = phase_locks[key]
+
+        match_responses: list[PhaseMatchResponse] = []
+        for m in matches:
+            pred = preds_by_match.get(m.id)
+            match_responses.append(PhaseMatchResponse(
+                id=m.id,
+                homeTeam=m.home_team_name,
+                awayTeam=m.away_team_name,
+                homeCode=m.home_team_fifa_code,
+                awayCode=m.away_team_fifa_code,
+                groupName=m.group_name,
+                startsAt=m.starts_at.isoformat(),
+                involvesBrazil=m.involves_brazil,
+                status=m.status,
+                officialHomeGoals=m.official_home_goals,
+                officialAwayGoals=m.official_away_goals,
+                predictedHomeGoals=pred.home_goals if pred else None,
+                predictedAwayGoals=pred.away_goals if pred else None,
+                pointsAwarded=pred.points_awarded if pred else None,
+            ))
+
+        rounds.append(PhaseRoundResponse(
+            key=key,
+            label=_ROUND_LABELS[key],
+            phase=phase.value,
+            stageRound=stage_round,
+            locked=locked,
+            exploreOpen=explore_open[key],
+            lockTime=lock_time.isoformat() if lock_time else None,
+            matches=match_responses,
+        ))
+
+    return PhaseScreenResponse(rounds=rounds)
+
+
+# ── Standings ─────────────────────────────────────────────────────────────────
+
+class StandingEntryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    teamCode: str
+    teamName: str
+    played: int
+    won: int
+    drawn: int
+    lost: int
+    goalsFor: int
+    goalsAgainst: int
+    goalDiff: int
+    points: int
+
+
+class GroupStandingResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    group: str
+    entries: list[StandingEntryResponse]
+
+
+class StandingsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    groups: list[GroupStandingResponse]
+
+
+@router.get("/standings", response_model=StandingsResponse, status_code=status.HTTP_200_OK)
+def get_standings(
+    user: User = Depends(require_approved_user),
+    db_session: Session = Depends(get_db_session),
+) -> StandingsResponse:
+    stmt = (
+        select(Match)
+        .where(Match.phase == CompetitionPhase.GROUP_STAGE)
+        .order_by(Match.group_name.asc(), Match.starts_at.asc())
+    )
+    group_matches = list(db_session.scalars(stmt).all())
+
+    # Aggregate per group
+    from collections import defaultdict
+
+    # team_data[group][team_code] = {name, p, w, d, l, gf, ga}
+    team_data: dict[str, dict[str, dict]] = defaultdict(dict)
+
+    # Seed teams from matches so even 0-played teams appear
+    for m in group_matches:
+        grp = m.group_name or "?"
+        for code, name in [
+            (m.home_team_fifa_code or m.home_team_name, m.home_team_name),
+            (m.away_team_fifa_code or m.away_team_name, m.away_team_name),
+        ]:
+            if code not in team_data[grp]:
+                team_data[grp][code] = {"name": name, "p": 0, "w": 0, "d": 0, "l": 0, "gf": 0, "ga": 0}
+
+    # Apply finished results
+    for m in group_matches:
+        if m.official_home_goals is None or m.official_away_goals is None:
+            continue
+        grp = m.group_name or "?"
+        hg = m.official_home_goals
+        ag = m.official_away_goals
+        hc = m.home_team_fifa_code or m.home_team_name
+        ac = m.away_team_fifa_code or m.away_team_name
+
+        for code in (hc, ac):
+            team_data[grp][code]["p"] += 1
+        team_data[grp][hc]["gf"] += hg
+        team_data[grp][hc]["ga"] += ag
+        team_data[grp][ac]["gf"] += ag
+        team_data[grp][ac]["ga"] += hg
+
+        if hg > ag:
+            team_data[grp][hc]["w"] += 1
+            team_data[grp][ac]["l"] += 1
+        elif hg < ag:
+            team_data[grp][ac]["w"] += 1
+            team_data[grp][hc]["l"] += 1
+        else:
+            team_data[grp][hc]["d"] += 1
+            team_data[grp][ac]["d"] += 1
+
+    groups: list[GroupStandingResponse] = []
+    for grp in sorted(team_data.keys()):
+        entries = []
+        for code, d in team_data[grp].items():
+            pts = d["w"] * 3 + d["d"]
+            gd = d["gf"] - d["ga"]
+            entries.append(StandingEntryResponse(
+                teamCode=code,
+                teamName=d["name"],
+                played=d["p"],
+                won=d["w"],
+                drawn=d["d"],
+                lost=d["l"],
+                goalsFor=d["gf"],
+                goalsAgainst=d["ga"],
+                goalDiff=gd,
+                points=pts,
+            ))
+        # Sort: pts desc, gd desc, gf desc
+        entries.sort(key=lambda e: (-e.points, -e.goalDiff, -e.goalsFor))
+        groups.append(GroupStandingResponse(group=grp, entries=entries))
+
+    return StandingsResponse(groups=groups)

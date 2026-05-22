@@ -9,6 +9,68 @@ export type MemberCompetitionWindowContract = {
   exploreReleased: boolean;
 };
 
+export type PhaseMatchContract = {
+  id: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeCode: string | null;
+  awayCode: string | null;
+  groupName: string | null;
+  startsAt: string;
+  involvesBrazil: boolean;
+  status: string;
+  officialHomeGoals: number | null;
+  officialAwayGoals: number | null;
+  predictedHomeGoals: number | null;
+  predictedAwayGoals: number | null;
+  pointsAwarded: number | null;
+};
+
+export type PhaseRoundContract = {
+  key: string;
+  label: string;
+  phase: string;
+  stageRound: number | null;
+  locked: boolean;
+  exploreOpen: boolean;
+  lockTime: string | null;
+  matches: PhaseMatchContract[];
+};
+
+export type PhaseScreenContract = {
+  rounds: PhaseRoundContract[];
+};
+
+export type GroupStandingEntryContract = {
+  teamCode: string;
+  teamName: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDiff: number;
+  points: number;
+};
+
+export type GroupStandingContract = {
+  group: string;
+  entries: GroupStandingEntryContract[];
+};
+
+export type StandingsContract = {
+  groups: GroupStandingContract[];
+};
+
+export type NextMatchContract = {
+  id: string;
+  homeTeam: string;
+  awayTeam: string;
+  startsAt: string;
+  involvesBrazil: boolean;
+};
+
 export type MemberDashboardContract = {
   user: {
     id: string;
@@ -22,6 +84,7 @@ export type MemberDashboardContract = {
   totalPoints: number;
   savedMatchPredictions: number;
   savedBonusPredictions: number;
+  nextMatches: NextMatchContract[];
 };
 
 export type MatchPredictionContract = {
@@ -247,6 +310,32 @@ export type AdminPlayersContract = {
     predictionCount: number;
     pointsAwardedTotal: number;
   }>;
+};
+
+export type AvailableTeamContract = {
+  code: string;
+  name: string;
+  flag: string;
+  group: string;
+  confederation: string;
+};
+
+export type AvailableTeamsContract = {
+  teams: AvailableTeamContract[];
+};
+
+export type AvailablePlayerContract = {
+  id: string;
+  name: string;
+  teamCode: string;
+  position: string;
+  shirtNumber: number;
+  club: string;
+  nationality: string;
+};
+
+export type AvailablePlayersContract = {
+  players: AvailablePlayerContract[];
 };
 
 export type AdminSettingsContract = {

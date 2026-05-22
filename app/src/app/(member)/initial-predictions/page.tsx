@@ -1,30 +1,31 @@
-import { SimpleGrid, Stack, Text } from '@mantine/core';
-import { InitialPredictionsForm } from '../../../components/member/initial-predictions-form';
-import { HeroPanel, EmptyPanel, SurfaceCard } from '../../../components/layout/page-primitives';
 import type { MemberPredictionsContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
+import { InitialPredictionsClient } from './client';
+
+type Team = { id: string; name: string; code: string; iso2: string; group: string };
+type Player = { id: string; name: string; teamCode: string; position: string; club: string; nationality: string };
 
 export default async function InitialPredictionsPage() {
-  const { data, error } = await fetchBackendData<MemberPredictionsContract>('/api/member/predictions');
-  const bonusPredictions = data?.competitionPredictions ?? [];
+  const [{ data }, teamsRes, playersRes] = await Promise.all([
+    fetchBackendData<MemberPredictionsContract>('/api/member/predictions'),
+    fetchBackendData<Team[]>('/api/member/available-teams'),
+    fetchBackendData<Player[]>('/api/member/available-players'),
+  ]);
+
+  const bonus = data?.competitionPredictions ?? [];
+  const champion = bonus.find(b => b.predictionType === 'CHAMPION') ?? null;
+  const scorer = bonus.find(b => b.predictionType === 'TOP_SCORER') ?? null;
+  const locked = data?.competition.predictionLocked ?? false;
+  const teams: Team[] = Array.isArray(teamsRes.data) ? teamsRes.data : [];
+  const players: Player[] = Array.isArray(playersRes.data) ? playersRes.data : [];
 
   return (
-    <Stack gap="lg">
-      <HeroPanel
-        eyebrow="Palpites iniciais"
-        title="Defina campeão e"
-        highlight="artilheiro"
-        description="A composição segue o mock aprovado, mas as escolhas continuam sendo validadas e pontuadas apenas pelo backend."
-        side={<SurfaceCard title="Janela de edição" subtitle="Status atual"><Text>{data?.competition.predictionLocked ? 'Palpites bloqueados' : 'Palpites abertos'}</Text></SurfaceCard>}
-      />
-      <SimpleGrid cols={{ base: 1, lg: 2 }}>
-        <SurfaceCard title="Seu formulário" subtitle="Campeão + artilheiro">
-          {data ? <InitialPredictionsForm predictions={bonusPredictions} competition={data.competition} /> : <EmptyPanel title="Sem contrato disponível" description={error ?? 'Ainda não foi possível carregar seus palpites iniciais.'} />}
-        </SurfaceCard>
-        <SurfaceCard title="Resumo salvo" subtitle="Estado atual">
-          {bonusPredictions.length === 0 ? <EmptyPanel title="Nenhum palpite inicial salvo" description="Use o formulário ao lado para registrar campeão e artilheiro." /> : bonusPredictions.map((item) => <Text key={item.id}>{item.predictionType === 'CHAMPION' ? 'Campeão' : 'Artilheiro'}: {item.selectionLabel}</Text>)}
-        </SurfaceCard>
-      </SimpleGrid>
-    </Stack>
+    <InitialPredictionsClient
+      teams={teams}
+      players={players}
+      champion={champion}
+      scorer={scorer}
+      locked={locked}
+    />
   );
 }

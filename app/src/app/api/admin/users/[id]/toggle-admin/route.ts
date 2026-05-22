@@ -1,0 +1,19 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+const API_URL = process.env.API_BASE_URL || 'http://localhost:8000';
+
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const cookie = req.headers.get('cookie') ?? '';
+  const form = await req.formData();
+  const is_admin = form.get('is_admin') === 'true';
+  const access_status = form.get('access_status') as string;
+
+  await fetch(`${API_URL}/api/admin/users/${id}/moderation`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ is_admin, access_status }),
+  });
+
+  return NextResponse.redirect(new URL('/admin/users', req.url));
+}

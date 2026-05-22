@@ -1,5 +1,2 @@
 import { redirect } from 'next/navigation';
-
-export default function PredictionsRedirectPage() {
-  redirect('/phase-predictions');
-}
+export default function PredictionsPage() { redirect('/initial-predictions'); }

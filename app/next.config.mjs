@@ -1,12 +1,8 @@
 const nextConfig = {
-  distDir: '.next-local',
-  eslint: {
-    ignoreDuringBuilds: true
-  },
+  distDir: '.next-user',
+  eslint: { ignoreDuringBuilds: true },
   reactStrictMode: true,
-  typescript: {
-    ignoreBuildErrors: true
-  },
+  typescript: { ignoreBuildErrors: true },
   poweredByHeader: false
 };
 

@@ -8,6 +8,8 @@ app/.next-local/
 app/node_modules/
 app/tsconfig.tsbuildinfo
 
+.next
+
 # Python artifacts
 backend/.pytest_cache/
 backend/.mypy_cache/

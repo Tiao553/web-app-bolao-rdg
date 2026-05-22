@@ -1,67 +1,26 @@
-'use client';
-
-import { Box, Group, Paper, Stack, Text } from '@mantine/core';
-
-type ScoreGaugeProps = {
-  score: number;
-  max: number;
-  rank?: number;
-};
-
-export function ScoreGauge({ score, max, rank }: ScoreGaugeProps) {
-  const radius = 34;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / max) * circumference;
-
+export function ScoreGauge({ points, max, rank, label }: { points: number; max: number; rank?: number | string | null; label?: string }) {
+  const pct = Math.min(1, points / max);
+  const r = 46;
+  const circ = 2 * Math.PI * r;
+  const dash = circ * pct;
   return (
-    <Paper p="md" radius="md" style={{ background: 'var(--rdg-s2)', border: '1px solid var(--rdg-bd)' }}>
-      <Group gap="lg" wrap="nowrap">
-        <Box style={{ position: 'relative', width: 80, height: 80, flexShrink: 0 }}>
-          <svg
-            width={80}
-            height={80}
-            viewBox="0 0 80 80"
-            style={{ transform: 'rotate(-90deg)' }}
-          >
-            <circle
-              cx={40} cy={40} r={radius}
-              fill="none"
-              stroke="var(--rdg-s3)"
-              strokeWidth={6}
-            />
-            <circle
-              cx={40} cy={40} r={radius}
-              fill="none"
-              stroke="var(--mantine-color-rdg-orange-5)"
-              strokeWidth={6}
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={offset}
-            />
-          </svg>
-          <Box
-            style={{
-              position: 'absolute', inset: 0,
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <Text fw={700} size="xl" c="rdg-orange" lh={1} ff="monospace">
-              {score}
-            </Text>
-            <Text size="xs" c="dimmed" ff="monospace">/{max}</Text>
-          </Box>
-        </Box>
-
-        <Stack gap={4}>
-          <Text fw={600} size="sm">Pontuação Geral</Text>
-          {rank != null && (
-            <Text size="xs" c="rdg-orange" fw={600} ff="monospace" style={{ letterSpacing: '0.06em' }}>
-              {rank}° LUGAR
-            </Text>
-          )}
-        </Stack>
-      </Group>
-    </Paper>
+    <div className="score-wrap">
+      <div className="score-gauge">
+        <svg viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r={r} fill="none" stroke="var(--s3)" strokeWidth="10" />
+          <circle cx="55" cy="55" r={r} fill="none" stroke="var(--or)" strokeWidth="10"
+            strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
+        </svg>
+        <div className="score-val">
+          <div className="score-num">{points}</div>
+          <div className="score-max">/{max} pts</div>
+        </div>
+      </div>
+      <div className="score-meta">
+        <h3>{(pct * 100).toFixed(1)}%</h3>
+        <p>{label ?? 'Você está no grupo de cima do ranking.'}</p>
+        {rank != null && <div className="pill orange"><span className="dot" />{rank}º lugar</div>}
+      </div>
+    </div>
   );
 }

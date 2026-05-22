@@ -1,0 +1,12 @@
+{
+  "/api/member/predictions/match/route": "app/api/member/predictions/match/route.js",
+  "/(admin)/admin/settings/page": "app/(admin)/admin/settings/page.js",
+  "/(admin)/admin/dashboard/page": "app/(admin)/admin/dashboard/page.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/(member)/dashboard/page": "app/(member)/dashboard/page.js",
+  "/(member)/phase-predictions/page": "app/(member)/phase-predictions/page.js",
+  "/(member)/ranking/page": "app/(member)/ranking/page.js",
+  "/(member)/standings/page": "app/(member)/standings/page.js",
+  "/(member)/bracket/page": "app/(member)/bracket/page.js",
+  "/(member)/explore/page": "app/(member)/explore/page.js"
+}
