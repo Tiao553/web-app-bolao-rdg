@@ -41,7 +41,8 @@ from app.services.team_metadata import (
     iso2_to_flag,
 )
 
-_DATA_DIR = Path(__file__).parent.parent.parent.parent / "data"
+import os as _os
+_DATA_DIR = Path(_os.environ.get("DATA_DIR", str(Path(__file__).parent.parent.parent.parent / "data")))
 
 
 @lru_cache(maxsize=1)
@@ -609,7 +610,14 @@ def get_explore(
     db_session: Session = Depends(get_db_session),
 ) -> ExploreResponse:
     now = utc_now()
-    explore_released = now >= as_utc(competition_window.explore_release_at)
+    # Explore match predictions: released if timestamp passed OR admin has force-locked any phase
+    active_window = db_session.scalar(
+        select(CompetitionWindow)
+        .where(CompetitionWindow.is_active.is_(True))
+        .order_by(CompetitionWindow.updated_at.desc())
+    )
+    force_locked_phases = (active_window.force_locked_phases or 0) if active_window is not None else 0
+    explore_released = (now >= as_utc(competition_window.explore_release_at)) or (force_locked_phases != 0)
     match_predictions = list(
         db_session.scalars(
             visible_match_predictions_select(
@@ -618,11 +626,12 @@ def get_explore(
             )
         ).all()
     )
+    # Competition predictions (champion + scorer) are always public — no explore gate
     competition_predictions = list(
         db_session.scalars(
             visible_competition_predictions_select(
                 viewer=user,
-                explore_released=explore_released,
+                explore_released=True,
             )
         ).all()
     )

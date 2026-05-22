@@ -8,12 +8,12 @@ from fastapi import APIRouter, Depends, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
-from app.core.config import get_settings
 from app.core.security import (
     attach_session_cookie,
     build_auth_error,
     clear_session_cookie,
     create_user_session,
+    is_secure_cookie_enabled,
     hash_password,
     hash_session_token,
     read_session_token_from_request,
@@ -113,13 +113,6 @@ def build_session_response(
         competition=build_competition_payload(competition_window),
         now=utc_now(),
     )
-
-
-def is_secure_cookie_enabled() -> bool:
-    settings = get_settings()
-    return settings.app.environment != "development"
-
-
 async def parse_register_request(request: Request) -> RegisterRequest:
     payload = await _read_request_payload(request)
     full_name = _extract_text(payload, "full_name") or _extract_text(payload, "name")
@@ -238,6 +231,12 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             code="invalid_credentials",
             message="Invalid email or password",
+        )
+    if not user.is_active:
+        raise build_auth_error(
+            status_code=status.HTTP_403_FORBIDDEN,
+            code="user_inactive",
+            message="User account is inactive",
         )
 
     user.last_login_at = utc_now()

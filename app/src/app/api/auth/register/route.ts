@@ -1,24 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_URL = process.env.API_BASE_URL || 'http://localhost:8000';
-const COOKIE_NAME = 'bolao_session';
-
-function extractCookieValue(setCookieHeader: string | null): string | null {
-  if (!setCookieHeader) return null;
-  const match = setCookieHeader.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
-  return match?.[1] ?? null;
-}
-
-function cookieMaxAge(setCookieHeader: string | null): number | undefined {
-  if (!setCookieHeader) return undefined;
-  const match = setCookieHeader.match(/Expires=([^;]+)/i);
-  if (!match) return undefined;
-  const ms = Date.parse(match[1]) - Date.now();
-  return ms > 0 ? Math.floor(ms / 1000) : undefined;
-}
+import {
+  API_URL,
+  applySessionCookieFromBackend,
+  buildProxyHeaders,
+  getBackendErrorCode,
+  readCsrfTokenFromRequest,
+} from '../../../../lib/security';
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
+  const csrfToken = readCsrfTokenFromRequest(req, formData);
   const name = formData.get('name');
   const email = formData.get('email');
   const password = formData.get('password');
@@ -27,7 +18,7 @@ export async function POST(req: NextRequest) {
   try {
     backendRes = await fetch(`${API_URL}/api/auth/register`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: buildProxyHeaders(req, csrfToken, 'application/json'),
       body: JSON.stringify({ full_name: name, email, password }),
     });
   } catch {
@@ -35,7 +26,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!backendRes.ok) {
-    const code = await backendRes.json().then((d) => d?.code ?? 'unknown').catch(() => 'unknown');
+    const code = await backendRes.json().then((d) => getBackendErrorCode(d)).catch(() => 'unknown');
     return NextResponse.redirect(new URL(`/create-account?error=${code}`, req.url), 303);
   }
 
@@ -46,20 +37,7 @@ export async function POST(req: NextRequest) {
       : '/dashboard'
     : '/waiting';
 
-  const setCookieHeader = backendRes.headers.get('set-cookie');
-  const tokenValue = extractCookieValue(setCookieHeader);
-
   const res = NextResponse.redirect(new URL(dest, req.url), 303);
-
-  if (tokenValue) {
-    res.cookies.set(COOKIE_NAME, tokenValue, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: cookieMaxAge(setCookieHeader),
-    });
-  }
-
+  applySessionCookieFromBackend(res, backendRes, req);
   return res;
 }

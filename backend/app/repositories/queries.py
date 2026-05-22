@@ -96,7 +96,10 @@ def get_user_by_email(db_session: Session, email: str) -> User | None:
 
 
 def approved_users_select() -> Select[tuple[User]]:
-    return select(User).where(User.access_status == AccessStatus.APPROVED)
+    return select(User).where(
+        User.access_status == AccessStatus.APPROVED,
+        User.is_active.is_(True),
+    )
 
 
 def list_approved_users(db_session: Session) -> list[User]:
@@ -121,7 +124,7 @@ def get_active_db_session_by_token_hash(
     db_user_session = db_session.scalar(statement)
     if db_user_session is None:
         return None
-    if db_user_session.user.access_status is AccessStatus.BLOCKED:
+    if not db_user_session.user.is_active or db_user_session.user.access_status is AccessStatus.BLOCKED:
         return None
     return db_user_session
 
@@ -179,7 +182,7 @@ def get_competition_prediction(
 def ranking_users_select() -> Select[tuple[User]]:
     return (
         select(User)
-        .where(User.access_status == AccessStatus.APPROVED)
+        .where(User.access_status == AccessStatus.APPROVED, User.is_active.is_(True))
         .order_by(User.created_at.asc(), User.id.asc())
     )
 
@@ -196,7 +199,7 @@ def visible_match_predictions_select(
             joinedload(MatchPrediction.user),
             joinedload(MatchPrediction.match),
         )
-        .where(User.access_status == AccessStatus.APPROVED)
+        .where(User.access_status == AccessStatus.APPROVED, User.is_active.is_(True))
         .order_by(MatchPrediction.created_at.asc(), MatchPrediction.id.asc())
     )
     if not explore_released or viewer.access_status is not AccessStatus.APPROVED:
@@ -213,7 +216,7 @@ def visible_competition_predictions_select(
         select(CompetitionPrediction)
         .join(User, User.id == CompetitionPrediction.user_id)
         .options(joinedload(CompetitionPrediction.user))
-        .where(User.access_status == AccessStatus.APPROVED)
+        .where(User.access_status == AccessStatus.APPROVED, User.is_active.is_(True))
         .order_by(
             CompetitionPrediction.created_at.asc(),
             CompetitionPrediction.id.asc(),

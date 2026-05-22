@@ -119,9 +119,9 @@ export default async function DashboardPage() {
                   <div key={m.id} className="next-match-row">
                     <div className="next-match-date">{fmtMatchDate(m.startsAt)}</div>
                     <div className="next-teams">
-                      <div className="next-team"><TeamBadge name={m.homeTeam} flag={m.homeFlag} code={m.homeCode} compact /></div>
+                      <div className="next-team"><TeamBadge name={m.homeTeam} flag={m.homeFlag} iso2={m.homeIso2} code={m.homeCode} compact /></div>
                       <div className="next-versus">vs</div>
-                      <div className="next-team"><TeamBadge name={m.awayTeam} flag={m.awayFlag} code={m.awayCode} compact /></div>
+                      <div className="next-team"><TeamBadge name={m.awayTeam} flag={m.awayFlag} iso2={m.awayIso2} code={m.awayCode} compact /></div>
                     </div>
                     <div className={`match-badge ${m.involvesBrazil ? 'brazil' : 'open'}`}>
                       <span className="dot" />{m.involvesBrazil ? 'Brasil ×2' : 'Aberto'}

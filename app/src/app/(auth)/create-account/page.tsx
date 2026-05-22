@@ -1,8 +1,10 @@
 import Link from 'next/link';
-import { PasswordField } from '../../../components/auth/login-client';
+import { CsrfInit, PasswordField } from '../../../components/auth/login-client';
+import { getServerCsrfToken } from '../../../lib/security';
 
 const errorMap: Record<string, string> = {
   email_taken: 'Este e-mail já está em uso.',
+  email_already_registered: 'Este e-mail já está em uso.',
   server_error: 'Não foi possível conectar ao servidor.',
   unknown: 'Não foi possível criar a conta.',
 };
@@ -10,9 +12,11 @@ const errorMap: Record<string, string> = {
 export default async function CreateAccountPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const params = searchParams ? await searchParams : {};
   const errorCode = typeof params.error === 'string' ? params.error : undefined;
+  const csrfToken = await getServerCsrfToken();
 
   return (
     <main className="auth-page">
+      <CsrfInit />
       {/* ── Brand panel ── */}
       <section className="brand-panel" aria-label="Copa RDG">
         <div className="brand-logo">
@@ -39,9 +43,10 @@ export default async function CreateAccountPage({ searchParams }: { searchParams
       {/* ── Form panel ── */}
       <section className="form-panel" aria-label="Criar conta">
         <form className="form-card" action="/api/auth/register" method="POST">
+          <input type="hidden" name="csrf_token" value={csrfToken} />
           <div className="form-top">
             <div>
-              <h2 className="form-title">Create Account</h2>
+              <h2 className="form-title">Criar conta</h2>
               <p className="form-subtitle">Preencha os dados para se cadastrar no bolão.</p>
             </div>
             <div className="brand-mark" style={{ width: 34, height: 34, borderRadius: 10, fontSize: 12 }}>R</div>
@@ -51,12 +56,12 @@ export default async function CreateAccountPage({ searchParams }: { searchParams
 
           <div className="field-group">
             <label className="field-label" htmlFor="name">Nome completo</label>
-            <input id="name" name="name" type="text" className="field-input" placeholder="Ex: Sebastiao Ferreira" required />
+            <input id="name" name="name" type="text" className="field-input" placeholder="Ex: João Silva" required />
           </div>
 
           <div className="field-group">
             <label className="field-label" htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" className="field-input" placeholder="Ex: sebastiao@rdg.com" required />
+            <input id="email" name="email" type="email" className="field-input" placeholder="Ex: joao@email.com" required />
           </div>
 
           <div className="field-group">

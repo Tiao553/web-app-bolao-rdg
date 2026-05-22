@@ -179,6 +179,23 @@ def _build_knockout_matches(matches: Iterable[Match]) -> tuple[KnockoutMatch, ..
     return tuple(knockout)
 
 
+def _resolve_group_slot_team(
+    feeder_key: str | None,
+    standings_by_group: Mapping[str, tuple[TeamStanding, ...]],
+) -> str | None:
+    if feeder_key is None or ":" not in feeder_key:
+        return None
+    slot_type, group_name = feeder_key.split(":", 1)
+    rows = standings_by_group.get(group_name)
+    if not rows:
+        return None
+    if slot_type == "WINNER" and len(rows) >= 1:
+        return rows[0].team_key
+    if slot_type == "RUNNER_UP" and len(rows) >= 2:
+        return rows[1].team_key
+    return None
+
+
 def recalculate_bracket(
     db_session: Session,
     standings_by_group: Mapping[str, tuple[TeamStanding, ...]],
@@ -205,6 +222,17 @@ def recalculate_bracket(
                 match.away_team_fifa_code = allocation.team_key
                 updated_count += 1
                 db_session.add(match)
+    for match in all_matches:
+        home_group_team = _resolve_group_slot_team(match.feeder_home_key, standings_by_group)
+        away_group_team = _resolve_group_slot_team(match.feeder_away_key, standings_by_group)
+        if home_group_team is not None and match.home_team_fifa_code != home_group_team:
+            match.home_team_fifa_code = home_group_team
+            updated_count += 1
+            db_session.add(match)
+        if away_group_team is not None and match.away_team_fifa_code != away_group_team:
+            match.away_team_fifa_code = away_group_team
+            updated_count += 1
+            db_session.add(match)
     knockout_matches = _build_knockout_matches(all_matches)
     propagated = propagate_knockout_results(knockout_matches)
     propagated_by_slot = {match.slot: match for match in propagated}
@@ -214,11 +242,11 @@ def recalculate_bracket(
         propagated_match = propagated_by_slot.get(match.bracket_slot)
         if propagated_match is None:
             continue
-        if match.home_team_fifa_code != propagated_match.home_team_key:
+        if propagated_match.home_team_key is not None and match.home_team_fifa_code != propagated_match.home_team_key:
             match.home_team_fifa_code = propagated_match.home_team_key
             updated_count += 1
             db_session.add(match)
-        if match.away_team_fifa_code != propagated_match.away_team_key:
+        if propagated_match.away_team_key is not None and match.away_team_fifa_code != propagated_match.away_team_key:
             match.away_team_fifa_code = propagated_match.away_team_key
             updated_count += 1
             db_session.add(match)
@@ -325,7 +353,7 @@ def build_ranking_rows(db_session: Session) -> list[RankingSnapshotRow]:
     approved_users = list(
         db_session.scalars(
             select(User)
-            .where(User.access_status == AccessStatus.APPROVED)
+            .where(User.access_status == AccessStatus.APPROVED, User.is_active.is_(True))
             .order_by(User.created_at.asc(), User.id.asc())
         ).all()
     )

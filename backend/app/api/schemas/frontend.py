@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ResultsSummaryDto(BaseModel):
@@ -162,6 +162,7 @@ class AdminMatchRowDto(BaseModel):
     hasManualOverride: bool
     externalProvider: str | None
     externalId: str | None
+    goalScorers: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class AdminMatchesScreenDto(BaseModel):
@@ -182,6 +183,8 @@ class AdminPlayerRowDto(BaseModel):
     teamFlag: str | None
     predictionCount: int
     pointsAwardedTotal: int
+    goals: int = 0
+    assists: int = 0
 
 
 class AdminPlayersScreenDto(BaseModel):
@@ -195,5 +198,6 @@ class AdminSettingsScreenDto(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     competitionWindow: dict[str, Any]
+    forceLockedPhases: int = 0
     scoring: dict[str, int]
     sync: dict[str, Any]

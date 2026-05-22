@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { PasswordField } from '../../../../components/auth/login-client';
+import { CsrfInit, PasswordField } from '../../../../components/auth/login-client';
+import { getServerCsrfToken } from '../../../../lib/security';
 
 const errorMap: Record<string, string> = {
   invalid_credentials: 'Email ou senha inválidos.',
@@ -11,9 +12,11 @@ const errorMap: Record<string, string> = {
 export default async function AdminLoginPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const params = searchParams ? await searchParams : {};
   const errorCode = typeof params.error === 'string' ? params.error : undefined;
+  const csrfToken = await getServerCsrfToken();
 
   return (
     <main className="auth-page">
+      <CsrfInit />
       {/* ── Brand panel ── */}
       <section className="brand-panel admin-brand-panel" aria-label="Painel Administrativo">
         <div className="brand-logo">
@@ -59,6 +62,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams?: 
       <section className="form-panel" aria-label="Login Administrativo">
         <form className="form-card" action="/api/auth/login" method="POST">
           <input type="hidden" name="_intent" value="admin" />
+          <input type="hidden" name="csrf_token" value={csrfToken} />
 
           <div className="form-top">
             <div>

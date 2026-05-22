@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { fetchAppSession, resolveHomePath } from '../../../lib/session';
+import { getServerCsrfToken } from '../../../lib/security';
 
 const copyByStatus = {
   PENDING:  { title: 'Sua conta está quase liberada.', description: 'O cadastro foi recebido com status pendente. Aguarde a revisão do administrador.' },
@@ -10,6 +11,7 @@ const copyByStatus = {
 
 export default async function WaitingPage() {
   const session = await fetchAppSession();
+  const csrfToken = await getServerCsrfToken();
   if (!session.authenticated || !session.user) redirect('/login');
   if (session.accessStatus === 'APPROVED') redirect(resolveHomePath(session));
 
@@ -83,6 +85,7 @@ export default async function WaitingPage() {
           <div className="form-divider" style={{ marginTop: 24 }}>
             <span>Conta errada?</span>
             <form action="/api/auth/logout" method="POST" style={{ display: 'inline' }}>
+              <input type="hidden" name="csrf_token" value={csrfToken} />
               <button type="submit" className="btn-light">Sair</button>
             </form>
           </div>

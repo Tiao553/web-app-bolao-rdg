@@ -171,6 +171,7 @@ export type AdminUserContract = {
   full_name: string;
   access_status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'BLOCKED';
   is_admin: boolean;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
   last_login_at: string | null;
@@ -324,6 +325,7 @@ export type AdminMatchRowContract = {
   hasManualOverride: boolean;
   externalProvider: string | null;
   externalId: string | null;
+  goalScorers: { name: string; team: string | null; goals: number }[];
 };
 
 export type AdminMatchesContract = {
@@ -347,6 +349,8 @@ export type AdminPlayersContract = {
     teamFlag: string | null;
     predictionCount: number;
     pointsAwardedTotal: number;
+    goals: number;
+    assists: number;
   }>;
 };
 
@@ -354,6 +358,7 @@ export type AvailableTeamContract = {
   code: string;
   name: string;
   flag: string;
+  iso2?: string | null;
   group: string;
   confederation: string;
 };
@@ -378,6 +383,7 @@ export type AvailablePlayersContract = {
 
 export type AdminSettingsContract = {
   competitionWindow: AdminCompetitionWindowContract;
+  forceLockedPhases: number;
   scoring: {
     exact_points: number;
     result_points: number;

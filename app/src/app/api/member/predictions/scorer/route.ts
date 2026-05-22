@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_URL = process.env.API_BASE_URL || 'http://localhost:8000';
+import { API_URL, buildProxyHeaders, readCsrfTokenFromRequest } from '../../../../../lib/security';
 
 export async function POST(req: NextRequest) {
-  const cookie = req.headers.get('cookie') ?? '';
   const form = await req.formData();
+  const csrfToken = readCsrfTokenFromRequest(req, form);
   const scorerId = form.get('scorer');
 
   if (!scorerId) {
@@ -13,14 +12,14 @@ export async function POST(req: NextRequest) {
 
   // Find player label from the players API
   const playersRes = await fetch(`${API_URL}/api/member/available-players`, {
-    headers: { cookie },
+    headers: buildProxyHeaders(req),
   });
   const players: Array<{ id: string; name: string }> = playersRes.ok ? await playersRes.json() : [];
   const player = players.find(p => p.id === scorerId);
 
   const res = await fetch(`${API_URL}/api/member/predictions/top-scorer`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', cookie },
+    headers: buildProxyHeaders(req, csrfToken, 'application/json'),
     body: JSON.stringify({
       selection_key: String(scorerId),
       selection_label: player?.name ?? String(scorerId),

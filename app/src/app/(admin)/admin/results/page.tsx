@@ -1,8 +1,11 @@
 import { TeamBadge } from '../../../../components/ui/team-badge';
+import { ManualResultModal } from '../../../../components/admin/manual-result-modal';
 import type { AdminMatchesContract } from '../../../../lib/contracts';
+import { getServerCsrfToken } from '../../../../lib/security';
 import { fetchBackendData } from '../../../../lib/session';
 
 export default async function AdminResultsPage() {
+  const csrfToken = await getServerCsrfToken();
   const { data } = await fetchBackendData<AdminMatchesContract>('/api/admin/matches');
   const matches = data?.matches ?? [];
   const finished = matches.filter(m => m.status === 'FINISHED');
@@ -19,9 +22,12 @@ export default async function AdminResultsPage() {
             <h1>Altere placares com <span>rastreabilidade</span>.</h1>
             <p>Resultados vêm da API-SPORTS v3, mas o administrador pode aplicar override manual. Toda alteração recalcula pontuação, ranking, Explore e chaveamento.</p>
           </div>
-          <div className="score-card-admin">
-            <div className="score-num-admin">{finished.length}</div>
-            <div className="score-label-admin">resultados processados</div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
+            <div className="score-card-admin">
+              <div className="score-num-admin">{finished.length}</div>
+              <div className="score-label-admin">resultados processados</div>
+            </div>
+            <ManualResultModal matches={matches} csrfToken={csrfToken} />
           </div>
         </div>
       </section>
@@ -40,7 +46,7 @@ export default async function AdminResultsPage() {
         <div className="card">
           <div className="card-header">
             <div><div className="card-title">Resultados das partidas</div><div className="card-subtitle">API, manual override e recalculação</div></div>
-            {overrides.length > 0 && <div className="pill warn"><span className="dot" />{overrides.length} override</div>}
+            {overrides.length > 0 && <div className="pill warn"><span className="dot" />{overrides.length} override{overrides.length > 1 ? 's' : ''}</div>}
           </div>
           <div className="card-body">
             <div className="result-list">
@@ -50,16 +56,22 @@ export default async function AdminResultsPage() {
                 <div className="th">Partida</div>
                 <div className="th">Placar</div>
                 <div className="th">Fonte</div>
-                <div className="th" style={{ textAlign: 'right' }}>Ações</div>
               </div>
 
-              {finished.slice(0, 20).map((m, i) => (
-                <div key={m.id} className="result-row-admin">
+              {finished.slice(0, 30).map((m, i) => (
+                <div key={m.id} className={`result-row-admin${m.hasManualOverride ? ' manual-override-row' : ''}`}>
                   <div className="admin-date">J{String(i + 1).padStart(2, '0')}</div>
                   <div className="admin-teams">
-                    <div className="admin-team"><TeamBadge name={m.homeTeam} flag={m.homeFlag} code={m.homeCode} compact /></div>
+                    <div className="admin-team"><TeamBadge name={m.homeTeam} flag={m.homeFlag} iso2={m.homeIso2} code={m.homeCode} compact /></div>
                     <span className="admin-vs">×</span>
-                    <div className="admin-team"><TeamBadge name={m.awayTeam} flag={m.awayFlag} code={m.awayCode} compact /></div>
+                    <div className="admin-team"><TeamBadge name={m.awayTeam} flag={m.awayFlag} iso2={m.awayIso2} code={m.awayCode} compact /></div>
+                    {m.goalScorers && m.goalScorers.length > 0 && (
+                      <div className="match-scorers-inline">
+                        {m.goalScorers.map((s, si) => (
+                          <span key={si} className="scorer-chip">{s.name}{s.goals > 1 ? ` ×${s.goals}` : ''}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div style={{ fontFamily: 'Fira Code', fontWeight: 900, color: 'var(--or)' }}>
@@ -68,12 +80,12 @@ export default async function AdminResultsPage() {
                     <div className="admin-source">finalizado</div>
                   </div>
                   <div>
-                    <div className={`pill ${m.hasManualOverride ? 'orange' : 'ok'}`}><span className="dot" />{m.hasManualOverride ? 'manual' : 'API'}</div>
-                    <div className="admin-source">{m.hasManualOverride ? 'override' : m.externalProvider ?? '—'}</div>
-                  </div>
-                  <div className="row-actions">
-                    <button className="btn-ghost" style={{ height: 32, fontSize: 11, padding: '0 10px' }}>Editar</button>
-                    <button className="btn-ok" style={{ height: 32, fontSize: 11, padding: '0 10px' }}>Recalcular</button>
+                    {m.hasManualOverride ? (
+                      <div className="pill orange" title="Resultado inserido manualmente pelo admin"><span className="dot" />manual</div>
+                    ) : (
+                      <div className="pill ok"><span className="dot" />API</div>
+                    )}
+                    <div className="admin-source">{m.hasManualOverride ? 'override admin' : (m.externalProvider ?? '—')}</div>
                   </div>
                 </div>
               ))}
@@ -99,39 +111,27 @@ export default async function AdminResultsPage() {
             </div>
           </div>
 
-          <div className="card">
-            <div className="card-header"><div><div className="card-title">Editor rápido</div><div className="card-subtitle">Partida selecionada</div></div></div>
-            <div className="card-body">
-              <div className="editor-admin">
-                <div className="editor-summary">
-                  <div className="editor-title-admin">Selecione uma partida</div>
-                  <div className="editor-sub-admin">Clique em "Editar" para carregar</div>
-                </div>
-                <div className="field-admin">
-                  <div className="field-label-admin">Placar oficial</div>
-                  <div className="score-editor">
-                    <div className="score-box">
-                      <div className="score-team">Casa</div>
-                      <input className="score-input-admin" defaultValue="—" />
+          {overrides.length > 0 && (
+            <div className="card">
+              <div className="card-header">
+                <div><div className="card-title">Overrides manuais</div><div className="card-subtitle">Inseridos pelo admin</div></div>
+                <div className="pill orange"><span className="dot" />{overrides.length}</div>
+              </div>
+              <div className="card-body">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {overrides.map(m => (
+                    <div key={m.id} style={{ fontSize: 12, color: 'var(--tx2)', borderLeft: '2px solid var(--or)', paddingLeft: 10 }}>
+                      <div style={{ fontWeight: 600 }}>{m.homeTeam} × {m.awayTeam}</div>
+                      <div style={{ color: 'var(--tx3)' }}>
+                        {m.officialHomeGoals ?? '—'} × {m.officialAwayGoals ?? '—'}
+                        {m.goalScorers && m.goalScorers.length > 0 && ` · ${m.goalScorers.map(s => s.name).join(', ')}`}
+                      </div>
                     </div>
-                    <div className="score-sep">×</div>
-                    <div className="score-box">
-                      <div className="score-team">Fora</div>
-                      <input className="score-input-admin" defaultValue="—" />
-                    </div>
-                  </div>
-                </div>
-                <div className="field-admin">
-                  <div className="field-label-admin">Motivo do override</div>
-                  <input className="admin-input" placeholder="Ex: Correção após divergência da API" />
-                </div>
-                <div style={{ display: 'grid', gap: 8 }}>
-                  <button className="btn-primary full" disabled style={{ opacity: .5 }}>Salvar e recalcular</button>
-                  <button className="btn-ghost full" disabled style={{ opacity: .5 }}>Ver impacto no ranking</button>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="warning-admin">
             <div className="warning-title-admin">Impacto automático</div>

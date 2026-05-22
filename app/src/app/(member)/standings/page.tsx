@@ -70,7 +70,7 @@ export default async function StandingsPage() {
                   {g.entries.map((e, i) => (
                     <div key={e.teamCode} className={`standings-row${i < 2 ? ' qualify' : i === 2 ? ' qualify-3rd' : ''}`}>
                       <div className="st-pos">{i + 1}</div>
-                      <div className="st-team"><TeamBadge name={e.teamName} flag={e.teamFlag} code={e.teamCode} compact /></div>
+                      <div className="st-team"><TeamBadge name={e.teamName} flag={e.teamFlag} iso2={e.teamIso2} code={e.teamCode} compact /></div>
                       <div className="st-num">{e.played}</div>
                       <div className="st-num">{e.won}</div>
                       <div className="st-num">{e.drawn}</div>

@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.core.security import hash_password
+from app.core.security import CSRF_COOKIE_NAME, CSRF_HEADER_NAME, hash_password
 from app.main import create_app
 from app.models.schema import (
     AccessStatus,
@@ -76,6 +76,13 @@ def seed_window(db_session: Session, *, released: bool) -> None:
     db_session.flush()
 
 
+def issue_csrf_headers(client: TestClient) -> dict[str, str]:
+    client.get("/healthz")
+    csrf_token = client.cookies.get(CSRF_COOKIE_NAME)
+    assert csrf_token is not None
+    return {CSRF_HEADER_NAME: csrf_token}
+
+
 def test_pending_user_cannot_access_dashboard() -> None:
     factory = make_session_factory()
     with factory() as db_session:
@@ -85,9 +92,11 @@ def test_pending_user_cannot_access_dashboard() -> None:
     app = create_app()
     app.dependency_overrides[get_db_session] = build_db_override(factory)
     with TestClient(app) as client:
+        headers = issue_csrf_headers(client)
         login_response = client.post(
             "/api/auth/login",
             json={"email": "pending@example.com", "password": "password123"},
+            headers=headers,
         )
         assert login_response.status_code == 200
         response = client.get("/api/member/dashboard")
@@ -124,14 +133,17 @@ def test_approved_user_can_save_prediction_and_see_own_explore_before_release() 
     app = create_app()
     app.dependency_overrides[get_db_session] = build_db_override(factory)
     with TestClient(app) as client:
+        headers = issue_csrf_headers(client)
         login_response = client.post(
             "/api/auth/login",
             json={"email": "approved@example.com", "password": "password123"},
+            headers=headers,
         )
         assert login_response.status_code == 200
         save_response = client.put(
             f"/api/member/predictions/matches/{match.id}",
             json={"home_goals": 1, "away_goals": 0},
+            headers=headers,
         )
         assert save_response.status_code == 200
         response = client.get("/api/member/explore")
@@ -174,9 +186,11 @@ def test_ranking_excludes_non_approved_users() -> None:
     app = create_app()
     app.dependency_overrides[get_db_session] = build_db_override(factory)
     with TestClient(app) as client:
+        headers = issue_csrf_headers(client)
         login_response = client.post(
             "/api/auth/login",
             json={"email": "approved@example.com", "password": "password123"},
+            headers=headers,
         )
         assert login_response.status_code == 200
         response = client.get("/api/member/ranking")

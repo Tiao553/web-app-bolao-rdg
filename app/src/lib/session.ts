@@ -7,6 +7,7 @@ import {
   type SessionUserPayload,
   type SessionWindowPayload
 } from "./api-client";
+import { getServerCsrfToken } from './security';
 
 export type AccessStatus = SessionAccessStatus;
 
@@ -22,6 +23,7 @@ export type AppSession = {
   user: AppSessionUser | null;
   accessStatus: AccessStatus | null;
   isAdmin: boolean;
+  csrfToken: string;
   competition: SessionWindows;
   now: string | null;
 };
@@ -45,7 +47,7 @@ function normalizeWindows(competition?: SessionWindowPayload | null): SessionWin
   };
 }
 
-export function normalizeSession(payload: SessionPayload | null): AppSession {
+export function normalizeSession(payload: SessionPayload | null, csrfToken = ''): AppSession {
   const user = payload?.user ?? null;
   const accessStatus = user?.accessStatus ?? null;
 
@@ -54,6 +56,7 @@ export function normalizeSession(payload: SessionPayload | null): AppSession {
     user,
     accessStatus,
     isAdmin: Boolean(user?.isAdmin),
+    csrfToken,
     competition: normalizeWindows(payload?.competition),
     now: payload?.now ?? null
   };
@@ -61,11 +64,12 @@ export function normalizeSession(payload: SessionPayload | null): AppSession {
 
 export async function fetchAppSession(): Promise<AppSession> {
   const cookieHeader = await getServerCookieHeader();
+  const csrfToken = await getServerCsrfToken();
   try {
     const payload = await getServerJson<SessionPayload>('/api/auth/session', cookieHeader);
-    return normalizeSession(payload);
+    return normalizeSession(payload, csrfToken);
   } catch {
-    return normalizeSession(null);
+    return normalizeSession(null, csrfToken);
   }
 }
 

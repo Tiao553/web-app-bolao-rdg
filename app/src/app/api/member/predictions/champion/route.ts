@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_URL = process.env.API_BASE_URL || 'http://localhost:8000';
+import { API_URL, buildProxyHeaders, readCsrfTokenFromRequest } from '../../../../../lib/security';
 
 export async function POST(req: NextRequest) {
-  const cookie = req.headers.get('cookie') ?? '';
   const form = await req.formData();
+  const csrfToken = readCsrfTokenFromRequest(req, form);
   const champion = form.get('champion');
 
   if (!champion) {
@@ -13,14 +12,14 @@ export async function POST(req: NextRequest) {
 
   // Find team label from the teams API
   const teamsRes = await fetch(`${API_URL}/api/member/available-teams`, {
-    headers: { cookie },
+    headers: buildProxyHeaders(req),
   });
   const teams: Array<{ code: string; name: string }> = teamsRes.ok ? await teamsRes.json() : [];
   const team = teams.find(t => t.code === champion);
 
   const res = await fetch(`${API_URL}/api/member/predictions/champion`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', cookie },
+    headers: buildProxyHeaders(req, csrfToken, 'application/json'),
     body: JSON.stringify({
       selection_key: champion,
       selection_label: team?.name ?? String(champion),

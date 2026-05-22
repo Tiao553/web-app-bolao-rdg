@@ -6,8 +6,14 @@ export default async function BracketPage() {
   const { data } = await fetchBackendData<MemberBracketContract>('/api/member/bracket');
   const matches = data?.matches ?? [];
 
-  const phases = ['R16', 'QF', 'SF', 'F'];
-  const phaseLabel: Record<string, string> = { R16: '16 avos', QF: 'Oitavas', SF: 'Quartas', F: 'Semi/Final' };
+  const phases = ['ROUND_OF_32', 'ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL'];
+  const phaseLabel: Record<string, string> = {
+    ROUND_OF_32: '16 avos',
+    ROUND_OF_16: 'Oitavas',
+    QUARTER_FINAL: 'Quartas',
+    SEMI_FINAL: 'Semifinal',
+    FINAL: 'Final',
+  };
 
   return (
     <>
@@ -48,11 +54,11 @@ export default async function BracketPage() {
                           <div style={{ padding: '8px 12px', background: 'var(--s3)', fontFamily: 'Fira Code', fontSize: 10, color: 'var(--tx3)', textTransform: 'uppercase' }}>{m.slot}</div>
                           <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: m.winnerTeam === m.homeTeam ? 800 : 400, color: m.winnerTeam === m.homeTeam ? 'var(--or)' : 'var(--tx2)' }}>
-                              <TeamBadge name={m.homeTeam ?? 'TBD'} flag={m.homeFlag} code={m.homeCode} compact />
+                              <TeamBadge name={m.homeTeam ?? 'TBD'} flag={m.homeFlag} iso2={m.homeIso2} code={m.homeCode} compact />
                             </div>
                             <div style={{ height: 1, background: 'var(--bd)' }} />
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: m.winnerTeam === m.awayTeam ? 800 : 400, color: m.winnerTeam === m.awayTeam ? 'var(--or)' : 'var(--tx2)' }}>
-                              <TeamBadge name={m.awayTeam ?? 'TBD'} flag={m.awayFlag} code={m.awayCode} compact />
+                              <TeamBadge name={m.awayTeam ?? 'TBD'} flag={m.awayFlag} iso2={m.awayIso2} code={m.awayCode} compact />
                             </div>
                           </div>
                           {m.winnerTeam && <div style={{ padding: '6px 12px', background: 'var(--or-g)', borderTop: '1px solid var(--or-r)', fontSize: 11, color: 'var(--or)', fontFamily: 'Fira Code' }}>✓ {m.winnerTeam}</div>}

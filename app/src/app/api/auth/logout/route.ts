@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_URL = process.env.API_BASE_URL || 'http://localhost:8000';
-const COOKIE_NAME = 'bolao_session';
+import { API_URL, SESSION_COOKIE_NAME, buildProxyHeaders, readCsrfTokenFromRequest } from '../../../../lib/security';
 
 export async function POST(req: NextRequest) {
-  const sessionCookie = req.cookies.get(COOKIE_NAME)?.value;
+  const formData = await req.formData();
+  const csrfToken = readCsrfTokenFromRequest(req, formData);
 
   await fetch(`${API_URL}/api/auth/logout`, {
     method: 'POST',
-    headers: sessionCookie ? { cookie: `${COOKIE_NAME}=${sessionCookie}` } : {},
+    headers: buildProxyHeaders(req, csrfToken),
   }).catch(() => null);
 
   const res = NextResponse.redirect(new URL('/login', req.url), 303);
-  res.cookies.delete(COOKIE_NAME);
+  res.cookies.delete(SESSION_COOKIE_NAME);
   return res;
 }

@@ -11,13 +11,14 @@ function initials(name: string) {
 }
 
 export function InitialPredictionsClient({
-  teams, players, champion, scorer, locked,
+  teams, players, champion, scorer, locked, csrfToken,
 }: {
   teams: Team[];
   players: Player[];
   champion: Prediction | null;
   scorer: Prediction | null;
   locked: boolean;
+  csrfToken: string;
 }) {
   const [teamSearch, setTeamSearch] = useState('');
   const [playerSearch, setPlayerSearch] = useState('');
@@ -79,7 +80,7 @@ export function InitialPredictionsClient({
                 <div className="pick-selected-card">
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 11, color: 'var(--tx3)', fontFamily: 'Fira Code', textTransform: 'uppercase', letterSpacing: '.08em' }}>Campeão selecionado</div>
-                    <div style={{ fontSize: 16, fontWeight: 800 }}><TeamBadge name={championTeam.name} flag={championTeam.flag} code={championTeam.code} /></div>
+                    <div style={{ fontSize: 16, fontWeight: 800 }}><TeamBadge name={championTeam.name} flag={championTeam.flag} iso2={championTeam.iso2} code={championTeam.code} /></div>
                     <div style={{ fontSize: 12, color: 'var(--tx3)' }}>Grupo {championTeam.group}</div>
                   </div>
                   <div className="pick-points">10 pts</div>
@@ -95,6 +96,7 @@ export function InitialPredictionsClient({
             {/* Editing state */}
             {(editingChampion || !championTeam) && (
               <form action="/api/member/predictions/champion" method="POST">
+                <input type="hidden" name="csrf_token" value={csrfToken} />
                 <div className="pick-search">
                   <span className="search-icon">⌕</span>
                   <input
@@ -124,7 +126,7 @@ export function InitialPredictionsClient({
                           style={{ display: 'none' }}
                         />
                         <div>
-                          <div className="option-name"><TeamBadge name={t.name} flag={t.flag} code={t.code} compact /></div>
+                          <div className="option-name"><TeamBadge name={t.name} flag={t.flag} iso2={t.iso2} code={t.code} compact /></div>
                           <div className="option-meta">Grupo {t.group}</div>
                         </div>
                         <div className="check">✓</div>
@@ -167,7 +169,7 @@ export function InitialPredictionsClient({
                       <div style={{ fontSize: 11, color: 'var(--tx3)', fontFamily: 'Fira Code', textTransform: 'uppercase', letterSpacing: '.08em' }}>Artilheiro selecionado</div>
                       <div style={{ fontSize: 16, fontWeight: 800 }}>{scorerPlayer.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--tx3)' }}>
-                        {scorerTeam ? <TeamBadge name={scorerTeam.name} flag={scorerTeam.flag} code={scorerTeam.code} compact /> : scorerPlayer.nationality} · {scorerPlayer.position === 'FW' ? 'atacante' : scorerPlayer.position}
+                        {scorerTeam ? <TeamBadge name={scorerTeam.name} flag={scorerTeam.flag} iso2={scorerTeam.iso2} code={scorerTeam.code} compact /> : scorerPlayer.nationality} · {scorerPlayer.position === 'FW' ? 'atacante' : scorerPlayer.position}
                       </div>
                     </div>
                     <div className="pick-points">15 pts</div>
@@ -183,6 +185,7 @@ export function InitialPredictionsClient({
               {/* Editing state */}
               {(editingScorer || !scorerPlayer) && (
                 <form action="/api/member/predictions/scorer" method="POST">
+                  <input type="hidden" name="csrf_token" value={csrfToken} />
                   <div className="pick-search">
                     <span className="search-icon">⌕</span>
                     <input
@@ -216,7 +219,7 @@ export function InitialPredictionsClient({
                           <div>
                             <div className="option-name">{p.name}</div>
                             <div className="option-meta">
-                              {team ? <TeamBadge name={team.name} flag={team.flag} code={team.code} compact /> : p.nationality} · {p.position === 'FW' ? 'atacante' : p.position}
+                              {team ? <TeamBadge name={team.name} flag={team.flag} iso2={team.iso2} code={team.code} compact /> : p.nationality} · {p.position === 'FW' ? 'atacante' : p.position}
                             </div>
                           </div>
                           <div className="pick-points">15 pts</div>
@@ -253,7 +256,7 @@ export function InitialPredictionsClient({
                   <div className="flag" style={{ fontSize: 22 }}>{championTeam?.flag ?? '🏆'}</div>
                   <div>
                     <div style={{ fontSize: 11, color: 'var(--tx3)', fontFamily: 'Fira Code', textTransform: 'uppercase', letterSpacing: '.08em' }}>Campeão escolhido</div>
-                    <div style={{ fontSize: 14, fontWeight: 800 }}>{championTeam ? <TeamBadge name={championTeam.name} flag={championTeam.flag} code={championTeam.code} compact /> : champion?.selectionLabel ?? 'Não definido'}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800 }}>{championTeam ? <TeamBadge name={championTeam.name} flag={championTeam.flag} iso2={championTeam.iso2} code={championTeam.code} compact /> : champion?.selectionLabel ?? 'Não definido'}</div>
                   </div>
                   <div className="pick-points">10 pts</div>
                 </div>
@@ -262,7 +265,7 @@ export function InitialPredictionsClient({
                   <div>
                     <div style={{ fontSize: 11, color: 'var(--tx3)', fontFamily: 'Fira Code', textTransform: 'uppercase', letterSpacing: '.08em' }}>Artilheiro escolhido</div>
                     <div style={{ fontSize: 14, fontWeight: 800 }}>{scorerPlayer?.name ?? scorer?.selectionLabel ?? 'Não definido'}</div>
-                    {scorerTeam && <div style={{ marginTop: 2 }}><TeamBadge name={scorerTeam.name} flag={scorerTeam.flag} code={scorerTeam.code} compact /></div>}
+                    {scorerTeam && <div style={{ marginTop: 2 }}><TeamBadge name={scorerTeam.name} flag={scorerTeam.flag} iso2={scorerTeam.iso2} code={scorerTeam.code} compact /></div>}
                   </div>
                   <div className="pick-points">15 pts</div>
                 </div>

@@ -1,16 +1,33 @@
 import type { AdminSettingsContract } from '../../../../lib/contracts';
 import { fetchBackendData } from '../../../../lib/session';
+import { getServerCsrfToken } from '../../../../lib/security';
 
-export default async function AdminSettingsPage() {
+const ROUND_KEYS = ['round1', 'round2', 'round3', 'roundOf32', 'roundOf16', 'quarterFinal', 'semiFinal', 'final'];
+
+export default async function AdminSettingsPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = searchParams ? await searchParams : {};
+  const csrfToken = await getServerCsrfToken();
+  const saved = params.saved === '1';
+  const saveError = typeof params.error === 'string' ? params.error : undefined;
   const { data } = await fetchBackendData<AdminSettingsContract>('/api/admin/settings');
   const w = data?.competitionWindow;
   const sc = data?.scoring;
+  const forceLockedPhases = data?.forceLockedPhases ?? 0;
+
+  function isRoundLocked(key: string): boolean {
+    const idx = ROUND_KEYS.indexOf(key);
+    if (idx < 0) return false;
+    return ((forceLockedPhases >> idx) & 1) === 1;
+  }
 
   const fmt = (v: string | undefined) =>
     v ? new Date(v).toISOString().slice(0, 16) : '';
 
   return (
     <>
+      {saved && <div className="modal-success" style={{ margin: '0 0 16px', padding: '10px 16px', borderRadius: 10, fontSize: 13 }}>Configurações salvas com sucesso.</div>}
+      {saveError && <div className="modal-error" style={{ margin: '0 0 16px', padding: '10px 16px', borderRadius: 10, fontSize: 13 }}>Erro ao salvar: {saveError === 'missing_dates' ? 'Preencha os campos de data.' : 'Tente novamente.'}</div>}
+
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">
@@ -37,6 +54,7 @@ export default async function AdminSettingsPage() {
           </div>
           <div className="card-body">
             <form action="/api/admin/settings/window" method="POST">
+              <input type="hidden" name="csrf_token" value={csrfToken} />
               <div className="settings-grid">
                 <div className="field-admin full">
                   <div className="field-label-admin">Nome da competição</div>
@@ -122,24 +140,32 @@ export default async function AdminSettingsPage() {
                   { key: 'quarterFinal', label: 'Quartas' },
                   { key: 'semiFinal', label: 'Semifinal' },
                   { key: 'final', label: 'Final' },
-                ].map(r => (
-                  <div key={r.key} className="toggle-row" style={{ gap: 12 }}>
-                    <div style={{ flex: 1 }}>
-                      <div className="toggle-title">{r.label}</div>
-                      <div className="toggle-text">Bloqueio automático 1h antes do 1º jogo</div>
+                ].map(r => {
+                  const locked = isRoundLocked(r.key);
+                  return (
+                    <div key={r.key} className="toggle-row" style={{ gap: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <div className="toggle-title">{r.label}</div>
+                        <div className="toggle-text">Bloqueio automático 1h antes do 1º jogo</div>
+                      </div>
+                      <div className={`pill ${locked ? 'warn' : 'ok'}`} style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
+                        <span className="dot" />{locked ? 'Travado' : 'Aberto'}
+                      </div>
+                      <form action="/api/admin/phase-lock" method="POST">
+                        <input type="hidden" name="csrf_token" value={csrfToken} />
+                        <input type="hidden" name="roundKey" value={r.key} />
+                        <input type="hidden" name="locked" value="true" />
+                        <button type="submit" className="btn-danger" style={{ height: 30, fontSize: 11, padding: '0 10px' }}>Travar</button>
+                      </form>
+                      <form action="/api/admin/phase-lock" method="POST">
+                        <input type="hidden" name="csrf_token" value={csrfToken} />
+                        <input type="hidden" name="roundKey" value={r.key} />
+                        <input type="hidden" name="locked" value="false" />
+                        <button type="submit" className="btn-ok" style={{ height: 30, fontSize: 11, padding: '0 10px' }}>Abrir</button>
+                      </form>
                     </div>
-                    <form action="/api/admin/phase-lock" method="POST" style={{ display: 'flex', gap: 6 }}>
-                      <input type="hidden" name="roundKey" value={r.key} />
-                      <input type="hidden" name="locked" value="true" />
-                      <button type="submit" className="btn-danger" style={{ height: 30, fontSize: 11, padding: '0 10px' }}>🔒 Travar</button>
-                    </form>
-                    <form action="/api/admin/phase-lock" method="POST" style={{ display: 'flex', gap: 6 }}>
-                      <input type="hidden" name="roundKey" value={r.key} />
-                      <input type="hidden" name="locked" value="false" />
-                      <button type="submit" className="btn-ok" style={{ height: 30, fontSize: 11, padding: '0 10px' }}>🔓 Abrir</button>
-                    </form>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

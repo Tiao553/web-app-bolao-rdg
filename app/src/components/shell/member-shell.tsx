@@ -20,6 +20,7 @@ const competitionNav = [
 export function MemberShell({ session, children }: { session: AppSession; children: ReactNode }) {
   const pathname = usePathname();
   const initials = session.user?.name?.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase() || 'RD';
+  const csrfToken = session.csrfToken;
 
   return (
     <div className="app">
@@ -49,6 +50,14 @@ export function MemberShell({ session, children }: { session: AppSession; childr
               </Link>
             ))}
           </div>
+          {session.isAdmin ? (
+            <div className="nav-section">
+              <div className="nav-title">Alternar área</div>
+              <Link href="/admin/dashboard" className="nav-item">
+                <span className="nav-icon">⇄</span>Ir para Admin
+              </Link>
+            </div>
+          ) : null}
         </nav>
 
         <div className="sidebar-footer">
@@ -59,21 +68,22 @@ export function MemberShell({ session, children }: { session: AppSession; childr
               <div className="user-role">Participante</div>
             </div>
           </div>
-          <div className="status-pill"><span className="dot" />Approved</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+            <div className="status-pill"><span className="dot" />Approved</div>
+            <form action="/api/auth/logout" method="POST">
+              <input type="hidden" name="csrf_token" value={csrfToken} />
+              <button type="submit" className="btn-ghost" style={{ fontSize: 12, padding: '5px 10px' }}>Sair</button>
+            </form>
+          </div>
         </div>
       </aside>
 
       <div className="main">
-        <header className="topbar">
-          <div>
-            <div className="breadcrumbs">Copa RDG / {primaryNav.concat(competitionNav).find(n => n.href === pathname)?.label ?? 'Área do membro'}</div>
-          </div>
-          <div className="top-actions">
-            <form action="/api/auth/logout" method="POST">
-              <button type="submit" className="btn-ghost">Sair</button>
-            </form>
-          </div>
-        </header>
+        <div className="page-breadcrumb">
+          <span>Copa RDG</span>
+          <span className="bc-sep">/</span>
+          <span>{primaryNav.concat(competitionNav).find(n => n.href === pathname)?.label ?? 'Área do membro'}</span>
+        </div>
         <div className="content">{children}</div>
       </div>
     </div>

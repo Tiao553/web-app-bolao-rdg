@@ -26,12 +26,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    ".next-build/types/**/*.ts",
-    ".next-local/types/**/*.ts",
-    ".next-out/types/**/*.ts",
     ".next/types/**/*.ts",
-    "/.next-bolao/types/**/*.ts",
-    "/tmp/bolao-next-build/types/**/*.ts",
     "next-env.d.ts",
     ".next-user/types/**/*.ts"
   ],

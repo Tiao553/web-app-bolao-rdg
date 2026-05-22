@@ -100,6 +100,13 @@ class User(TimestampMixin, Base):
         server_default="false",
         nullable=False,
     )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        server_default="true",
+        index=True,
+        nullable=False,
+    )
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     sessions: Mapped[list[UserSession]] = relationship(

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_URL = process.env.API_BASE_URL || 'http://localhost:8000';
+import { API_URL, buildProxyHeaders, readCsrfTokenFromRequest } from '../../../../../lib/security';
 
 export async function POST(req: NextRequest) {
-  const cookie = req.headers.get('cookie') ?? '';
   const form = await req.formData();
+  const csrfToken = readCsrfTokenFromRequest(req, form);
 
   const errors: string[] = [];
   const saves: Promise<Response>[] = [];
@@ -22,7 +21,7 @@ export async function POST(req: NextRequest) {
     saves.push(
       fetch(`${API_URL}/api/member/predictions/matches/${matchId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', cookie },
+        headers: buildProxyHeaders(req, csrfToken, 'application/json'),
         body: JSON.stringify({ home_goals: homeGoals, away_goals: awayGoals }),
       })
     );

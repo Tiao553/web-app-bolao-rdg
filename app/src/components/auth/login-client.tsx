@@ -1,5 +1,26 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+function getCsrfCookie(): string {
+  const entry = document.cookie.split('; ').find((c) => c.startsWith('bolao_csrf='));
+  return entry ? decodeURIComponent(entry.slice('bolao_csrf='.length)) : '';
+}
+
+export function CsrfInit() {
+  useEffect(() => {
+    async function init() {
+      if (!getCsrfCookie()) {
+        await fetch('/api/auth/csrf').catch(() => {});
+      }
+      // update all hidden csrf_token inputs on this page
+      document.querySelectorAll<HTMLInputElement>('input[name="csrf_token"]').forEach((el) => {
+        el.value = getCsrfCookie();
+      });
+    }
+    init();
+  }, []);
+  return null;
+}
 
 export function TypeSwitch() {
   const [active, setActive] = useState<'member' | 'admin'>('member');

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
+
+_DATA_DIR = Path(os.environ.get("DATA_DIR", str(Path(__file__).resolve().parents[2] / "data")))
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -148,8 +151,12 @@ class FrontendContractService:
                 .order_by(Match.bracket_slot.asc(), Match.starts_at.asc(), Match.id.asc())
             ).all()
         )
+        standings_by_group = self._compute_group_standings()
         seed_matches = self._load_knockout_seed_matches() if not knockout_matches else []
-        rows = [self._bracket_match_to_dto(match) for match in (knockout_matches if knockout_matches else seed_matches)]
+        rows = [
+            self._bracket_match_to_dto(match, standings_by_group=standings_by_group)
+            for match in (knockout_matches if knockout_matches else seed_matches)
+        ]
         third_place_slots = [
             BracketThirdPlaceSlotDto(
                 slot=slot,
@@ -164,8 +171,52 @@ class FrontendContractService:
             matches=rows,
         )
 
+    def _compute_group_standings(self) -> dict[str, list[dict]]:
+        """Returns {group: [sorted team dicts]} from finished group stage matches."""
+        from collections import defaultdict
+        group_matches = list(
+            self.db_session.scalars(
+                select(Match).where(Match.phase == CompetitionPhase.GROUP_STAGE)
+            ).all()
+        )
+        team_data: dict[str, dict[str, dict]] = defaultdict(dict)
+        for m in group_matches:
+            grp = m.group_name or "?"
+            for code, name in [
+                (m.home_team_fifa_code or m.home_team_name, m.home_team_name),
+                (m.away_team_fifa_code or m.away_team_name, m.away_team_name),
+            ]:
+                if code not in team_data[grp]:
+                    team = get_team_metadata(code, name)
+                    team_data[grp][code] = {"meta": team, "p": 0, "w": 0, "d": 0, "l": 0, "gf": 0, "ga": 0}
+        for m in group_matches:
+            if m.official_home_goals is None or m.official_away_goals is None:
+                continue
+            grp = m.group_name or "?"
+            hg, ag = m.official_home_goals, m.official_away_goals
+            hc = m.home_team_fifa_code or m.home_team_name
+            ac = m.away_team_fifa_code or m.away_team_name
+            for code in (hc, ac):
+                team_data[grp][code]["p"] += 1
+            team_data[grp][hc]["gf"] += hg; team_data[grp][hc]["ga"] += ag
+            team_data[grp][ac]["gf"] += ag; team_data[grp][ac]["ga"] += hg
+            if hg > ag:
+                team_data[grp][hc]["w"] += 1; team_data[grp][ac]["l"] += 1
+            elif hg < ag:
+                team_data[grp][ac]["w"] += 1; team_data[grp][hc]["l"] += 1
+            else:
+                team_data[grp][hc]["d"] += 1; team_data[grp][ac]["d"] += 1
+        result: dict[str, list[dict]] = {}
+        for grp, teams in team_data.items():
+            sorted_teams = sorted(
+                [{"meta": d["meta"], "pts": d["w"] * 3 + d["d"], "gd": d["gf"] - d["ga"], "gf": d["gf"], "p": d["p"]} for d in teams.values()],
+                key=lambda x: (-x["pts"], -x["gd"], -x["gf"], x["meta"].name),
+            )
+            result[grp] = sorted_teams
+        return result
+
     def build_admin_dashboard(self) -> AdminDashboardScreenDto:
-        users = list(self.db_session.scalars(select(User)).all())
+        users = list(self.db_session.scalars(select(User).where(User.is_active.is_(True))).all())
         matches = list(self.db_session.scalars(select(Match)).all())
         latest_syncs = list(
             self.db_session.scalars(
@@ -240,14 +291,24 @@ class FrontendContractService:
         points: Counter[tuple[str, str]] = Counter()
         for prediction in predictions:
             points[(prediction.selection_key, prediction.selection_label)] += prediction.points_awarded or 0
+        player_stats = self._load_player_stats()
         leaders = [
-            self._admin_player_to_dto(selection_key, selection_label, count, points[(selection_key, selection_label)])
+            self._admin_player_to_dto(selection_key, selection_label, count, points[(selection_key, selection_label)], player_stats)
             for (selection_key, selection_label), count in counts.most_common(12)
         ]
         return AdminPlayersScreenDto(
             topScorerPoints=settings.scoring.top_scorer_points,
             leaders=leaders,
         )
+
+    def _load_player_stats(self) -> dict[str, dict[str, int]]:
+        path = _DATA_DIR / "player-stats.json"
+        if not path.exists():
+            return {}
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
 
     def build_admin_settings(self) -> AdminSettingsScreenDto:
         settings = get_settings()
@@ -265,6 +326,7 @@ class FrontendContractService:
                 "explore_release_at": active_window.explore_release_at.isoformat(),
                 "is_active": True,
             },
+            forceLockedPhases=competition_window.force_locked_phases if competition_window is not None else 0,
             scoring={
                 "exact_points": settings.scoring.exact_points,
                 "result_points": settings.scoring.result_points,
@@ -331,9 +393,22 @@ class FrontendContractService:
             hasManualOverride=match.has_manual_override,
             externalProvider=match.external_provider.value if match.external_provider is not None else None,
             externalId=match.external_id,
+            goalScorers=(match.source_payload or {}).get("goal_scorers", []),
         )
 
-    def _bracket_match_to_dto(self, match: Match | dict[str, object]) -> BracketMatchDto:
+    def _resolve_slot_team(self, slot_key: str | None, standings: dict[str, list[dict]]) -> object:
+        """Resolve WINNER:A or RUNNER_UP:B to a TeamMetadata from current standings."""
+        if not slot_key or ":" not in slot_key:
+            return None
+        slot_type, group = slot_key.split(":", 1)
+        group_table = standings.get(group, [])
+        if slot_type == "WINNER" and len(group_table) >= 1:
+            return group_table[0]["meta"]
+        if slot_type == "RUNNER_UP" and len(group_table) >= 2:
+            return group_table[1]["meta"]
+        return None
+
+    def _bracket_match_to_dto(self, match: Match | dict[str, object], standings_by_group: dict | None = None) -> BracketMatchDto:
         if isinstance(match, Match):
             home_team = get_team_metadata(match.home_team_fifa_code, match.home_team_name)
             away_team = get_team_metadata(match.away_team_fifa_code, match.away_team_name)
@@ -360,6 +435,20 @@ class FrontendContractService:
 
         raw_home = self._coerce_string(match.get("homeTeam"))
         raw_away = self._coerce_string(match.get("awayTeam"))
+        feeder_home = self._coerce_string(match.get("feederHomeKey"))
+        feeder_away = self._coerce_string(match.get("feederAwayKey"))
+
+        # Try to resolve TBD slots from current standings
+        standings = standings_by_group or {}
+        if raw_home in (None, "TBD") and feeder_home:
+            resolved = self._resolve_slot_team(feeder_home, standings)
+            if resolved:
+                raw_home = resolved.code
+        if raw_away in (None, "TBD") and feeder_away:
+            resolved = self._resolve_slot_team(feeder_away, standings)
+            if resolved:
+                raw_away = resolved.code
+
         home_team = get_team_metadata(raw_home, raw_home)
         away_team = get_team_metadata(raw_away, raw_away)
         home_name = None if raw_home in (None, "TBD") else home_team.name
@@ -378,8 +467,8 @@ class FrontendContractService:
             awayIso2=None if away_name is None else away_team.iso2,
             awayFlag=None if away_name is None else away_team.flag,
             winnerTeam=None,
-            feederHomeKey=self._coerce_string(match.get("feederHomeKey")),
-            feederAwayKey=self._coerce_string(match.get("feederAwayKey")),
+            feederHomeKey=feeder_home,
+            feederAwayKey=feeder_away,
             hasManualOverride=False,
         )
 
@@ -389,11 +478,13 @@ class FrontendContractService:
         selection_label: str,
         prediction_count: int,
         points_awarded_total: int,
+        player_stats: dict[str, dict[str, int]] | None = None,
     ) -> AdminPlayerRowDto:
         player = get_players_by_id().get(selection_key)
         team_code = player.get("teamCode") if isinstance(player, dict) else None
         team = get_team_metadata(team_code if isinstance(team_code, str) else None, None)
         has_team = isinstance(team_code, str) and team_code.strip() != ""
+        stats = (player_stats or {}).get(selection_key, {})
         return AdminPlayerRowDto(
             selectionKey=selection_key,
             selectionLabel=selection_label,
@@ -403,10 +494,12 @@ class FrontendContractService:
             teamFlag=team.flag if has_team else None,
             predictionCount=prediction_count,
             pointsAwardedTotal=points_awarded_total,
+            goals=stats.get("goals", 0),
+            assists=stats.get("assists", 0),
         )
 
     def _load_knockout_seed_matches(self) -> list[dict[str, object]]:
-        seed_path = Path(__file__).resolve().parents[3] / "data" / "bracket-knockout.json"
+        seed_path = _DATA_DIR / "bracket-knockout.json"
         payload = json.loads(seed_path.read_text(encoding="utf-8"))
         rows: list[dict[str, object]] = []
         sections = ("roundOf32", "roundOf16", "quarterFinals", "semiFinals", "thirdPlace", "final")

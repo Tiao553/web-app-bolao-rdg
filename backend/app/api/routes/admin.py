@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+import json
+import secrets
+import string
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+import os
+_DATA_DIR = Path(os.environ.get("DATA_DIR", str(Path(__file__).resolve().parents[3] / "data")))
+
+from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.api.schemas.frontend import (
@@ -16,7 +23,7 @@ from app.api.schemas.frontend import (
     AdminPlayersScreenDto,
     AdminSettingsScreenDto,
 )
-from app.core.security import build_auth_error, require_admin_user
+from app.core.security import build_auth_error, hash_password, require_admin_user
 from app.models.schema import (
     CompetitionPhase,
     AccessStatus,
@@ -26,6 +33,7 @@ from app.models.schema import (
     SyncProvider,
     SyncStatus,
     User,
+    UserSession,
 )
 from app.repositories.queries import get_db_session, get_match_by_id
 from app.services.frontend_contract_service import FrontendContractService
@@ -85,6 +93,103 @@ def get_admin_players(
     return FrontendContractService(db_session).build_admin_players()
 
 
+class PlayerStatsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selection_key: str = Field(min_length=1, max_length=128)
+    goals: int = Field(ge=0, le=100)
+    assists: int = Field(ge=0, le=100)
+
+
+class PlayerStatsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selection_key: str
+    goals: int
+    assists: int
+
+
+def _load_player_stats() -> dict[str, dict[str, int]]:
+    path = _DATA_DIR / "player-stats.json"
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_player_stats(stats: dict[str, dict[str, int]]) -> None:
+    path = _DATA_DIR / "player-stats.json"
+    path.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+class RegisterPlayerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1, max_length=255)
+    team_code: str | None = Field(default=None, max_length=10)
+
+
+class RegisterPlayerResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    name: str
+    teamCode: str | None
+
+
+@router.post("/players/register", response_model=RegisterPlayerResponse, status_code=status.HTTP_200_OK)
+def register_player(
+    payload: RegisterPlayerRequest,
+    admin_user: User = Depends(require_admin_user),
+) -> RegisterPlayerResponse:
+    del admin_user
+    from app.services.team_metadata import get_players_by_id
+
+    name_slug = payload.name.lower().replace(" ", "-").replace(".", "")
+    team_suffix = (payload.team_code or "UNK").lower()
+    player_id = f"{name_slug}-{team_suffix}"
+
+    path = _DATA_DIR / "players-attackers.json"
+    if path.exists():
+        data = json.loads(path.read_text(encoding="utf-8"))
+    else:
+        data = {"players": []}
+
+    existing_ids = {p.get("id") for p in data.get("players", []) if isinstance(p, dict)}
+    if player_id not in existing_ids:
+        data.setdefault("players", []).append({
+            "id": player_id,
+            "name": payload.name,
+            "teamCode": payload.team_code,
+            "position": "FW",
+            "shirtNumber": None,
+            "club": None,
+            "nationality": None,
+        })
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        get_players_by_id.cache_clear()
+
+    return RegisterPlayerResponse(id=player_id, name=payload.name, teamCode=payload.team_code)
+
+
+@router.put("/players/stats", response_model=PlayerStatsResponse, status_code=status.HTTP_200_OK)
+def update_player_stats(
+    payload: PlayerStatsRequest,
+    admin_user: User = Depends(require_admin_user),
+) -> PlayerStatsResponse:
+    del admin_user
+    stats = _load_player_stats()
+    stats[payload.selection_key] = {"goals": payload.goals, "assists": payload.assists}
+    _save_player_stats(stats)
+    return PlayerStatsResponse(
+        selection_key=payload.selection_key,
+        goals=payload.goals,
+        assists=payload.assists,
+    )
+
+
 @router.get("/settings", response_model=AdminSettingsScreenDto, status_code=status.HTTP_200_OK)
 def get_admin_settings(
     admin_user: User = Depends(require_admin_user),
@@ -102,6 +207,7 @@ class AdminUserResponse(BaseModel):
     full_name: str
     access_status: AccessStatus
     is_admin: bool
+    is_active: bool
     created_at: datetime
     updated_at: datetime
     last_login_at: datetime | None
@@ -141,6 +247,14 @@ class CompetitionWindowResponse(BaseModel):
     is_active: bool
 
 
+class GoalScorerEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1, max_length=255)
+    team: str | None = Field(default=None, max_length=100)
+    goals: int = Field(default=1, ge=1, le=20)
+
+
 class MatchManualOverrideRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -148,6 +262,7 @@ class MatchManualOverrideRequest(BaseModel):
     official_home_goals: int | None = Field(default=None, ge=0, le=50)
     official_away_goals: int | None = Field(default=None, ge=0, le=50)
     winner_team_name: str | None = Field(default=None, min_length=1, max_length=255)
+    goal_scorers: list[GoalScorerEntry] = Field(default_factory=list)
     synced_at: datetime | None = None
     has_manual_override: bool = True
     source_payload: dict[str, Any] | None = None
@@ -195,6 +310,7 @@ def build_user_response(user: User) -> AdminUserResponse:
         full_name=user.full_name,
         access_status=user.access_status,
         is_admin=user.is_admin,
+        is_active=user.is_active,
         created_at=user.created_at,
         updated_at=user.updated_at,
         last_login_at=user.last_login_at,
@@ -203,11 +319,17 @@ def build_user_response(user: User) -> AdminUserResponse:
 
 @router.get("/users", response_model=list[AdminUserResponse], status_code=status.HTTP_200_OK)
 def list_users(
+    scope: str = Query(default="active"),
     admin_user: User = Depends(require_admin_user),
     db_session: Session = Depends(get_db_session),
 ) -> list[AdminUserResponse]:
     del admin_user
-    statement = select(User).order_by(User.created_at.asc(), User.id.asc())
+    statement = select(User)
+    if scope == "deleted":
+        statement = statement.where(User.is_active.is_(False))
+    else:
+        statement = statement.where(User.is_active.is_(True))
+    statement = statement.order_by(User.created_at.asc(), User.id.asc())
     users = list(db_session.scalars(statement).all())
     return [build_user_response(user) for user in users]
 
@@ -219,7 +341,6 @@ def update_user_moderation(
     admin_user: User = Depends(require_admin_user),
     db_session: Session = Depends(get_db_session),
 ) -> AdminUserResponse:
-    del admin_user
     user = db_session.get(User, user_id)
     if user is None:
         raise build_auth_error(
@@ -227,12 +348,122 @@ def update_user_moderation(
             code="user_not_found",
             message="User was not found",
         )
+    if user.id == admin_user.id and payload.access_status is not AccessStatus.APPROVED:
+        raise build_auth_error(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="cannot_demote_self",
+            message="Administrator cannot change the current account to a non-approved state",
+        )
+    if payload.is_admin is False and user.id == admin_user.id:
+        raise build_auth_error(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="cannot_remove_own_admin",
+            message="Administrator cannot remove their own admin access",
+        )
+    if payload.is_admin is True and payload.access_status is not AccessStatus.APPROVED:
+        raise build_auth_error(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="admin_must_be_approved",
+            message="Administrator accounts must remain approved",
+        )
     user.access_status = payload.access_status
     if payload.is_admin is not None:
         user.is_admin = payload.is_admin
     db_session.add(user)
     db_session.flush()
     return build_user_response(user)
+
+
+@router.post("/users/{user_id}/soft-delete", response_model=AdminUserResponse, status_code=status.HTTP_200_OK)
+def soft_delete_user(
+    user_id: UUID,
+    admin_user: User = Depends(require_admin_user),
+    db_session: Session = Depends(get_db_session),
+) -> AdminUserResponse:
+    user = db_session.get(User, user_id)
+    if user is None:
+        raise build_auth_error(
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="user_not_found",
+            message="User was not found",
+        )
+    if user.id == admin_user.id:
+        raise build_auth_error(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="cannot_delete_self",
+            message="Administrator cannot delete the current account",
+        )
+
+    user.is_active = False
+    user.is_admin = False
+    db_session.add(user)
+    db_session.execute(
+        update(UserSession)
+        .where(
+            UserSession.user_id == user.id,
+            UserSession.revoked_at.is_(None),
+        )
+        .values(revoked_at=utc_now())
+    )
+    db_session.flush()
+    return build_user_response(user)
+
+
+class ResetPasswordResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    user_id: UUID
+    email: str
+    full_name: str
+    reset_at: datetime
+
+
+def _generate_password(length: int = 12) -> str:
+    alphabet = string.ascii_letters + string.digits + "!@#$%"
+    while True:
+        pwd = "".join(secrets.choice(alphabet) for _ in range(length))
+        # require at least one digit and one letter
+        if any(c.isdigit() for c in pwd) and any(c.isalpha() for c in pwd):
+            return pwd
+
+
+@router.post("/users/{user_id}/reset-password", response_model=ResetPasswordResponse, status_code=status.HTTP_200_OK)
+def reset_user_password(
+    user_id: UUID,
+    admin_user: User = Depends(require_admin_user),
+    db_session: Session = Depends(get_db_session),
+) -> ResetPasswordResponse:
+    user = db_session.get(User, user_id)
+    if user is None:
+        raise build_auth_error(
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="user_not_found",
+            message="User was not found",
+        )
+    if not user.is_active:
+        raise build_auth_error(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="user_inactive",
+            message="Inactive users cannot receive password resets",
+        )
+    new_password = _generate_password()
+    user.password_hash = hash_password(new_password)
+    db_session.add(user)
+    db_session.execute(
+        update(UserSession)
+        .where(
+            UserSession.user_id == user.id,
+            UserSession.revoked_at.is_(None),
+        )
+        .values(revoked_at=utc_now())
+    )
+    db_session.flush()
+    return ResetPasswordResponse(
+        user_id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        reset_at=utc_now(),
+    )
 
 
 @router.get("/competition/window", response_model=CompetitionWindowResponse, status_code=status.HTTP_200_OK)
@@ -327,8 +558,10 @@ def update_match_manual_override(
         match.official_away_goals = payload.official_away_goals
     if payload.winner_team_name is not None:
         match.winner_team_name = payload.winner_team_name.strip()
-    if payload.source_payload is not None:
-        match.source_payload = payload.source_payload
+    merged_payload = dict(payload.source_payload or {})
+    if payload.goal_scorers:
+        merged_payload["goal_scorers"] = [gs.model_dump() for gs in payload.goal_scorers]
+    match.source_payload = merged_payload if merged_payload else match.source_payload
     match.has_manual_override = payload.has_manual_override
     match.synced_at = payload.synced_at or utc_now()
     db_session.add(match)

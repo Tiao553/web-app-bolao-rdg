@@ -1,0 +1,15 @@
+app/
+app/node_modules/
+app/.next/
+database/
+docs/
+mock/
+specs/
+.git/
+.env
+.env.local
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/**/__pycache__/
+**/*.pyc

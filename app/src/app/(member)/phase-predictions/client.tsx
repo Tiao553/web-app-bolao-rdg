@@ -48,7 +48,7 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
         <div className="pp-team-row">
           <div className="pp-team-info">
             <div>
-              <TeamBadge name={m.homeTeam} flag={m.homeFlag} code={m.homeCode} />
+              <TeamBadge name={m.homeTeam} flag={m.homeFlag} iso2={m.homeIso2} code={m.homeCode} />
               <div className="pp-team-role">Mandante</div>
             </div>
           </div>
@@ -66,7 +66,7 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
         <div className="pp-team-row">
           <div className="pp-team-info">
             <div>
-              <TeamBadge name={m.awayTeam} flag={m.awayFlag} code={m.awayCode} />
+              <TeamBadge name={m.awayTeam} flag={m.awayFlag} iso2={m.awayIso2} code={m.awayCode} />
               <div className="pp-team-role">Visitante</div>
             </div>
           </div>
@@ -102,7 +102,7 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
   );
 }
 
-export function PhasePredictionsClient({ rounds }: { rounds: PhaseRoundContract[] }) {
+export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRoundContract[]; csrfToken: string }) {
   const [activeKey, setActiveKey] = useState(
     rounds.find(r => !r.locked && r.matches.length > 0)?.key ?? rounds[0]?.key ?? 'round1'
   );
@@ -192,6 +192,7 @@ export function PhasePredictionsClient({ rounds }: { rounds: PhaseRoundContract[
           <div className="pp-empty">Partidas desta fase ainda não foram definidas.</div>
         ) : (
           <form id="phase-form" action="/api/member/predictions/match" method="POST">
+            <input type="hidden" name="csrf_token" value={csrfToken} />
             <div className="pp-match-grid">
               {matches.map(m => (
                 <MatchCard key={m.id} m={m} locked={locked} />

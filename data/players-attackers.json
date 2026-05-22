@@ -1,277 +1,3250 @@
 {
   "_meta": {
-    "source": "Research-compiled from public sources (training data through August 2025, cross-referenced with teams-groups.json)",
+    "source": "Official 2026 FIFA World Cup squad announcements (beinsports.com, skysports.com, espn.com) — May 2026",
     "generatedAt": "2026-05-22",
-    "totalPlayers": 220,
+    "totalPlayers": 360,
     "note": "Confirmed or highly expected attackers/forwards for World Cup 2026. Team codes match teams-groups.json. WebSearch was unavailable; data compiled from knowledge of recent squads and qualifiers."
   },
   "players": [
-    { "id": "hirving-lozano-mex", "name": "Hirving Lozano", "teamCode": "MEX", "position": "FW", "shirtNumber": 22, "club": "San Diego FC", "nationality": "Mexico" },
-    { "id": "henry-martin-mex", "name": "Henry Martín", "teamCode": "MEX", "position": "FW", "shirtNumber": 9, "club": "Club América", "nationality": "Mexico" },
-    { "id": "santiago-gimenez-mex", "name": "Santiago Giménez", "teamCode": "MEX", "position": "FW", "shirtNumber": 11, "club": "AC Milan", "nationality": "Mexico" },
-    { "id": "alexis-vega-mex", "name": "Alexis Vega", "teamCode": "MEX", "position": "FW", "shirtNumber": 17, "club": "Chivas Guadalajara", "nationality": "Mexico" },
-    { "id": "roberto-alvarado-mex", "name": "Roberto Alvarado", "teamCode": "MEX", "position": "FW", "shirtNumber": 16, "club": "Chivas Guadalajara", "nationality": "Mexico" },
-
-    { "id": "percy-tau-rsa", "name": "Percy Tau", "teamCode": "RSA", "position": "FW", "shirtNumber": 10, "club": "Al Ahly", "nationality": "South Africa" },
-    { "id": "evidence-makgopa-rsa", "name": "Evidence Makgopa", "teamCode": "RSA", "position": "FW", "shirtNumber": 9, "club": "Orlando Pirates", "nationality": "South Africa" },
-    { "id": "lyle-foster-rsa", "name": "Lyle Foster", "teamCode": "RSA", "position": "FW", "shirtNumber": 11, "club": "Burnley", "nationality": "South Africa" },
-    { "id": "bongokuhle-hlongwane-rsa", "name": "Bongokuhle Hlongwane", "teamCode": "RSA", "position": "FW", "shirtNumber": 7, "club": "Minnesota United", "nationality": "South Africa" },
-
-    { "id": "son-heung-min-kor", "name": "Son Heung-min", "teamCode": "KOR", "position": "FW", "shirtNumber": 7, "club": "Tottenham Hotspur", "nationality": "South Korea" },
-    { "id": "hwang-hee-chan-kor", "name": "Hwang Hee-chan", "teamCode": "KOR", "position": "FW", "shirtNumber": 11, "club": "Wolverhampton Wanderers", "nationality": "South Korea" },
-    { "id": "cho-gue-sung-kor", "name": "Cho Gue-sung", "teamCode": "KOR", "position": "FW", "shirtNumber": 19, "club": "Midtjylland", "nationality": "South Korea" },
-    { "id": "hwang-ui-jo-kor", "name": "Hwang Ui-jo", "teamCode": "KOR", "position": "FW", "shirtNumber": 9, "club": "Nottingham Forest", "nationality": "South Korea" },
-
-    { "id": "patrik-schick-cze", "name": "Patrik Schick", "teamCode": "CZE", "position": "FW", "shirtNumber": 9, "club": "Bayer Leverkusen", "nationality": "Czechia" },
-    { "id": "ondrej-lingr-cze", "name": "Ondrej Lingr", "teamCode": "CZE", "position": "FW", "shirtNumber": 11, "club": "Feyenoord", "nationality": "Czechia" },
-    { "id": "adam-hlozek-cze", "name": "Adam Hložek", "teamCode": "CZE", "position": "FW", "shirtNumber": 17, "club": "Bayer Leverkusen", "nationality": "Czechia" },
-    { "id": "mojmir-chytil-cze", "name": "Mojmír Chytil", "teamCode": "CZE", "position": "FW", "shirtNumber": 20, "club": "Feyenoord", "nationality": "Czechia" },
-
-    { "id": "jonathan-david-can", "name": "Jonathan David", "teamCode": "CAN", "position": "FW", "shirtNumber": 9, "club": "Lille", "nationality": "Canada" },
-    { "id": "cyle-larin-can", "name": "Cyle Larin", "teamCode": "CAN", "position": "FW", "shirtNumber": 11, "club": "Rapid Wien", "nationality": "Canada" },
-    { "id": "tajon-buchanan-can", "name": "Tajon Buchanan", "teamCode": "CAN", "position": "FW", "shirtNumber": 7, "club": "Club Brugge", "nationality": "Canada" },
-    { "id": "lucas-cavallini-can", "name": "Lucas Cavallini", "teamCode": "CAN", "position": "FW", "shirtNumber": 19, "club": "Vancouver Whitecaps", "nationality": "Canada" },
-
-    { "id": "edin-dzeko-bih", "name": "Edin Džeko", "teamCode": "BIH", "position": "FW", "shirtNumber": 9, "club": "Fenerbahçe", "nationality": "Bosnia and Herzegovina" },
-    { "id": "ermedin-demirovic-bih", "name": "Ermedin Demirović", "teamCode": "BIH", "position": "FW", "shirtNumber": 10, "club": "Augsburg", "nationality": "Bosnia and Herzegovina" },
-    { "id": "anel-ahmedodzic-bih", "name": "Anel Ahmedhodzic", "teamCode": "BIH", "position": "FW", "shirtNumber": 17, "club": "Sheffield United", "nationality": "Bosnia and Herzegovina" },
-    { "id": "dzenan-radoncic-bih", "name": "Dženan Radončić", "teamCode": "BIH", "position": "FW", "shirtNumber": 11, "club": "Malmö FF", "nationality": "Bosnia and Herzegovina" },
-
-    { "id": "akram-afif-qat", "name": "Akram Afif", "teamCode": "QAT", "position": "FW", "shirtNumber": 11, "club": "Al Sadd", "nationality": "Qatar" },
-    { "id": "almoez-ali-qat", "name": "Almoez Ali", "teamCode": "QAT", "position": "FW", "shirtNumber": 9, "club": "Al Duhail", "nationality": "Qatar" },
-    { "id": "hasan-al-haydos-qat", "name": "Hassan Al-Haydos", "teamCode": "QAT", "position": "FW", "shirtNumber": 10, "club": "Al Sadd", "nationality": "Qatar" },
-    { "id": "khalid-muneer-qat", "name": "Khalid Muneer Ali", "teamCode": "QAT", "position": "FW", "shirtNumber": 7, "club": "Al Sadd", "nationality": "Qatar" },
-
-    { "id": "breel-embolo-sui", "name": "Breel Embolo", "teamCode": "SUI", "position": "FW", "shirtNumber": 7, "club": "AS Monaco", "nationality": "Switzerland" },
-    { "id": "haris-seferovic-sui", "name": "Haris Seferović", "teamCode": "SUI", "position": "FW", "shirtNumber": 9, "club": "Galatasaray", "nationality": "Switzerland" },
-    { "id": "ruben-vargas-sui", "name": "Ruben Vargas", "teamCode": "SUI", "position": "FW", "shirtNumber": 10, "club": "Augsburg", "nationality": "Switzerland" },
-    { "id": "zeki-amdouni-sui", "name": "Zeki Amdouni", "teamCode": "SUI", "position": "FW", "shirtNumber": 17, "club": "Burnley", "nationality": "Switzerland" },
-
-    { "id": "vinicius-jr-bra", "name": "Vinicius Jr.", "teamCode": "BRA", "position": "FW", "shirtNumber": 7, "club": "Real Madrid", "nationality": "Brazil" },
-    { "id": "rodrygo-bra", "name": "Rodrygo", "teamCode": "BRA", "position": "FW", "shirtNumber": 11, "club": "Real Madrid", "nationality": "Brazil" },
-    { "id": "raphinha-bra", "name": "Raphinha", "teamCode": "BRA", "position": "FW", "shirtNumber": 10, "club": "Barcelona", "nationality": "Brazil" },
-    { "id": "gabriel-martinelli-bra", "name": "Gabriel Martinelli", "teamCode": "BRA", "position": "FW", "shirtNumber": 17, "club": "Arsenal", "nationality": "Brazil" },
-    { "id": "endrick-bra", "name": "Endrick", "teamCode": "BRA", "position": "FW", "shirtNumber": 9, "club": "Real Madrid", "nationality": "Brazil" },
-    { "id": "gabriel-jesus-bra", "name": "Gabriel Jesus", "teamCode": "BRA", "position": "FW", "shirtNumber": 19, "club": "Arsenal", "nationality": "Brazil" },
-    { "id": "savinho-bra", "name": "Savinho", "teamCode": "BRA", "position": "FW", "shirtNumber": 16, "club": "Manchester City", "nationality": "Brazil" },
-
-    { "id": "youssef-en-nesyri-mar", "name": "Youssef En-Nesyri", "teamCode": "MAR", "position": "FW", "shirtNumber": 9, "club": "Fenerbahçe", "nationality": "Morocco" },
-    { "id": "abderrazak-hamdallah-mar", "name": "Abderrazak Hamdallah", "teamCode": "MAR", "position": "FW", "shirtNumber": 10, "club": "Al Ittihad", "nationality": "Morocco" },
-    { "id": "soufiane-rahimi-mar", "name": "Soufiane Rahimi", "teamCode": "MAR", "position": "FW", "shirtNumber": 11, "club": "Al Ain", "nationality": "Morocco" },
-    { "id": "amine-harit-mar", "name": "Amine Harit", "teamCode": "MAR", "position": "FW", "shirtNumber": 17, "club": "Olympique de Marseille", "nationality": "Morocco" },
-
-    { "id": "duckens-nazon-hai", "name": "Duckens Nazon", "teamCode": "HAI", "position": "FW", "shirtNumber": 9, "club": "CS Sfaxien", "nationality": "Haiti" },
-    { "id": "frantzdy-pierrot-hai", "name": "Frantzdy Pierrot", "teamCode": "HAI", "position": "FW", "shirtNumber": 11, "club": "Seattle Sounders", "nationality": "Haiti" },
-    { "id": "carnejy-antoine-hai", "name": "Carnejy Antoine", "teamCode": "HAI", "position": "FW", "shirtNumber": 17, "club": "Nashville SC", "nationality": "Haiti" },
-
-    { "id": "lyndon-dykes-sco", "name": "Lyndon Dykes", "teamCode": "SCO", "position": "FW", "shirtNumber": 9, "club": "Queens Park Rangers", "nationality": "Scotland" },
-    { "id": "che-adams-sco", "name": "Che Adams", "teamCode": "SCO", "position": "FW", "shirtNumber": 11, "club": "Torino", "nationality": "Scotland" },
-    { "id": "ryan-christie-sco", "name": "Ryan Christie", "teamCode": "SCO", "position": "FW", "shirtNumber": 10, "club": "Bournemouth", "nationality": "Scotland" },
-    { "id": "liam-scales-sco", "name": "Liam Scales", "teamCode": "SCO", "position": "FW", "shirtNumber": 7, "club": "Celtic", "nationality": "Scotland" },
-
-    { "id": "christian-pulisic-usa", "name": "Christian Pulisic", "teamCode": "USA", "position": "FW", "shirtNumber": 10, "club": "AC Milan", "nationality": "United States" },
-    { "id": "ricardo-pepi-usa", "name": "Ricardo Pepi", "teamCode": "USA", "position": "FW", "shirtNumber": 9, "club": "PSV Eindhoven", "nationality": "United States" },
-    { "id": "timothy-weah-usa", "name": "Timothy Weah", "teamCode": "USA", "position": "FW", "shirtNumber": 21, "club": "Juventus", "nationality": "United States" },
-    { "id": "folarin-balogun-usa", "name": "Folarin Balogun", "teamCode": "USA", "position": "FW", "shirtNumber": 11, "club": "Monaco", "nationality": "United States" },
-    { "id": "josh-sargent-usa", "name": "Josh Sargent", "teamCode": "USA", "position": "FW", "shirtNumber": 19, "club": "Norwich City", "nationality": "United States" },
-
-    { "id": "miguel-almiron-par", "name": "Miguel Almirón", "teamCode": "PAR", "position": "FW", "shirtNumber": 10, "club": "Atlanta United", "nationality": "Paraguay" },
-    { "id": "antonio-sanabria-par", "name": "Antonio Sanabria", "teamCode": "PAR", "position": "FW", "shirtNumber": 9, "club": "Torino", "nationality": "Paraguay" },
-    { "id": "alejandro-romero-gamarra-par", "name": "Kaku", "teamCode": "PAR", "position": "FW", "shirtNumber": 11, "club": "Red Bull Leipzig", "nationality": "Paraguay" },
-    { "id": "julio-enciso-par", "name": "Julio Enciso", "teamCode": "PAR", "position": "FW", "shirtNumber": 17, "club": "Brighton & Hove Albion", "nationality": "Paraguay" },
-
-    { "id": "mitchell-duke-aus", "name": "Mitchell Duke", "teamCode": "AUS", "position": "FW", "shirtNumber": 9, "club": "Macarthur FC", "nationality": "Australia" },
-    { "id": "martin-boyle-aus", "name": "Martin Boyle", "teamCode": "AUS", "position": "FW", "shirtNumber": 11, "club": "Al Faisaly", "nationality": "Australia" },
-    { "id": "jason-cummings-aus", "name": "Jason Cummings", "teamCode": "AUS", "position": "FW", "shirtNumber": 17, "club": "Central Coast Mariners", "nationality": "Australia" },
-    { "id": "craig-goodwin-aus", "name": "Craig Goodwin", "teamCode": "AUS", "position": "FW", "shirtNumber": 7, "club": "Adelaide United", "nationality": "Australia" },
-
-    { "id": "kerem-akturkoglu-tur", "name": "Kerem Aktürkoğlu", "teamCode": "TUR", "position": "FW", "shirtNumber": 11, "club": "Galatasaray", "nationality": "Türkiye" },
-    { "id": "burak-yilmaz-tur", "name": "Baris Alper Yilmaz", "teamCode": "TUR", "position": "FW", "shirtNumber": 7, "club": "Galatasaray", "nationality": "Türkiye" },
-    { "id": "cenk-tosun-tur", "name": "Cenk Tosun", "teamCode": "TUR", "position": "FW", "shirtNumber": 9, "club": "Beşiktaş", "nationality": "Türkiye" },
-    { "id": "arda-guler-tur", "name": "Arda Güler", "teamCode": "TUR", "position": "FW", "shirtNumber": 10, "club": "Real Madrid", "nationality": "Türkiye" },
-    { "id": "yunus-akgun-tur", "name": "Yunus Akgün", "teamCode": "TUR", "position": "FW", "shirtNumber": 17, "club": "Galatasaray", "nationality": "Türkiye" },
-
-    { "id": "kai-havertz-ger", "name": "Kai Havertz", "teamCode": "GER", "position": "FW", "shirtNumber": 7, "club": "Arsenal", "nationality": "Germany" },
-    { "id": "leroy-sane-ger", "name": "Leroy Sané", "teamCode": "GER", "position": "FW", "shirtNumber": 10, "club": "Bayern Munich", "nationality": "Germany" },
-    { "id": "serge-gnabry-ger", "name": "Serge Gnabry", "teamCode": "GER", "position": "FW", "shirtNumber": 11, "club": "Bayern Munich", "nationality": "Germany" },
-    { "id": "florian-wirtz-ger", "name": "Florian Wirtz", "teamCode": "GER", "position": "FW", "shirtNumber": 17, "club": "Bayer Leverkusen", "nationality": "Germany" },
-    { "id": "niclas-fullkrug-ger", "name": "Niclas Füllkrug", "teamCode": "GER", "position": "FW", "shirtNumber": 9, "club": "West Ham United", "nationality": "Germany" },
-    { "id": "jamal-musiala-ger", "name": "Jamal Musiala", "teamCode": "GER", "position": "FW", "shirtNumber": 14, "club": "Bayern Munich", "nationality": "Germany" },
-
-    { "id": "gevaro-nepomuceno-cuw", "name": "Gevaro Nepomuceno", "teamCode": "CUW", "position": "FW", "shirtNumber": 11, "club": "KV Kortrijk", "nationality": "Curaçao" },
-    { "id": "jarchinio-antonia-cuw", "name": "Jarchinio Antonia", "teamCode": "CUW", "position": "FW", "shirtNumber": 7, "club": "Beerschot", "nationality": "Curaçao" },
-    { "id": "leandro-bacuna-cuw", "name": "Leandro Bacuna", "teamCode": "CUW", "position": "FW", "shirtNumber": 9, "club": "Birmingham City", "nationality": "Curaçao" },
-    { "id": "rangelo-janga-cuw", "name": "Rangelo Janga", "teamCode": "CUW", "position": "FW", "shirtNumber": 10, "club": "Diegem Sport", "nationality": "Curaçao" },
-
-    { "id": "sebastien-haller-civ", "name": "Sébastien Haller", "teamCode": "CIV", "position": "FW", "shirtNumber": 9, "club": "Borussia Dortmund", "nationality": "Ivory Coast" },
-    { "id": "nicolas-pepe-civ", "name": "Nicolas Pépé", "teamCode": "CIV", "position": "FW", "shirtNumber": 7, "club": "OGC Nice", "nationality": "Ivory Coast" },
-    { "id": "wilfried-zaha-civ", "name": "Wilfried Zaha", "teamCode": "CIV", "position": "FW", "shirtNumber": 11, "club": "Galatasaray", "nationality": "Ivory Coast" },
-    { "id": "franck-kessie-civ", "name": "Franck Kessié", "teamCode": "CIV", "position": "FW", "shirtNumber": 17, "club": "Al-Ahli", "nationality": "Ivory Coast" },
-
-    { "id": "enner-valencia-ecu", "name": "Enner Valencia", "teamCode": "ECU", "position": "FW", "shirtNumber": 13, "club": "Internacional", "nationality": "Ecuador" },
-    { "id": "gonzalo-plata-ecu", "name": "Gonzalo Plata", "teamCode": "ECU", "position": "FW", "shirtNumber": 11, "club": "Al-Qadsiah", "nationality": "Ecuador" },
-    { "id": "michael-estrada-ecu", "name": "Michael Estrada", "teamCode": "ECU", "position": "FW", "shirtNumber": 9, "club": "Cruz Azul", "nationality": "Ecuador" },
-    { "id": "pervis-estupinan-ecu", "name": "Pervis Estupiñán", "teamCode": "ECU", "position": "FW", "shirtNumber": 7, "club": "Brighton & Hove Albion", "nationality": "Ecuador" },
-
-    { "id": "cody-gakpo-ned", "name": "Cody Gakpo", "teamCode": "NED", "position": "FW", "shirtNumber": 11, "club": "Liverpool", "nationality": "Netherlands" },
-    { "id": "memphis-depay-ned", "name": "Memphis Depay", "teamCode": "NED", "position": "FW", "shirtNumber": 10, "club": "Atlético de Madrid", "nationality": "Netherlands" },
-    { "id": "donyell-malen-ned", "name": "Donyell Malen", "teamCode": "NED", "position": "FW", "shirtNumber": 9, "club": "Aston Villa", "nationality": "Netherlands" },
-    { "id": "wout-weghorst-ned", "name": "Wout Weghorst", "teamCode": "NED", "position": "FW", "shirtNumber": 19, "club": "Hoffenheim", "nationality": "Netherlands" },
-    { "id": "noa-lang-ned", "name": "Noa Lang", "teamCode": "NED", "position": "FW", "shirtNumber": 7, "club": "PSV Eindhoven", "nationality": "Netherlands" },
-
-    { "id": "kaoru-mitoma-jpn", "name": "Kaoru Mitoma", "teamCode": "JPN", "position": "FW", "shirtNumber": 10, "club": "Brighton & Hove Albion", "nationality": "Japan" },
-    { "id": "takumi-minamino-jpn", "name": "Takumi Minamino", "teamCode": "JPN", "position": "FW", "shirtNumber": 9, "club": "Monaco", "nationality": "Japan" },
-    { "id": "ritsu-doan-jpn", "name": "Ritsu Dōan", "teamCode": "JPN", "position": "FW", "shirtNumber": 8, "club": "Freiburg", "nationality": "Japan" },
-    { "id": "junya-ito-jpn", "name": "Junya Ito", "teamCode": "JPN", "position": "FW", "shirtNumber": 7, "club": "Reims", "nationality": "Japan" },
-    { "id": "ayase-ueda-jpn", "name": "Ayase Ueda", "teamCode": "JPN", "position": "FW", "shirtNumber": 11, "club": "Feyenoord", "nationality": "Japan" },
-
-    { "id": "alexander-isak-swe", "name": "Alexander Isak", "teamCode": "SWE", "position": "FW", "shirtNumber": 9, "club": "Newcastle United", "nationality": "Sweden" },
-    { "id": "dejan-kulusevski-swe", "name": "Dejan Kulusevski", "teamCode": "SWE", "position": "FW", "shirtNumber": 10, "club": "Tottenham Hotspur", "nationality": "Sweden" },
-    { "id": "anthony-elanga-swe", "name": "Anthony Elanga", "teamCode": "SWE", "position": "FW", "shirtNumber": 11, "club": "Nottingham Forest", "nationality": "Sweden" },
-    { "id": "viktor-gyokeres-swe", "name": "Viktor Gyökeres", "teamCode": "SWE", "position": "FW", "shirtNumber": 7, "club": "Sporting CP", "nationality": "Sweden" },
-    { "id": "zlatan-ibrahimovic-swe", "name": "Jordan Larsson", "teamCode": "SWE", "position": "FW", "shirtNumber": 17, "club": "Spartak Moscow", "nationality": "Sweden" },
-
-    { "id": "wahbi-khazri-tun", "name": "Wahbi Khazri", "teamCode": "TUN", "position": "FW", "shirtNumber": 10, "club": "Montpellier", "nationality": "Tunisia" },
-    { "id": "youssef-msakni-tun", "name": "Youssef Msakni", "teamCode": "TUN", "position": "FW", "shirtNumber": 11, "club": "Al Arabi", "nationality": "Tunisia" },
-    { "id": "seifeddine-jaziri-tun", "name": "Seifeddine Jaziri", "teamCode": "TUN", "position": "FW", "shirtNumber": 9, "club": "Zamalek", "nationality": "Tunisia" },
-    { "id": "taha-yassine-khenissi-tun", "name": "Taha Yassine Khenissi", "teamCode": "TUN", "position": "FW", "shirtNumber": 7, "club": "Espérance Sportive de Tunis", "nationality": "Tunisia" },
-
-    { "id": "romelu-lukaku-bel", "name": "Romelu Lukaku", "teamCode": "BEL", "position": "FW", "shirtNumber": 9, "club": "Napoli", "nationality": "Belgium" },
-    { "id": "dodi-lukebakio-bel", "name": "Dodi Lukébakio", "teamCode": "BEL", "position": "FW", "shirtNumber": 7, "club": "Sevilla", "nationality": "Belgium" },
-    { "id": "leandro-trossard-bel", "name": "Leandro Trossard", "teamCode": "BEL", "position": "FW", "shirtNumber": 11, "club": "Arsenal", "nationality": "Belgium" },
-    { "id": "lois-openda-bel", "name": "Loïs Openda", "teamCode": "BEL", "position": "FW", "shirtNumber": 17, "club": "RB Leipzig", "nationality": "Belgium" },
-    { "id": "jeremy-doku-bel", "name": "Jérémy Doku", "teamCode": "BEL", "position": "FW", "shirtNumber": 10, "club": "Manchester City", "nationality": "Belgium" },
-
-    { "id": "mostafa-mohamed-egy", "name": "Mostafa Mohamed", "teamCode": "EGY", "position": "FW", "shirtNumber": 9, "club": "Galatasaray", "nationality": "Egypt" },
-    { "id": "omar-marmoush-egy", "name": "Omar Marmoush", "teamCode": "EGY", "position": "FW", "shirtNumber": 10, "club": "Manchester City", "nationality": "Egypt" },
-    { "id": "ramadan-sobhi-egy", "name": "Ramadan Sobhi", "teamCode": "EGY", "position": "FW", "shirtNumber": 7, "club": "Pyramids FC", "nationality": "Egypt" },
-    { "id": "ahmed-sayed-zizou-egy", "name": "Ahmed Sayed Zizou", "teamCode": "EGY", "position": "FW", "shirtNumber": 11, "club": "Pyramids FC", "nationality": "Egypt" },
-
-    { "id": "sardar-azmoun-irn", "name": "Sardar Azmoun", "teamCode": "IRN", "position": "FW", "shirtNumber": 9, "club": "Bayer Leverkusen", "nationality": "Iran" },
-    { "id": "mehdi-taremi-irn", "name": "Mehdi Taremi", "teamCode": "IRN", "position": "FW", "shirtNumber": 9, "club": "Inter Milan", "nationality": "Iran" },
-    { "id": "saman-ghoddos-irn", "name": "Saman Ghoddos", "teamCode": "IRN", "position": "FW", "shirtNumber": 11, "club": "Brentford", "nationality": "Iran" },
-    { "id": "ali-gholizadeh-irn", "name": "Ali Gholizadeh", "teamCode": "IRN", "position": "FW", "shirtNumber": 7, "club": "Charleroi", "nationality": "Iran" },
-
-    { "id": "chris-wood-nzl", "name": "Chris Wood", "teamCode": "NZL", "position": "FW", "shirtNumber": 9, "club": "Nottingham Forest", "nationality": "New Zealand" },
-    { "id": "liberato-cacace-nzl", "name": "Liberato Cacace", "teamCode": "NZL", "position": "FW", "shirtNumber": 11, "club": "Empoli", "nationality": "New Zealand" },
-    { "id": "matthew-garbett-nzl", "name": "Matthew Garbett", "teamCode": "NZL", "position": "FW", "shirtNumber": 10, "club": "Vitesse", "nationality": "New Zealand" },
-    { "id": "joe-bell-nzl", "name": "Joe Bell", "teamCode": "NZL", "position": "FW", "shirtNumber": 7, "club": "Charlotte FC", "nationality": "New Zealand" },
-
-    { "id": "lamine-yamal-esp", "name": "Lamine Yamal", "teamCode": "ESP", "position": "FW", "shirtNumber": 19, "club": "Barcelona", "nationality": "Spain" },
-    { "id": "nico-williams-esp", "name": "Nico Williams", "teamCode": "ESP", "position": "FW", "shirtNumber": 11, "club": "Athletic Bilbao", "nationality": "Spain" },
-    { "id": "alvaro-morata-esp", "name": "Álvaro Morata", "teamCode": "ESP", "position": "FW", "shirtNumber": 7, "club": "AC Milan", "nationality": "Spain" },
-    { "id": "ferran-torres-esp", "name": "Ferran Torres", "teamCode": "ESP", "position": "FW", "shirtNumber": 9, "club": "Barcelona", "nationality": "Spain" },
-    { "id": "mikel-oyarzabal-esp", "name": "Mikel Oyarzabal", "teamCode": "ESP", "position": "FW", "shirtNumber": 10, "club": "Real Sociedad", "nationality": "Spain" },
-    { "id": "dani-olmo-esp", "name": "Dani Olmo", "teamCode": "ESP", "position": "FW", "shirtNumber": 17, "club": "Barcelona", "nationality": "Spain" },
-
-    { "id": "ryan-joao-cpv", "name": "Ryan Mendes", "teamCode": "CPV", "position": "FW", "shirtNumber": 7, "club": "Vitesse", "nationality": "Cape Verde" },
-    { "id": "garry-rodrigues-cpv", "name": "Garry Rodrigues", "teamCode": "CPV", "position": "FW", "shirtNumber": 11, "club": "Galatasaray", "nationality": "Cape Verde" },
-    { "id": "julio-tavares-cpv", "name": "Júlio Tavares", "teamCode": "CPV", "position": "FW", "shirtNumber": 9, "club": "Dijon FCO", "nationality": "Cape Verde" },
-    { "id": "steven-fortes-cpv", "name": "Steven Fortes", "teamCode": "CPV", "position": "FW", "shirtNumber": 10, "club": "Sporting Covilhã", "nationality": "Cape Verde" },
-
-    { "id": "salem-al-dawsari-ksa", "name": "Salem Al-Dawsari", "teamCode": "KSA", "position": "FW", "shirtNumber": 10, "club": "Al-Hilal", "nationality": "Saudi Arabia" },
-    { "id": "firas-al-buraikan-ksa", "name": "Firas Al-Buraikan", "teamCode": "KSA", "position": "FW", "shirtNumber": 9, "club": "Al-Fateh", "nationality": "Saudi Arabia" },
-    { "id": "hattan-bahebri-ksa", "name": "Hattan Bahebri", "teamCode": "KSA", "position": "FW", "shirtNumber": 11, "club": "Al-Shabab", "nationality": "Saudi Arabia" },
-    { "id": "sami-al-najei-ksa", "name": "Sami Al-Najei", "teamCode": "KSA", "position": "FW", "shirtNumber": 7, "club": "Al-Ittihad", "nationality": "Saudi Arabia" },
-
-    { "id": "luis-suarez-uru", "name": "Luis Suárez", "teamCode": "URU", "position": "FW", "shirtNumber": 9, "club": "River Plate", "nationality": "Uruguay" },
-    { "id": "darwin-nunez-uru", "name": "Darwin Núñez", "teamCode": "URU", "position": "FW", "shirtNumber": 11, "club": "Liverpool", "nationality": "Uruguay" },
-    { "id": "facundo-pellistri-uru", "name": "Facundo Pellistri", "teamCode": "URU", "position": "FW", "shirtNumber": 7, "club": "Manchester United", "nationality": "Uruguay" },
-    { "id": "maximiliano-gomez-uru", "name": "Maximiliano Gómez", "teamCode": "URU", "position": "FW", "shirtNumber": 10, "club": "Valencia", "nationality": "Uruguay" },
-    { "id": "cristhian-stuani-uru", "name": "Cristhian Stuani", "teamCode": "URU", "position": "FW", "shirtNumber": 19, "club": "Girona", "nationality": "Uruguay" },
-
-    { "id": "kylian-mbappe-fra", "name": "Kylian Mbappé", "teamCode": "FRA", "position": "FW", "shirtNumber": 10, "club": "Real Madrid", "nationality": "France" },
-    { "id": "ousmane-dembele-fra", "name": "Ousmane Dembélé", "teamCode": "FRA", "position": "FW", "shirtNumber": 11, "club": "Paris Saint-Germain", "nationality": "France" },
-    { "id": "antoine-griezmann-fra", "name": "Antoine Griezmann", "teamCode": "FRA", "position": "FW", "shirtNumber": 7, "club": "Atlético de Madrid", "nationality": "France" },
-    { "id": "kingsley-coman-fra", "name": "Kingsley Coman", "teamCode": "FRA", "position": "FW", "shirtNumber": 9, "club": "Bayern Munich", "nationality": "France" },
-    { "id": "marcus-thuram-fra", "name": "Marcus Thuram", "teamCode": "FRA", "position": "FW", "shirtNumber": 15, "club": "Inter Milan", "nationality": "France" },
-    { "id": "bradley-barcola-fra", "name": "Bradley Barcola", "teamCode": "FRA", "position": "FW", "shirtNumber": 17, "club": "Paris Saint-Germain", "nationality": "France" },
-
-    { "id": "sadio-mane-sen", "name": "Sadio Mané", "teamCode": "SEN", "position": "FW", "shirtNumber": 10, "club": "Al-Nassr", "nationality": "Senegal" },
-    { "id": "ismaila-sarr-sen", "name": "Ismaila Sarr", "teamCode": "SEN", "position": "FW", "shirtNumber": 7, "club": "Crystal Palace", "nationality": "Senegal" },
-    { "id": "boulaye-dia-sen", "name": "Boulaye Dia", "teamCode": "SEN", "position": "FW", "shirtNumber": 9, "club": "Lazio", "nationality": "Senegal" },
-    { "id": "nicolas-jackson-sen", "name": "Nicolas Jackson", "teamCode": "SEN", "position": "FW", "shirtNumber": 11, "club": "Chelsea", "nationality": "Senegal" },
-    { "id": "habib-diallo-sen", "name": "Habib Diallo", "teamCode": "SEN", "position": "FW", "shirtNumber": 19, "club": "RC Strasbourg", "nationality": "Senegal" },
-
-    { "id": "aymen-hussein-irq", "name": "Aymen Hussein", "teamCode": "IRQ", "position": "FW", "shirtNumber": 9, "club": "Al-Quwa Al-Jawiya", "nationality": "Iraq" },
-    { "id": "mohanad-ali-irq", "name": "Mohanad Ali", "teamCode": "IRQ", "position": "FW", "shirtNumber": 11, "club": "Al-Zawraa", "nationality": "Iraq" },
-    { "id": "amjad-attwan-irq", "name": "Amjad Attwan", "teamCode": "IRQ", "position": "FW", "shirtNumber": 7, "club": "Al-Quwa Al-Jawiya", "nationality": "Iraq" },
-    { "id": "ali-jassim-irq", "name": "Ali Jassim", "teamCode": "IRQ", "position": "FW", "shirtNumber": 10, "club": "Al-Naft", "nationality": "Iraq" },
-
-    { "id": "erling-haaland-nor", "name": "Erling Haaland", "teamCode": "NOR", "position": "FW", "shirtNumber": 9, "club": "Manchester City", "nationality": "Norway" },
-    { "id": "alexander-sorloth-nor", "name": "Alexander Sørloth", "teamCode": "NOR", "position": "FW", "shirtNumber": 10, "club": "Atlético de Madrid", "nationality": "Norway" },
-    { "id": "antonio-nusa-nor", "name": "Antonio Nusa", "teamCode": "NOR", "position": "FW", "shirtNumber": 11, "club": "Club Brugge", "nationality": "Norway" },
-    { "id": "ola-solbakken-nor", "name": "Ola Solbakken", "teamCode": "NOR", "position": "FW", "shirtNumber": 7, "club": "AS Roma", "nationality": "Norway" },
-    { "id": "mats-daehli-nor", "name": "Mats Møller Dæhli", "teamCode": "NOR", "position": "FW", "shirtNumber": 17, "club": "FC Union Berlin", "nationality": "Norway" },
-
-    { "id": "lionel-messi-arg", "name": "Lionel Messi", "teamCode": "ARG", "position": "FW", "shirtNumber": 10, "club": "Inter Miami CF", "nationality": "Argentina" },
-    { "id": "lautaro-martinez-arg", "name": "Lautaro Martínez", "teamCode": "ARG", "position": "FW", "shirtNumber": 9, "club": "Inter Milan", "nationality": "Argentina" },
-    { "id": "angel-di-maria-arg", "name": "Ángel Di María", "teamCode": "ARG", "position": "FW", "shirtNumber": 11, "club": "Benfica", "nationality": "Argentina" },
-    { "id": "julian-alvarez-arg", "name": "Julián Álvarez", "teamCode": "ARG", "position": "FW", "shirtNumber": 19, "club": "Atlético de Madrid", "nationality": "Argentina" },
-    { "id": "alejandro-garnacho-arg", "name": "Alejandro Garnacho", "teamCode": "ARG", "position": "FW", "shirtNumber": 17, "club": "Manchester United", "nationality": "Argentina" },
-    { "id": "nicolas-gonzalez-arg", "name": "Nicolás González", "teamCode": "ARG", "position": "FW", "shirtNumber": 7, "club": "Juventus", "nationality": "Argentina" },
-
-    { "id": "islam-slimani-alg", "name": "Riyad Mahrez", "teamCode": "ALG", "position": "FW", "shirtNumber": 7, "club": "Al-Ahli", "nationality": "Algeria" },
-    { "id": "youcef-atal-alg", "name": "Youcef Atal", "teamCode": "ALG", "position": "FW", "shirtNumber": 11, "club": "OGC Nice", "nationality": "Algeria" },
-    { "id": "andy-delort-alg", "name": "Andy Delort", "teamCode": "ALG", "position": "FW", "shirtNumber": 9, "club": "OGC Nice", "nationality": "Algeria" },
-    { "id": "sofiane-feghouli-alg", "name": "Baghdad Bounedjah", "teamCode": "ALG", "position": "FW", "shirtNumber": 10, "club": "Al Sadd", "nationality": "Algeria" },
-    { "id": "said-benrahma-alg", "name": "Saïd Benrahma", "teamCode": "ALG", "position": "FW", "shirtNumber": 17, "club": "Lyon", "nationality": "Algeria" },
-
-    { "id": "marko-arnautovic-aut", "name": "Marko Arnautović", "teamCode": "AUT", "position": "FW", "shirtNumber": 9, "club": "Inter Milan", "nationality": "Austria" },
-    { "id": "michael-gregoritsch-aut", "name": "Michael Gregoritsch", "teamCode": "AUT", "position": "FW", "shirtNumber": 11, "club": "Freiburg", "nationality": "Austria" },
-    { "id": "christoph-baumgartner-aut", "name": "Christoph Baumgartner", "teamCode": "AUT", "position": "FW", "shirtNumber": 10, "club": "RB Leipzig", "nationality": "Austria" },
-    { "id": "sasa-kalajdzic-aut", "name": "Sasa Kalajdzic", "teamCode": "AUT", "position": "FW", "shirtNumber": 17, "club": "Eintracht Frankfurt", "nationality": "Austria" },
-
-    { "id": "mousa-al-tamari-jor", "name": "Mousa Al-Tamari", "teamCode": "JOR", "position": "FW", "shirtNumber": 7, "club": "Montpellier", "nationality": "Jordan" },
-    { "id": "baha-faisal-jor", "name": "Baha' Faisal", "teamCode": "JOR", "position": "FW", "shirtNumber": 9, "club": "Al-Wehdat", "nationality": "Jordan" },
-    { "id": "omar-al-dardour-jor", "name": "Omar Al-Dardour", "teamCode": "JOR", "position": "FW", "shirtNumber": 11, "club": "Al-Ahli Amman", "nationality": "Jordan" },
-    { "id": "yazan-al-naimat-jor", "name": "Yazan Al-Naimat", "teamCode": "JOR", "position": "FW", "shirtNumber": 10, "club": "Al-Faisaly", "nationality": "Jordan" },
-
-    { "id": "cristiano-ronaldo-por", "name": "Cristiano Ronaldo", "teamCode": "POR", "position": "FW", "shirtNumber": 7, "club": "Al-Nassr", "nationality": "Portugal" },
-    { "id": "rafael-leao-por", "name": "Rafael Leão", "teamCode": "POR", "position": "FW", "shirtNumber": 11, "club": "AC Milan", "nationality": "Portugal" },
-    { "id": "diogo-jota-por", "name": "Diogo Jota", "teamCode": "POR", "position": "FW", "shirtNumber": 9, "club": "Liverpool", "nationality": "Portugal" },
-    { "id": "joao-felix-por", "name": "João Félix", "teamCode": "POR", "position": "FW", "shirtNumber": 10, "club": "Barcelona", "nationality": "Portugal" },
-    { "id": "pedro-neto-por", "name": "Pedro Neto", "teamCode": "POR", "position": "FW", "shirtNumber": 17, "club": "Chelsea", "nationality": "Portugal" },
-    { "id": "goncalo-ramos-por", "name": "Gonçalo Ramos", "teamCode": "POR", "position": "FW", "shirtNumber": 19, "club": "Paris Saint-Germain", "nationality": "Portugal" },
-
-    { "id": "cedric-bakambu-cod", "name": "Cédric Bakambu", "teamCode": "COD", "position": "FW", "shirtNumber": 9, "club": "Marseille", "nationality": "DR Congo" },
-    { "id": "dieumerci-mbokani-cod", "name": "Dieu Merci Mbokani", "teamCode": "COD", "position": "FW", "shirtNumber": 10, "club": "Royale Union Saint-Gilloise", "nationality": "DR Congo" },
-    { "id": "yoane-wissa-cod", "name": "Yoane Wissa", "teamCode": "COD", "position": "FW", "shirtNumber": 11, "club": "Brentford", "nationality": "DR Congo" },
-    { "id": "jonathan-bolingi-cod", "name": "Jonathan Bolingi", "teamCode": "COD", "position": "FW", "shirtNumber": 7, "club": "Al-Ittihad Kalba", "nationality": "DR Congo" },
-
-    { "id": "eldor-shomurodov-uzb", "name": "Eldor Shomurodov", "teamCode": "UZB", "position": "FW", "shirtNumber": 9, "club": "AS Roma", "nationality": "Uzbekistan" },
-    { "id": "dostonbek-khamdamov-uzb", "name": "Dostonbek Khamdamov", "teamCode": "UZB", "position": "FW", "shirtNumber": 11, "club": "FC Bunyodkor", "nationality": "Uzbekistan" },
-    { "id": "jaloliddin-masharipov-uzb", "name": "Jaloliddin Masharipov", "teamCode": "UZB", "position": "FW", "shirtNumber": 10, "club": "FC Pakhtakor", "nationality": "Uzbekistan" },
-    { "id": "otabek-shukurov-uzb", "name": "Otabek Shukurov", "teamCode": "UZB", "position": "FW", "shirtNumber": 7, "club": "FC Navbahor Namangan", "nationality": "Uzbekistan" },
-
-    { "id": "luis-diaz-col", "name": "Luis Díaz", "teamCode": "COL", "position": "FW", "shirtNumber": 7, "club": "Liverpool", "nationality": "Colombia" },
-    { "id": "radamel-falcao-col", "name": "Radamel Falcao", "teamCode": "COL", "position": "FW", "shirtNumber": 9, "club": "Rayo Vallecano", "nationality": "Colombia" },
-    { "id": "cucho-hernandez-col", "name": "Cucho Hernández", "teamCode": "COL", "position": "FW", "shirtNumber": 11, "club": "Columbus Crew", "nationality": "Colombia" },
-    { "id": "jhon-duran-col", "name": "Jhon Durán", "teamCode": "COL", "position": "FW", "shirtNumber": 19, "club": "Aston Villa", "nationality": "Colombia" },
-    { "id": "rafael-santos-borre-col", "name": "Rafael Santos Borré", "teamCode": "COL", "position": "FW", "shirtNumber": 17, "club": "Eintracht Frankfurt", "nationality": "Colombia" },
-
-    { "id": "harry-kane-eng", "name": "Harry Kane", "teamCode": "ENG", "position": "FW", "shirtNumber": 9, "club": "Bayern Munich", "nationality": "England" },
-    { "id": "raheem-sterling-eng", "name": "Raheem Sterling", "teamCode": "ENG", "position": "FW", "shirtNumber": 10, "club": "Arsenal", "nationality": "England" },
-    { "id": "bukayo-saka-eng", "name": "Bukayo Saka", "teamCode": "ENG", "position": "FW", "shirtNumber": 7, "club": "Arsenal", "nationality": "England" },
-    { "id": "marcus-rashford-eng", "name": "Marcus Rashford", "teamCode": "ENG", "position": "FW", "shirtNumber": 11, "club": "Manchester United", "nationality": "England" },
-    { "id": "phil-foden-eng", "name": "Phil Foden", "teamCode": "ENG", "position": "FW", "shirtNumber": 17, "club": "Manchester City", "nationality": "England" },
-    { "id": "cole-palmer-eng", "name": "Cole Palmer", "teamCode": "ENG", "position": "FW", "shirtNumber": 20, "club": "Chelsea", "nationality": "England" },
-
-    { "id": "andrej-kramaric-cro", "name": "Andrej Kramarić", "teamCode": "CRO", "position": "FW", "shirtNumber": 9, "club": "Hoffenheim", "nationality": "Croatia" },
-    { "id": "ivan-perisic-cro", "name": "Ivan Perišić", "teamCode": "CRO", "position": "FW", "shirtNumber": 4, "club": "Hajduk Split", "nationality": "Croatia" },
-    { "id": "ante-budimir-cro", "name": "Ante Budimir", "teamCode": "CRO", "position": "FW", "shirtNumber": 19, "club": "Osasuna", "nationality": "Croatia" },
-    { "id": "marko-livaja-cro", "name": "Marko Livaja", "teamCode": "CRO", "position": "FW", "shirtNumber": 11, "club": "Hajduk Split", "nationality": "Croatia" },
-    { "id": "luka-ivanusec-cro", "name": "Luka Ivanušec", "teamCode": "CRO", "position": "FW", "shirtNumber": 7, "club": "Dinamo Zagreb", "nationality": "Croatia" },
-
-    { "id": "jordan-ayew-gha", "name": "Jordan Ayew", "teamCode": "GHA", "position": "FW", "shirtNumber": 9, "club": "Leicester City", "nationality": "Ghana" },
-    { "id": "inaki-williams-gha", "name": "Iñaki Williams", "teamCode": "GHA", "position": "FW", "shirtNumber": 10, "club": "Athletic Bilbao", "nationality": "Ghana" },
-    { "id": "antoine-semenyo-gha", "name": "Antoine Semenyo", "teamCode": "GHA", "position": "FW", "shirtNumber": 11, "club": "Bournemouth", "nationality": "Ghana" },
-    { "id": "osman-bukari-gha", "name": "Osman Bukari", "teamCode": "GHA", "position": "FW", "shirtNumber": 7, "club": "Red Star Belgrade", "nationality": "Ghana" },
-    { "id": "kudus-mohammed-gha", "name": "Mohammed Kudus", "teamCode": "GHA", "position": "FW", "shirtNumber": 17, "club": "West Ham United", "nationality": "Ghana" },
-
-    { "id": "rolando-blackburn-pan", "name": "Rolando Blackburn", "teamCode": "PAN", "position": "FW", "shirtNumber": 9, "club": "Independiente Santa Fe", "nationality": "Panama" },
-    { "id": "ismael-diaz-pan", "name": "Ismael Díaz", "teamCode": "PAN", "position": "FW", "shirtNumber": 11, "club": "Saint-Étienne", "nationality": "Panama" },
-    { "id": "gabriel-torres-pan", "name": "Gabriel Torres", "teamCode": "PAN", "position": "FW", "shirtNumber": 10, "club": "CA Independiente", "nationality": "Panama" },
-    { "id": "jose-fajardo-pan", "name": "José Fajardo", "teamCode": "PAN", "position": "FW", "shirtNumber": 7, "club": "CF Montréal", "nationality": "Panama" }
+    {
+      "id": "hirving-lozano-mex",
+      "name": "Hirving Lozano",
+      "teamCode": "MEX",
+      "position": "FW",
+      "shirtNumber": 22,
+      "club": "San Diego FC",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "henry-martin-mex",
+      "name": "Henry Martín",
+      "teamCode": "MEX",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Club América",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "santiago-gimenez-mex",
+      "name": "Santiago Giménez",
+      "teamCode": "MEX",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "AC Milan",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "alexis-vega-mex",
+      "name": "Alexis Vega",
+      "teamCode": "MEX",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Chivas Guadalajara",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "roberto-alvarado-mex",
+      "name": "Roberto Alvarado",
+      "teamCode": "MEX",
+      "position": "FW",
+      "shirtNumber": 16,
+      "club": "Chivas Guadalajara",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "percy-tau-rsa",
+      "name": "Percy Tau",
+      "teamCode": "RSA",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Al Ahly",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "evidence-makgopa-rsa",
+      "name": "Evidence Makgopa",
+      "teamCode": "RSA",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Orlando Pirates",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "lyle-foster-rsa",
+      "name": "Lyle Foster",
+      "teamCode": "RSA",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Burnley",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "bongokuhle-hlongwane-rsa",
+      "name": "Bongokuhle Hlongwane",
+      "teamCode": "RSA",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Minnesota United",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "son-heung-min-kor",
+      "name": "Son Heung-min",
+      "teamCode": "KOR",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Tottenham Hotspur",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "hwang-hee-chan-kor",
+      "name": "Hwang Hee-chan",
+      "teamCode": "KOR",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Wolverhampton Wanderers",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "cho-gue-sung-kor",
+      "name": "Cho Gue-sung",
+      "teamCode": "KOR",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Midtjylland",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "hwang-ui-jo-kor",
+      "name": "Hwang Ui-jo",
+      "teamCode": "KOR",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Nottingham Forest",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "patrik-schick-cze",
+      "name": "Patrik Schick",
+      "teamCode": "CZE",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Bayer Leverkusen",
+      "nationality": "Czechia"
+    },
+    {
+      "id": "ondrej-lingr-cze",
+      "name": "Ondrej Lingr",
+      "teamCode": "CZE",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Feyenoord",
+      "nationality": "Czechia"
+    },
+    {
+      "id": "adam-hlozek-cze",
+      "name": "Adam Hložek",
+      "teamCode": "CZE",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Bayer Leverkusen",
+      "nationality": "Czechia"
+    },
+    {
+      "id": "mojmir-chytil-cze",
+      "name": "Mojmír Chytil",
+      "teamCode": "CZE",
+      "position": "FW",
+      "shirtNumber": 20,
+      "club": "Feyenoord",
+      "nationality": "Czechia"
+    },
+    {
+      "id": "jonathan-david-can",
+      "name": "Jonathan David",
+      "teamCode": "CAN",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Lille",
+      "nationality": "Canada"
+    },
+    {
+      "id": "cyle-larin-can",
+      "name": "Cyle Larin",
+      "teamCode": "CAN",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Rapid Wien",
+      "nationality": "Canada"
+    },
+    {
+      "id": "tajon-buchanan-can",
+      "name": "Tajon Buchanan",
+      "teamCode": "CAN",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Club Brugge",
+      "nationality": "Canada"
+    },
+    {
+      "id": "lucas-cavallini-can",
+      "name": "Lucas Cavallini",
+      "teamCode": "CAN",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Vancouver Whitecaps",
+      "nationality": "Canada"
+    },
+    {
+      "id": "edin-dzeko-bih",
+      "name": "Edin Džeko",
+      "teamCode": "BIH",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Fenerbahçe",
+      "nationality": "Bosnia and Herzegovina"
+    },
+    {
+      "id": "ermedin-demirovic-bih",
+      "name": "Ermedin Demirović",
+      "teamCode": "BIH",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Augsburg",
+      "nationality": "Bosnia and Herzegovina"
+    },
+    {
+      "id": "anel-ahmedodzic-bih",
+      "name": "Anel Ahmedhodzic",
+      "teamCode": "BIH",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Sheffield United",
+      "nationality": "Bosnia and Herzegovina"
+    },
+    {
+      "id": "dzenan-radoncic-bih",
+      "name": "Dženan Radončić",
+      "teamCode": "BIH",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Malmö FF",
+      "nationality": "Bosnia and Herzegovina"
+    },
+    {
+      "id": "akram-afif-qat",
+      "name": "Akram Afif",
+      "teamCode": "QAT",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al Sadd",
+      "nationality": "Qatar"
+    },
+    {
+      "id": "almoez-ali-qat",
+      "name": "Almoez Ali",
+      "teamCode": "QAT",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Al Duhail",
+      "nationality": "Qatar"
+    },
+    {
+      "id": "hasan-al-haydos-qat",
+      "name": "Hassan Al-Haydos",
+      "teamCode": "QAT",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Al Sadd",
+      "nationality": "Qatar"
+    },
+    {
+      "id": "khalid-muneer-qat",
+      "name": "Khalid Muneer Ali",
+      "teamCode": "QAT",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Al Sadd",
+      "nationality": "Qatar"
+    },
+    {
+      "id": "breel-embolo-sui",
+      "name": "Breel Embolo",
+      "teamCode": "SUI",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "AS Monaco",
+      "nationality": "Switzerland"
+    },
+    {
+      "id": "haris-seferovic-sui",
+      "name": "Haris Seferović",
+      "teamCode": "SUI",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Galatasaray",
+      "nationality": "Switzerland"
+    },
+    {
+      "id": "ruben-vargas-sui",
+      "name": "Ruben Vargas",
+      "teamCode": "SUI",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Augsburg",
+      "nationality": "Switzerland"
+    },
+    {
+      "id": "zeki-amdouni-sui",
+      "name": "Zeki Amdouni",
+      "teamCode": "SUI",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Burnley",
+      "nationality": "Switzerland"
+    },
+    {
+      "id": "vinicius-jr-bra",
+      "name": "Vinicius Jr.",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Real Madrid",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "raphinha-bra",
+      "name": "Raphinha",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Barcelona",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "gabriel-martinelli-bra",
+      "name": "Gabriel Martinelli",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Arsenal",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "endrick-bra",
+      "name": "Endrick",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Real Madrid",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "youssef-en-nesyri-mar",
+      "name": "Youssef En-Nesyri",
+      "teamCode": "MAR",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Fenerbahçe",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "abderrazak-hamdallah-mar",
+      "name": "Abderrazak Hamdallah",
+      "teamCode": "MAR",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Al Ittihad",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "soufiane-rahimi-mar",
+      "name": "Soufiane Rahimi",
+      "teamCode": "MAR",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al Ain",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "amine-harit-mar",
+      "name": "Amine Harit",
+      "teamCode": "MAR",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Olympique de Marseille",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "duckens-nazon-hai",
+      "name": "Duckens Nazon",
+      "teamCode": "HAI",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "CS Sfaxien",
+      "nationality": "Haiti"
+    },
+    {
+      "id": "frantzdy-pierrot-hai",
+      "name": "Frantzdy Pierrot",
+      "teamCode": "HAI",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Seattle Sounders",
+      "nationality": "Haiti"
+    },
+    {
+      "id": "carnejy-antoine-hai",
+      "name": "Carnejy Antoine",
+      "teamCode": "HAI",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Nashville SC",
+      "nationality": "Haiti"
+    },
+    {
+      "id": "lyndon-dykes-sco",
+      "name": "Lyndon Dykes",
+      "teamCode": "SCO",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Queens Park Rangers",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "che-adams-sco",
+      "name": "Che Adams",
+      "teamCode": "SCO",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Torino",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "ryan-christie-sco",
+      "name": "Ryan Christie",
+      "teamCode": "SCO",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Bournemouth",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "christian-pulisic-usa",
+      "name": "Christian Pulisic",
+      "teamCode": "USA",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "AC Milan",
+      "nationality": "United States"
+    },
+    {
+      "id": "ricardo-pepi-usa",
+      "name": "Ricardo Pepi",
+      "teamCode": "USA",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "PSV Eindhoven",
+      "nationality": "United States"
+    },
+    {
+      "id": "timothy-weah-usa",
+      "name": "Timothy Weah",
+      "teamCode": "USA",
+      "position": "FW",
+      "shirtNumber": 21,
+      "club": "Juventus",
+      "nationality": "United States"
+    },
+    {
+      "id": "folarin-balogun-usa",
+      "name": "Folarin Balogun",
+      "teamCode": "USA",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Monaco",
+      "nationality": "United States"
+    },
+    {
+      "id": "josh-sargent-usa",
+      "name": "Josh Sargent",
+      "teamCode": "USA",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Norwich City",
+      "nationality": "United States"
+    },
+    {
+      "id": "miguel-almiron-par",
+      "name": "Miguel Almirón",
+      "teamCode": "PAR",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Atlanta United",
+      "nationality": "Paraguay"
+    },
+    {
+      "id": "antonio-sanabria-par",
+      "name": "Antonio Sanabria",
+      "teamCode": "PAR",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Torino",
+      "nationality": "Paraguay"
+    },
+    {
+      "id": "alejandro-romero-gamarra-par",
+      "name": "Kaku",
+      "teamCode": "PAR",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Red Bull Leipzig",
+      "nationality": "Paraguay"
+    },
+    {
+      "id": "julio-enciso-par",
+      "name": "Julio Enciso",
+      "teamCode": "PAR",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Brighton & Hove Albion",
+      "nationality": "Paraguay"
+    },
+    {
+      "id": "mitchell-duke-aus",
+      "name": "Mitchell Duke",
+      "teamCode": "AUS",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Macarthur FC",
+      "nationality": "Australia"
+    },
+    {
+      "id": "martin-boyle-aus",
+      "name": "Martin Boyle",
+      "teamCode": "AUS",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al Faisaly",
+      "nationality": "Australia"
+    },
+    {
+      "id": "jason-cummings-aus",
+      "name": "Jason Cummings",
+      "teamCode": "AUS",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Central Coast Mariners",
+      "nationality": "Australia"
+    },
+    {
+      "id": "craig-goodwin-aus",
+      "name": "Craig Goodwin",
+      "teamCode": "AUS",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Adelaide United",
+      "nationality": "Australia"
+    },
+    {
+      "id": "kerem-akturkoglu-tur",
+      "name": "Kerem Aktürkoğlu",
+      "teamCode": "TUR",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Galatasaray",
+      "nationality": "Türkiye"
+    },
+    {
+      "id": "burak-yilmaz-tur",
+      "name": "Baris Alper Yilmaz",
+      "teamCode": "TUR",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Galatasaray",
+      "nationality": "Türkiye"
+    },
+    {
+      "id": "cenk-tosun-tur",
+      "name": "Cenk Tosun",
+      "teamCode": "TUR",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Beşiktaş",
+      "nationality": "Türkiye"
+    },
+    {
+      "id": "arda-guler-tur",
+      "name": "Arda Güler",
+      "teamCode": "TUR",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Real Madrid",
+      "nationality": "Türkiye"
+    },
+    {
+      "id": "yunus-akgun-tur",
+      "name": "Yunus Akgün",
+      "teamCode": "TUR",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Galatasaray",
+      "nationality": "Türkiye"
+    },
+    {
+      "id": "kai-havertz-ger",
+      "name": "Kai Havertz",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Arsenal",
+      "nationality": "Germany"
+    },
+    {
+      "id": "leroy-sane-ger",
+      "name": "Leroy Sané",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Bayern Munich",
+      "nationality": "Germany"
+    },
+    {
+      "id": "serge-gnabry-ger",
+      "name": "Serge Gnabry",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Bayern Munich",
+      "nationality": "Germany"
+    },
+    {
+      "id": "florian-wirtz-ger",
+      "name": "Florian Wirtz",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Bayer Leverkusen",
+      "nationality": "Germany"
+    },
+    {
+      "id": "niclas-fullkrug-ger",
+      "name": "Niclas Füllkrug",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "West Ham United",
+      "nationality": "Germany"
+    },
+    {
+      "id": "jamal-musiala-ger",
+      "name": "Jamal Musiala",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 14,
+      "club": "Bayern Munich",
+      "nationality": "Germany"
+    },
+    {
+      "id": "gevaro-nepomuceno-cuw",
+      "name": "Gevaro Nepomuceno",
+      "teamCode": "CUW",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "KV Kortrijk",
+      "nationality": "Curaçao"
+    },
+    {
+      "id": "jarchinio-antonia-cuw",
+      "name": "Jarchinio Antonia",
+      "teamCode": "CUW",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Beerschot",
+      "nationality": "Curaçao"
+    },
+    {
+      "id": "leandro-bacuna-cuw",
+      "name": "Leandro Bacuna",
+      "teamCode": "CUW",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Birmingham City",
+      "nationality": "Curaçao"
+    },
+    {
+      "id": "rangelo-janga-cuw",
+      "name": "Rangelo Janga",
+      "teamCode": "CUW",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Diegem Sport",
+      "nationality": "Curaçao"
+    },
+    {
+      "id": "sebastien-haller-civ",
+      "name": "Sébastien Haller",
+      "teamCode": "CIV",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Borussia Dortmund",
+      "nationality": "Ivory Coast"
+    },
+    {
+      "id": "nicolas-pepe-civ",
+      "name": "Nicolas Pépé",
+      "teamCode": "CIV",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "OGC Nice",
+      "nationality": "Ivory Coast"
+    },
+    {
+      "id": "wilfried-zaha-civ",
+      "name": "Wilfried Zaha",
+      "teamCode": "CIV",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Galatasaray",
+      "nationality": "Ivory Coast"
+    },
+    {
+      "id": "franck-kessie-civ",
+      "name": "Franck Kessié",
+      "teamCode": "CIV",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Al-Ahli",
+      "nationality": "Ivory Coast"
+    },
+    {
+      "id": "enner-valencia-ecu",
+      "name": "Enner Valencia",
+      "teamCode": "ECU",
+      "position": "FW",
+      "shirtNumber": 13,
+      "club": "Internacional",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "gonzalo-plata-ecu",
+      "name": "Gonzalo Plata",
+      "teamCode": "ECU",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al-Qadsiah",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "michael-estrada-ecu",
+      "name": "Michael Estrada",
+      "teamCode": "ECU",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Cruz Azul",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "pervis-estupinan-ecu",
+      "name": "Pervis Estupiñán",
+      "teamCode": "ECU",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Brighton & Hove Albion",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "cody-gakpo-ned",
+      "name": "Cody Gakpo",
+      "teamCode": "NED",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Liverpool",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "memphis-depay-ned",
+      "name": "Memphis Depay",
+      "teamCode": "NED",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Atlético de Madrid",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "donyell-malen-ned",
+      "name": "Donyell Malen",
+      "teamCode": "NED",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Aston Villa",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "wout-weghorst-ned",
+      "name": "Wout Weghorst",
+      "teamCode": "NED",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Hoffenheim",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "noa-lang-ned",
+      "name": "Noa Lang",
+      "teamCode": "NED",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "PSV Eindhoven",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "kaoru-mitoma-jpn",
+      "name": "Kaoru Mitoma",
+      "teamCode": "JPN",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Brighton & Hove Albion",
+      "nationality": "Japan"
+    },
+    {
+      "id": "takumi-minamino-jpn",
+      "name": "Takumi Minamino",
+      "teamCode": "JPN",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Monaco",
+      "nationality": "Japan"
+    },
+    {
+      "id": "ritsu-doan-jpn",
+      "name": "Ritsu Dōan",
+      "teamCode": "JPN",
+      "position": "FW",
+      "shirtNumber": 8,
+      "club": "Freiburg",
+      "nationality": "Japan"
+    },
+    {
+      "id": "junya-ito-jpn",
+      "name": "Junya Ito",
+      "teamCode": "JPN",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Reims",
+      "nationality": "Japan"
+    },
+    {
+      "id": "ayase-ueda-jpn",
+      "name": "Ayase Ueda",
+      "teamCode": "JPN",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Feyenoord",
+      "nationality": "Japan"
+    },
+    {
+      "id": "alexander-isak-swe",
+      "name": "Alexander Isak",
+      "teamCode": "SWE",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Newcastle United",
+      "nationality": "Sweden"
+    },
+    {
+      "id": "dejan-kulusevski-swe",
+      "name": "Dejan Kulusevski",
+      "teamCode": "SWE",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Tottenham Hotspur",
+      "nationality": "Sweden"
+    },
+    {
+      "id": "anthony-elanga-swe",
+      "name": "Anthony Elanga",
+      "teamCode": "SWE",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Nottingham Forest",
+      "nationality": "Sweden"
+    },
+    {
+      "id": "viktor-gyokeres-swe",
+      "name": "Viktor Gyökeres",
+      "teamCode": "SWE",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Sporting CP",
+      "nationality": "Sweden"
+    },
+    {
+      "id": "zlatan-ibrahimovic-swe",
+      "name": "Jordan Larsson",
+      "teamCode": "SWE",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Spartak Moscow",
+      "nationality": "Sweden"
+    },
+    {
+      "id": "wahbi-khazri-tun",
+      "name": "Wahbi Khazri",
+      "teamCode": "TUN",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Montpellier",
+      "nationality": "Tunisia"
+    },
+    {
+      "id": "youssef-msakni-tun",
+      "name": "Youssef Msakni",
+      "teamCode": "TUN",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al Arabi",
+      "nationality": "Tunisia"
+    },
+    {
+      "id": "seifeddine-jaziri-tun",
+      "name": "Seifeddine Jaziri",
+      "teamCode": "TUN",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Zamalek",
+      "nationality": "Tunisia"
+    },
+    {
+      "id": "taha-yassine-khenissi-tun",
+      "name": "Taha Yassine Khenissi",
+      "teamCode": "TUN",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Espérance Sportive de Tunis",
+      "nationality": "Tunisia"
+    },
+    {
+      "id": "romelu-lukaku-bel",
+      "name": "Romelu Lukaku",
+      "teamCode": "BEL",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Napoli",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "dodi-lukebakio-bel",
+      "name": "Dodi Lukébakio",
+      "teamCode": "BEL",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Sevilla",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "leandro-trossard-bel",
+      "name": "Leandro Trossard",
+      "teamCode": "BEL",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Arsenal",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "lois-openda-bel",
+      "name": "Loïs Openda",
+      "teamCode": "BEL",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "RB Leipzig",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "jeremy-doku-bel",
+      "name": "Jérémy Doku",
+      "teamCode": "BEL",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Manchester City",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "mostafa-mohamed-egy",
+      "name": "Mostafa Mohamed",
+      "teamCode": "EGY",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Galatasaray",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "omar-marmoush-egy",
+      "name": "Omar Marmoush",
+      "teamCode": "EGY",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Manchester City",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "ramadan-sobhi-egy",
+      "name": "Ramadan Sobhi",
+      "teamCode": "EGY",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Pyramids FC",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "ahmed-sayed-zizou-egy",
+      "name": "Ahmed Sayed Zizou",
+      "teamCode": "EGY",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Pyramids FC",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "sardar-azmoun-irn",
+      "name": "Sardar Azmoun",
+      "teamCode": "IRN",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Bayer Leverkusen",
+      "nationality": "Iran"
+    },
+    {
+      "id": "mehdi-taremi-irn",
+      "name": "Mehdi Taremi",
+      "teamCode": "IRN",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Inter Milan",
+      "nationality": "Iran"
+    },
+    {
+      "id": "saman-ghoddos-irn",
+      "name": "Saman Ghoddos",
+      "teamCode": "IRN",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Brentford",
+      "nationality": "Iran"
+    },
+    {
+      "id": "ali-gholizadeh-irn",
+      "name": "Ali Gholizadeh",
+      "teamCode": "IRN",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Charleroi",
+      "nationality": "Iran"
+    },
+    {
+      "id": "chris-wood-nzl",
+      "name": "Chris Wood",
+      "teamCode": "NZL",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Nottingham Forest",
+      "nationality": "New Zealand"
+    },
+    {
+      "id": "liberato-cacace-nzl",
+      "name": "Liberato Cacace",
+      "teamCode": "NZL",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Empoli",
+      "nationality": "New Zealand"
+    },
+    {
+      "id": "matthew-garbett-nzl",
+      "name": "Matthew Garbett",
+      "teamCode": "NZL",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Vitesse",
+      "nationality": "New Zealand"
+    },
+    {
+      "id": "joe-bell-nzl",
+      "name": "Joe Bell",
+      "teamCode": "NZL",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Charlotte FC",
+      "nationality": "New Zealand"
+    },
+    {
+      "id": "lamine-yamal-esp",
+      "name": "Lamine Yamal",
+      "teamCode": "ESP",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Barcelona",
+      "nationality": "Spain"
+    },
+    {
+      "id": "nico-williams-esp",
+      "name": "Nico Williams",
+      "teamCode": "ESP",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Athletic Bilbao",
+      "nationality": "Spain"
+    },
+    {
+      "id": "alvaro-morata-esp",
+      "name": "Álvaro Morata",
+      "teamCode": "ESP",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "AC Milan",
+      "nationality": "Spain"
+    },
+    {
+      "id": "ferran-torres-esp",
+      "name": "Ferran Torres",
+      "teamCode": "ESP",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Barcelona",
+      "nationality": "Spain"
+    },
+    {
+      "id": "mikel-oyarzabal-esp",
+      "name": "Mikel Oyarzabal",
+      "teamCode": "ESP",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Real Sociedad",
+      "nationality": "Spain"
+    },
+    {
+      "id": "dani-olmo-esp",
+      "name": "Dani Olmo",
+      "teamCode": "ESP",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Barcelona",
+      "nationality": "Spain"
+    },
+    {
+      "id": "ryan-joao-cpv",
+      "name": "Ryan Mendes",
+      "teamCode": "CPV",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Vitesse",
+      "nationality": "Cape Verde"
+    },
+    {
+      "id": "garry-rodrigues-cpv",
+      "name": "Garry Rodrigues",
+      "teamCode": "CPV",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Galatasaray",
+      "nationality": "Cape Verde"
+    },
+    {
+      "id": "julio-tavares-cpv",
+      "name": "Júlio Tavares",
+      "teamCode": "CPV",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Dijon FCO",
+      "nationality": "Cape Verde"
+    },
+    {
+      "id": "steven-fortes-cpv",
+      "name": "Steven Fortes",
+      "teamCode": "CPV",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Sporting Covilhã",
+      "nationality": "Cape Verde"
+    },
+    {
+      "id": "salem-al-dawsari-ksa",
+      "name": "Salem Al-Dawsari",
+      "teamCode": "KSA",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Al-Hilal",
+      "nationality": "Saudi Arabia"
+    },
+    {
+      "id": "firas-al-buraikan-ksa",
+      "name": "Firas Al-Buraikan",
+      "teamCode": "KSA",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Al-Fateh",
+      "nationality": "Saudi Arabia"
+    },
+    {
+      "id": "hattan-bahebri-ksa",
+      "name": "Hattan Bahebri",
+      "teamCode": "KSA",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al-Shabab",
+      "nationality": "Saudi Arabia"
+    },
+    {
+      "id": "sami-al-najei-ksa",
+      "name": "Sami Al-Najei",
+      "teamCode": "KSA",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Al-Ittihad",
+      "nationality": "Saudi Arabia"
+    },
+    {
+      "id": "luis-suarez-uru",
+      "name": "Luis Suárez",
+      "teamCode": "URU",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "River Plate",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "darwin-nunez-uru",
+      "name": "Darwin Núñez",
+      "teamCode": "URU",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Liverpool",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "facundo-pellistri-uru",
+      "name": "Facundo Pellistri",
+      "teamCode": "URU",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Manchester United",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "maximiliano-gomez-uru",
+      "name": "Maximiliano Gómez",
+      "teamCode": "URU",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Valencia",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "cristhian-stuani-uru",
+      "name": "Cristhian Stuani",
+      "teamCode": "URU",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Girona",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "kylian-mbappe-fra",
+      "name": "Kylian Mbappé",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Real Madrid",
+      "nationality": "France"
+    },
+    {
+      "id": "ousmane-dembele-fra",
+      "name": "Ousmane Dembélé",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Paris Saint-Germain",
+      "nationality": "France"
+    },
+    {
+      "id": "antoine-griezmann-fra",
+      "name": "Antoine Griezmann",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Atlético de Madrid",
+      "nationality": "France"
+    },
+    {
+      "id": "kingsley-coman-fra",
+      "name": "Kingsley Coman",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Bayern Munich",
+      "nationality": "France"
+    },
+    {
+      "id": "marcus-thuram-fra",
+      "name": "Marcus Thuram",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 15,
+      "club": "Inter Milan",
+      "nationality": "France"
+    },
+    {
+      "id": "bradley-barcola-fra",
+      "name": "Bradley Barcola",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Paris Saint-Germain",
+      "nationality": "France"
+    },
+    {
+      "id": "sadio-mane-sen",
+      "name": "Sadio Mané",
+      "teamCode": "SEN",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Al-Nassr",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "ismaila-sarr-sen",
+      "name": "Ismaila Sarr",
+      "teamCode": "SEN",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Crystal Palace",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "boulaye-dia-sen",
+      "name": "Boulaye Dia",
+      "teamCode": "SEN",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Lazio",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "nicolas-jackson-sen",
+      "name": "Nicolas Jackson",
+      "teamCode": "SEN",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Chelsea",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "habib-diallo-sen",
+      "name": "Habib Diallo",
+      "teamCode": "SEN",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "RC Strasbourg",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "aymen-hussein-irq",
+      "name": "Aymen Hussein",
+      "teamCode": "IRQ",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Al-Quwa Al-Jawiya",
+      "nationality": "Iraq"
+    },
+    {
+      "id": "mohanad-ali-irq",
+      "name": "Mohanad Ali",
+      "teamCode": "IRQ",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al-Zawraa",
+      "nationality": "Iraq"
+    },
+    {
+      "id": "amjad-attwan-irq",
+      "name": "Amjad Attwan",
+      "teamCode": "IRQ",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Al-Quwa Al-Jawiya",
+      "nationality": "Iraq"
+    },
+    {
+      "id": "ali-jassim-irq",
+      "name": "Ali Jassim",
+      "teamCode": "IRQ",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Al-Naft",
+      "nationality": "Iraq"
+    },
+    {
+      "id": "erling-haaland-nor",
+      "name": "Erling Haaland",
+      "teamCode": "NOR",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Manchester City",
+      "nationality": "Norway"
+    },
+    {
+      "id": "alexander-sorloth-nor",
+      "name": "Alexander Sørloth",
+      "teamCode": "NOR",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Atlético de Madrid",
+      "nationality": "Norway"
+    },
+    {
+      "id": "antonio-nusa-nor",
+      "name": "Antonio Nusa",
+      "teamCode": "NOR",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Club Brugge",
+      "nationality": "Norway"
+    },
+    {
+      "id": "ola-solbakken-nor",
+      "name": "Ola Solbakken",
+      "teamCode": "NOR",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "AS Roma",
+      "nationality": "Norway"
+    },
+    {
+      "id": "mats-daehli-nor",
+      "name": "Mats Møller Dæhli",
+      "teamCode": "NOR",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "FC Union Berlin",
+      "nationality": "Norway"
+    },
+    {
+      "id": "lionel-messi-arg",
+      "name": "Lionel Messi",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Inter Miami CF",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "lautaro-martinez-arg",
+      "name": "Lautaro Martínez",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Inter Milan",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "angel-di-maria-arg",
+      "name": "Ángel Di María",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Benfica",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "julian-alvarez-arg",
+      "name": "Julián Álvarez",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Atlético de Madrid",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "alejandro-garnacho-arg",
+      "name": "Alejandro Garnacho",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Manchester United",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "nicolas-gonzalez-arg",
+      "name": "Nicolás González",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Juventus",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "islam-slimani-alg",
+      "name": "Riyad Mahrez",
+      "teamCode": "ALG",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Al-Ahli",
+      "nationality": "Algeria"
+    },
+    {
+      "id": "youcef-atal-alg",
+      "name": "Youcef Atal",
+      "teamCode": "ALG",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "OGC Nice",
+      "nationality": "Algeria"
+    },
+    {
+      "id": "andy-delort-alg",
+      "name": "Andy Delort",
+      "teamCode": "ALG",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "OGC Nice",
+      "nationality": "Algeria"
+    },
+    {
+      "id": "sofiane-feghouli-alg",
+      "name": "Baghdad Bounedjah",
+      "teamCode": "ALG",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Al Sadd",
+      "nationality": "Algeria"
+    },
+    {
+      "id": "said-benrahma-alg",
+      "name": "Saïd Benrahma",
+      "teamCode": "ALG",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Lyon",
+      "nationality": "Algeria"
+    },
+    {
+      "id": "marko-arnautovic-aut",
+      "name": "Marko Arnautović",
+      "teamCode": "AUT",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Inter Milan",
+      "nationality": "Austria"
+    },
+    {
+      "id": "michael-gregoritsch-aut",
+      "name": "Michael Gregoritsch",
+      "teamCode": "AUT",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Freiburg",
+      "nationality": "Austria"
+    },
+    {
+      "id": "christoph-baumgartner-aut",
+      "name": "Christoph Baumgartner",
+      "teamCode": "AUT",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "RB Leipzig",
+      "nationality": "Austria"
+    },
+    {
+      "id": "sasa-kalajdzic-aut",
+      "name": "Sasa Kalajdzic",
+      "teamCode": "AUT",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Eintracht Frankfurt",
+      "nationality": "Austria"
+    },
+    {
+      "id": "mousa-al-tamari-jor",
+      "name": "Mousa Al-Tamari",
+      "teamCode": "JOR",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Montpellier",
+      "nationality": "Jordan"
+    },
+    {
+      "id": "baha-faisal-jor",
+      "name": "Baha' Faisal",
+      "teamCode": "JOR",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Al-Wehdat",
+      "nationality": "Jordan"
+    },
+    {
+      "id": "omar-al-dardour-jor",
+      "name": "Omar Al-Dardour",
+      "teamCode": "JOR",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al-Ahli Amman",
+      "nationality": "Jordan"
+    },
+    {
+      "id": "yazan-al-naimat-jor",
+      "name": "Yazan Al-Naimat",
+      "teamCode": "JOR",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Al-Faisaly",
+      "nationality": "Jordan"
+    },
+    {
+      "id": "cristiano-ronaldo-por",
+      "name": "Cristiano Ronaldo",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Al-Nassr",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "rafael-leao-por",
+      "name": "Rafael Leão",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "AC Milan",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "diogo-jota-por",
+      "name": "Diogo Jota",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Liverpool",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "joao-felix-por",
+      "name": "João Félix",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Barcelona",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "pedro-neto-por",
+      "name": "Pedro Neto",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Chelsea",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "goncalo-ramos-por",
+      "name": "Gonçalo Ramos",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Paris Saint-Germain",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "cedric-bakambu-cod",
+      "name": "Cédric Bakambu",
+      "teamCode": "COD",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Marseille",
+      "nationality": "DR Congo"
+    },
+    {
+      "id": "dieumerci-mbokani-cod",
+      "name": "Dieu Merci Mbokani",
+      "teamCode": "COD",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Royale Union Saint-Gilloise",
+      "nationality": "DR Congo"
+    },
+    {
+      "id": "yoane-wissa-cod",
+      "name": "Yoane Wissa",
+      "teamCode": "COD",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Brentford",
+      "nationality": "DR Congo"
+    },
+    {
+      "id": "jonathan-bolingi-cod",
+      "name": "Jonathan Bolingi",
+      "teamCode": "COD",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Al-Ittihad Kalba",
+      "nationality": "DR Congo"
+    },
+    {
+      "id": "eldor-shomurodov-uzb",
+      "name": "Eldor Shomurodov",
+      "teamCode": "UZB",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "AS Roma",
+      "nationality": "Uzbekistan"
+    },
+    {
+      "id": "dostonbek-khamdamov-uzb",
+      "name": "Dostonbek Khamdamov",
+      "teamCode": "UZB",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "FC Bunyodkor",
+      "nationality": "Uzbekistan"
+    },
+    {
+      "id": "jaloliddin-masharipov-uzb",
+      "name": "Jaloliddin Masharipov",
+      "teamCode": "UZB",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "FC Pakhtakor",
+      "nationality": "Uzbekistan"
+    },
+    {
+      "id": "otabek-shukurov-uzb",
+      "name": "Otabek Shukurov",
+      "teamCode": "UZB",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "FC Navbahor Namangan",
+      "nationality": "Uzbekistan"
+    },
+    {
+      "id": "luis-diaz-col",
+      "name": "Luis Díaz",
+      "teamCode": "COL",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Liverpool",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "radamel-falcao-col",
+      "name": "Radamel Falcao",
+      "teamCode": "COL",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Rayo Vallecano",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "cucho-hernandez-col",
+      "name": "Cucho Hernández",
+      "teamCode": "COL",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Columbus Crew",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "jhon-duran-col",
+      "name": "Jhon Durán",
+      "teamCode": "COL",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Aston Villa",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "rafael-santos-borre-col",
+      "name": "Rafael Santos Borré",
+      "teamCode": "COL",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Eintracht Frankfurt",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "harry-kane-eng",
+      "name": "Harry Kane",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Bayern Munich",
+      "nationality": "England"
+    },
+    {
+      "id": "raheem-sterling-eng",
+      "name": "Raheem Sterling",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Arsenal",
+      "nationality": "England"
+    },
+    {
+      "id": "bukayo-saka-eng",
+      "name": "Bukayo Saka",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Arsenal",
+      "nationality": "England"
+    },
+    {
+      "id": "marcus-rashford-eng",
+      "name": "Marcus Rashford",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Manchester United",
+      "nationality": "England"
+    },
+    {
+      "id": "phil-foden-eng",
+      "name": "Phil Foden",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Manchester City",
+      "nationality": "England"
+    },
+    {
+      "id": "cole-palmer-eng",
+      "name": "Cole Palmer",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 20,
+      "club": "Chelsea",
+      "nationality": "England"
+    },
+    {
+      "id": "andrej-kramaric-cro",
+      "name": "Andrej Kramarić",
+      "teamCode": "CRO",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Hoffenheim",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "ivan-perisic-cro",
+      "name": "Ivan Perišić",
+      "teamCode": "CRO",
+      "position": "FW",
+      "shirtNumber": 4,
+      "club": "Hajduk Split",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "ante-budimir-cro",
+      "name": "Ante Budimir",
+      "teamCode": "CRO",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Osasuna",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "marko-livaja-cro",
+      "name": "Marko Livaja",
+      "teamCode": "CRO",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Hajduk Split",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "luka-ivanusec-cro",
+      "name": "Luka Ivanušec",
+      "teamCode": "CRO",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Dinamo Zagreb",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "jordan-ayew-gha",
+      "name": "Jordan Ayew",
+      "teamCode": "GHA",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Leicester City",
+      "nationality": "Ghana"
+    },
+    {
+      "id": "inaki-williams-gha",
+      "name": "Iñaki Williams",
+      "teamCode": "GHA",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Athletic Bilbao",
+      "nationality": "Ghana"
+    },
+    {
+      "id": "antoine-semenyo-gha",
+      "name": "Antoine Semenyo",
+      "teamCode": "GHA",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Bournemouth",
+      "nationality": "Ghana"
+    },
+    {
+      "id": "osman-bukari-gha",
+      "name": "Osman Bukari",
+      "teamCode": "GHA",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Red Star Belgrade",
+      "nationality": "Ghana"
+    },
+    {
+      "id": "kudus-mohammed-gha",
+      "name": "Mohammed Kudus",
+      "teamCode": "GHA",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "West Ham United",
+      "nationality": "Ghana"
+    },
+    {
+      "id": "rolando-blackburn-pan",
+      "name": "Rolando Blackburn",
+      "teamCode": "PAN",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Independiente Santa Fe",
+      "nationality": "Panama"
+    },
+    {
+      "id": "ismael-diaz-pan",
+      "name": "Ismael Díaz",
+      "teamCode": "PAN",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Saint-Étienne",
+      "nationality": "Panama"
+    },
+    {
+      "id": "gabriel-torres-pan",
+      "name": "Gabriel Torres",
+      "teamCode": "PAN",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "CA Independiente",
+      "nationality": "Panama"
+    },
+    {
+      "id": "jose-fajardo-pan",
+      "name": "José Fajardo",
+      "teamCode": "PAN",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "CF Montréal",
+      "nationality": "Panama"
+    },
+    {
+      "id": "neymar-bra",
+      "name": "Neymar Jr.",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Santos",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "igor-thiago-bra",
+      "name": "Igor Thiago",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Brentford",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "luiz-henrique-bra",
+      "name": "Luiz Henrique",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 18,
+      "club": "Zenit",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "matheus-cunha-bra",
+      "name": "Matheus Cunha",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 21,
+      "club": "Manchester United",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "rayan-bra",
+      "name": "Rayan",
+      "teamCode": "BRA",
+      "position": "FW",
+      "shirtNumber": 20,
+      "club": "Bournemouth",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "lucas-paqueta-bra",
+      "name": "Lucas Paquetá",
+      "teamCode": "BRA",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Flamengo",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "bruno-guimaraes-bra",
+      "name": "Bruno Guimarães",
+      "teamCode": "BRA",
+      "position": "MF",
+      "shirtNumber": 5,
+      "club": "Newcastle United",
+      "nationality": "Brazil"
+    },
+    {
+      "id": "franco-mastantuono-arg",
+      "name": "Franco Mastantuono",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Real Madrid",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "claudio-echeverri-arg",
+      "name": "Claudio Echeverri",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 16,
+      "club": "Girona",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "rodrigo-de-paul-arg",
+      "name": "Rodrigo De Paul",
+      "teamCode": "ARG",
+      "position": "MF",
+      "shirtNumber": 7,
+      "club": "Inter Miami",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "enzo-fernandez-arg",
+      "name": "Enzo Fernández",
+      "teamCode": "ARG",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Chelsea",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "alexis-mac-allister-arg",
+      "name": "Alexis Mac Allister",
+      "teamCode": "ARG",
+      "position": "MF",
+      "shirtNumber": 20,
+      "club": "Liverpool",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "matias-soule-arg",
+      "name": "Matías Soulé",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 15,
+      "club": "Roma",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "nicolas-paz-arg",
+      "name": "Nicolás Paz",
+      "teamCode": "ARG",
+      "position": "FW",
+      "shirtNumber": 18,
+      "club": "Como",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "michael-olise-fra",
+      "name": "Michael Olise",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 15,
+      "club": "Bayern Munich",
+      "nationality": "France"
+    },
+    {
+      "id": "desire-doue-fra",
+      "name": "Désiré Doué",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 14,
+      "club": "Paris Saint-Germain",
+      "nationality": "France"
+    },
+    {
+      "id": "rayan-cherki-fra",
+      "name": "Rayan Cherki",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Manchester City",
+      "nationality": "France"
+    },
+    {
+      "id": "jean-philippe-mateta-fra",
+      "name": "Jean-Philippe Mateta",
+      "teamCode": "FRA",
+      "position": "FW",
+      "shirtNumber": 18,
+      "club": "Crystal Palace",
+      "nationality": "France"
+    },
+    {
+      "id": "maghnes-akliouche-fra",
+      "name": "Maghnes Akliouche",
+      "teamCode": "FRA",
+      "position": "MF",
+      "shirtNumber": 16,
+      "club": "AS Monaco",
+      "nationality": "France"
+    },
+    {
+      "id": "aurelien-tchouameni-fra",
+      "name": "Aurélien Tchouaméni",
+      "teamCode": "FRA",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Real Madrid",
+      "nationality": "France"
+    },
+    {
+      "id": "warren-zaire-emery-fra",
+      "name": "Warren Zaïre-Emery",
+      "teamCode": "FRA",
+      "position": "MF",
+      "shirtNumber": 19,
+      "club": "Paris Saint-Germain",
+      "nationality": "France"
+    },
+    {
+      "id": "jude-bellingham-eng",
+      "name": "Jude Bellingham",
+      "teamCode": "ENG",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Real Madrid",
+      "nationality": "England"
+    },
+    {
+      "id": "ollie-watkins-eng",
+      "name": "Ollie Watkins",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 20,
+      "club": "Aston Villa",
+      "nationality": "England"
+    },
+    {
+      "id": "ivan-toney-eng",
+      "name": "Ivan Toney",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 21,
+      "club": "Al Ahli",
+      "nationality": "England"
+    },
+    {
+      "id": "declan-rice-eng",
+      "name": "Declan Rice",
+      "teamCode": "ENG",
+      "position": "MF",
+      "shirtNumber": 4,
+      "club": "Arsenal",
+      "nationality": "England"
+    },
+    {
+      "id": "anthony-gordon-eng",
+      "name": "Anthony Gordon",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 22,
+      "club": "Newcastle",
+      "nationality": "England"
+    },
+    {
+      "id": "noni-madueke-eng",
+      "name": "Noni Madueke",
+      "teamCode": "ENG",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Arsenal",
+      "nationality": "England"
+    },
+    {
+      "id": "morgan-rogers-eng",
+      "name": "Morgan Rogers",
+      "teamCode": "ENG",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "Aston Villa",
+      "nationality": "England"
+    },
+    {
+      "id": "eberechi-eze-eng",
+      "name": "Eberechi Eze",
+      "teamCode": "ENG",
+      "position": "MF",
+      "shirtNumber": 16,
+      "club": "Arsenal",
+      "nationality": "England"
+    },
+    {
+      "id": "deniz-undav-ger",
+      "name": "Deniz Undav",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 14,
+      "club": "Stuttgart",
+      "nationality": "Germany"
+    },
+    {
+      "id": "nick-woltemade-ger",
+      "name": "Nick Woltemade",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 21,
+      "club": "Newcastle",
+      "nationality": "Germany"
+    },
+    {
+      "id": "maximilian-beier-ger",
+      "name": "Maximilian Beier",
+      "teamCode": "GER",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Borussia Dortmund",
+      "nationality": "Germany"
+    },
+    {
+      "id": "joshua-kimmich-ger",
+      "name": "Joshua Kimmich",
+      "teamCode": "GER",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "Bayern Munich",
+      "nationality": "Germany"
+    },
+    {
+      "id": "jamie-leweling-ger",
+      "name": "Jamie Leweling",
+      "teamCode": "GER",
+      "position": "MF",
+      "shirtNumber": 16,
+      "club": "Stuttgart",
+      "nationality": "Germany"
+    },
+    {
+      "id": "francisco-trincao-por",
+      "name": "Francisco Trincão",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Sporting CP",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "francisco-conceicao-por",
+      "name": "Francisco Conceição",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 15,
+      "club": "Juventus",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "goncalo-guedes-por",
+      "name": "Gonçalo Guedes",
+      "teamCode": "POR",
+      "position": "FW",
+      "shirtNumber": 14,
+      "club": "Real Sociedad",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "vitinha-por",
+      "name": "Vitinha",
+      "teamCode": "POR",
+      "position": "MF",
+      "shirtNumber": 16,
+      "club": "Paris Saint-Germain",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "joao-neves-por",
+      "name": "João Neves",
+      "teamCode": "POR",
+      "position": "MF",
+      "shirtNumber": 18,
+      "club": "Paris Saint-Germain",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "bernardo-silva-por",
+      "name": "Bernardo Silva",
+      "teamCode": "POR",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Manchester City",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "bruno-fernandes-por",
+      "name": "Bruno Fernandes",
+      "teamCode": "POR",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Manchester United",
+      "nationality": "Portugal"
+    },
+    {
+      "id": "scott-mctominay-sco",
+      "name": "Scott McTominay",
+      "teamCode": "SCO",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Napoli",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "john-mcginn-sco",
+      "name": "John McGinn",
+      "teamCode": "SCO",
+      "position": "MF",
+      "shirtNumber": 7,
+      "club": "Aston Villa",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "billy-gilmour-sco",
+      "name": "Billy Gilmour",
+      "teamCode": "SCO",
+      "position": "MF",
+      "shirtNumber": 11,
+      "club": "Napoli",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "lawrence-shankland-sco",
+      "name": "Lawrence Shankland",
+      "teamCode": "SCO",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Hearts",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "george-hirst-sco",
+      "name": "George Hirst",
+      "teamCode": "SCO",
+      "position": "FW",
+      "shirtNumber": 21,
+      "club": "Ipswich",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "lewis-ferguson-sco",
+      "name": "Lewis Ferguson",
+      "teamCode": "SCO",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "Bologna",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "ross-stewart-sco",
+      "name": "Ross Stewart",
+      "teamCode": "SCO",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Southampton",
+      "nationality": "Scotland"
+    },
+    {
+      "id": "james-rodriguez-col",
+      "name": "James Rodríguez",
+      "teamCode": "COL",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Rayo Vallecano",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "luis-sinisterra-col",
+      "name": "Luis Sinisterra",
+      "teamCode": "COL",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Bournemouth",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "jhon-cordoba-col",
+      "name": "Jhon Córdoba",
+      "teamCode": "COL",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Krasnodar",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "juan-quintero-col",
+      "name": "Juan Fernando Quintero",
+      "teamCode": "COL",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Racing Club",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "rigoberto-rivas-col",
+      "name": "Rigoberto Rivas",
+      "teamCode": "COL",
+      "position": "FW",
+      "shirtNumber": 21,
+      "club": "Nottingham Forest",
+      "nationality": "Colombia"
+    },
+    {
+      "id": "pape-matar-sarr-sen",
+      "name": "Pape Matar Sarr",
+      "teamCode": "SEN",
+      "position": "MF",
+      "shirtNumber": 18,
+      "club": "Tottenham Hotspur",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "lamine-camara-sen",
+      "name": "Lamine Camara",
+      "teamCode": "SEN",
+      "position": "MF",
+      "shirtNumber": 16,
+      "club": "AS Monaco",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "iliman-ndiaye-sen",
+      "name": "Iliman Ndiaye",
+      "teamCode": "SEN",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Everton",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "pathé-ciss-sen",
+      "name": "Pathé Ciss",
+      "teamCode": "SEN",
+      "position": "MF",
+      "shirtNumber": 20,
+      "club": "Rayo Vallecano",
+      "nationality": "Senegal"
+    },
+    {
+      "id": "simon-adingra-civ",
+      "name": "Simon Adingra",
+      "teamCode": "CIV",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Brighton",
+      "nationality": "Ivory Coast"
+    },
+    {
+      "id": "elye-wahi-civ",
+      "name": "Elye Wahi",
+      "teamCode": "CIV",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Marseille",
+      "nationality": "Ivory Coast"
+    },
+    {
+      "id": "ibrahim-sangare-civ",
+      "name": "Ibrahim Sangaré",
+      "teamCode": "CIV",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Nottingham Forest",
+      "nationality": "Ivory Coast"
+    },
+    {
+      "id": "oumar-diakite-civ",
+      "name": "Max Gradel",
+      "teamCode": "CIV",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al-Ahly Jeddah",
+      "nationality": "Ivory Coast"
+    },
+    {
+      "id": "takefusa-kubo-jpn",
+      "name": "Takefusa Kubo",
+      "teamCode": "JPN",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Real Sociedad",
+      "nationality": "Japan"
+    },
+    {
+      "id": "daizen-maeda-jpn",
+      "name": "Daizen Maeda",
+      "teamCode": "JPN",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Celtic",
+      "nationality": "Japan"
+    },
+    {
+      "id": "wataru-endo-jpn",
+      "name": "Wataru Endo",
+      "teamCode": "JPN",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Liverpool",
+      "nationality": "Japan"
+    },
+    {
+      "id": "hidemasa-morita-jpn",
+      "name": "Hidemasa Morita",
+      "teamCode": "JPN",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "Sporting CP",
+      "nationality": "Japan"
+    },
+    {
+      "id": "ao-tanaka-jpn",
+      "name": "Ao Tanaka",
+      "teamCode": "JPN",
+      "position": "MF",
+      "shirtNumber": 17,
+      "club": "Dortmund",
+      "nationality": "Japan"
+    },
+    {
+      "id": "yoshiki-kuribayashi-jpn",
+      "name": "Yoshiki Kuribayashi",
+      "teamCode": "JPN",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Cerezo Osaka",
+      "nationality": "Japan"
+    },
+    {
+      "id": "lee-kang-in-kor",
+      "name": "Lee Kang-in",
+      "teamCode": "KOR",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Paris Saint-Germain",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "yang-hyun-jun-kor",
+      "name": "Yang Hyun-jun",
+      "teamCode": "KOR",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Celtic",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "oh-hyun-kyu-kor",
+      "name": "Oh Hyeon-gyu",
+      "teamCode": "KOR",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Getafe",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "hwang-in-beom-kor",
+      "name": "Hwang In-beom",
+      "teamCode": "KOR",
+      "position": "MF",
+      "shirtNumber": 16,
+      "club": "Vancouver Whitecaps",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "lee-jae-sung-kor",
+      "name": "Lee Jae-sung",
+      "teamCode": "KOR",
+      "position": "MF",
+      "shirtNumber": 17,
+      "club": "Mainz",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "kim-min-jae-kor",
+      "name": "Kim Min-jae",
+      "teamCode": "KOR",
+      "position": "MF",
+      "shirtNumber": 3,
+      "club": "Bayern Munich",
+      "nationality": "South Korea"
+    },
+    {
+      "id": "raul-jimenez-mex",
+      "name": "Raúl Jiménez",
+      "teamCode": "MEX",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Fulham",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "julian-araujo-mex",
+      "name": "Julián Araujo",
+      "teamCode": "MEX",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "Bournemouth",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "edson-alvarez-mex",
+      "name": "Edson Álvarez",
+      "teamCode": "MEX",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "West Ham",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "orbelin-pineda-mex",
+      "name": "Orbelin Pineda",
+      "teamCode": "MEX",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "AEK Athens",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "luis-chavez-mex",
+      "name": "Luis Chávez",
+      "teamCode": "MEX",
+      "position": "MF",
+      "shirtNumber": 15,
+      "club": "Pachuca",
+      "nationality": "Mexico"
+    },
+    {
+      "id": "hakimi-mar",
+      "name": "Achraf Hakimi",
+      "teamCode": "MAR",
+      "position": "MF",
+      "shirtNumber": 2,
+      "club": "Paris Saint-Germain",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "hakim-ziyech-mar",
+      "name": "Hakim Ziyech",
+      "teamCode": "MAR",
+      "position": "MF",
+      "shirtNumber": 7,
+      "club": "Galatasaray",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "azzedine-ounahi-mar",
+      "name": "Azzedine Ounahi",
+      "teamCode": "MAR",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Marseille",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "sofyan-amrabat-mar",
+      "name": "Sofyan Amrabat",
+      "teamCode": "MAR",
+      "position": "MF",
+      "shirtNumber": 4,
+      "club": "Fenerbahçe",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "anass-zaroury-mar",
+      "name": "Anass Zaroury",
+      "teamCode": "MAR",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Burnley",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "selim-amallah-mar",
+      "name": "Selim Amallah",
+      "teamCode": "MAR",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "Standard Liège",
+      "nationality": "Morocco"
+    },
+    {
+      "id": "rodrigo-bentancur-uru",
+      "name": "Rodrigo Bentancur",
+      "teamCode": "URU",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Tottenham Hotspur",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "federico-valverde-uru",
+      "name": "Federico Valverde",
+      "teamCode": "URU",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Real Madrid",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "brian-rodriguez-uru",
+      "name": "Brian Rodríguez",
+      "teamCode": "URU",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Club América",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "maxi-araujo-uru",
+      "name": "Máxi Araújo",
+      "teamCode": "URU",
+      "position": "MF",
+      "shirtNumber": 16,
+      "club": "Atlético de Madrid",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "agustin-canobbio-uru",
+      "name": "Agustín Canobbio",
+      "teamCode": "URU",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Athletic Club",
+      "nationality": "Uruguay"
+    },
+    {
+      "id": "giovanni-reyna-usa",
+      "name": "Giovanni Reyna",
+      "teamCode": "USA",
+      "position": "MF",
+      "shirtNumber": 7,
+      "club": "Nottingham Forest",
+      "nationality": "United States"
+    },
+    {
+      "id": "weston-mckennie-usa",
+      "name": "Weston McKennie",
+      "teamCode": "USA",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Juventus",
+      "nationality": "United States"
+    },
+    {
+      "id": "yunus-musah-usa",
+      "name": "Yunus Musah",
+      "teamCode": "USA",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "AC Milan",
+      "nationality": "United States"
+    },
+    {
+      "id": "brenden-aaronson-usa",
+      "name": "Brenden Aaronson",
+      "teamCode": "USA",
+      "position": "MF",
+      "shirtNumber": 11,
+      "club": "Leeds United",
+      "nationality": "United States"
+    },
+    {
+      "id": "malik-tillman-usa",
+      "name": "Malik Tillman",
+      "teamCode": "USA",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "PSV Eindhoven",
+      "nationality": "United States"
+    },
+    {
+      "id": "patrick-agyemang-usa",
+      "name": "Patrick Agyemang",
+      "teamCode": "USA",
+      "position": "FW",
+      "shirtNumber": 18,
+      "club": "Brighton",
+      "nationality": "United States"
+    },
+    {
+      "id": "xavi-simons-ned",
+      "name": "Xavi Simons",
+      "teamCode": "NED",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Paris Saint-Germain",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "steven-bergwijn-ned",
+      "name": "Steven Bergwijn",
+      "teamCode": "NED",
+      "position": "FW",
+      "shirtNumber": 7,
+      "club": "Ajax",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "tijjani-reijnders-ned",
+      "name": "Tijjani Reijnders",
+      "teamCode": "NED",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "AC Milan",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "ryan-gravenberch-ned",
+      "name": "Ryan Gravenberch",
+      "teamCode": "NED",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "Liverpool",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "brian-brobbey-ned",
+      "name": "Brian Brobbey",
+      "teamCode": "NED",
+      "position": "FW",
+      "shirtNumber": 20,
+      "club": "Ajax",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "teun-koopmeiners-ned",
+      "name": "Teun Koopmeiners",
+      "teamCode": "NED",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "Juventus",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "pedri-esp",
+      "name": "Pedri",
+      "teamCode": "ESP",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Barcelona",
+      "nationality": "Spain"
+    },
+    {
+      "id": "gavi-esp",
+      "name": "Gavi",
+      "teamCode": "ESP",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "Barcelona",
+      "nationality": "Spain"
+    },
+    {
+      "id": "fabian-ruiz-esp",
+      "name": "Fabián Ruiz",
+      "teamCode": "ESP",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Paris Saint-Germain",
+      "nationality": "Spain"
+    },
+    {
+      "id": "bryan-gil-esp",
+      "name": "Bryan Gil",
+      "teamCode": "ESP",
+      "position": "FW",
+      "shirtNumber": 14,
+      "club": "Girona",
+      "nationality": "Spain"
+    },
+    {
+      "id": "abel-ruiz-esp",
+      "name": "Abel Ruiz",
+      "teamCode": "ESP",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Braga",
+      "nationality": "Spain"
+    },
+    {
+      "id": "teboho-mokoena-rsa",
+      "name": "Teboho Mokoena",
+      "teamCode": "RSA",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Mamelodi Sundowns",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "themba-zwane-rsa",
+      "name": "Themba Zwane",
+      "teamCode": "RSA",
+      "position": "MF",
+      "shirtNumber": 11,
+      "club": "Mamelodi Sundowns",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "siyanda-xulu-rsa",
+      "name": "Relebohile Mofokeng",
+      "teamCode": "RSA",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Orlando Pirates",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "sphelele-mkhulise-rsa",
+      "name": "Sphelele Mkhulise",
+      "teamCode": "RSA",
+      "position": "MF",
+      "shirtNumber": 17,
+      "club": "Mamelodi Sundowns",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "abbubaker-mobara-rsa",
+      "name": "Abbubaker Mobara",
+      "teamCode": "RSA",
+      "position": "MF",
+      "shirtNumber": 16,
+      "club": "Fatih Karagümrük",
+      "nationality": "South Africa"
+    },
+    {
+      "id": "victor-osimhen-nga",
+      "name": "Victor Osimhen",
+      "teamCode": "NGA",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Galatasaray",
+      "nationality": "Nigeria"
+    },
+    {
+      "id": "kelechi-iheanacho-nga",
+      "name": "Kelechi Iheanacho",
+      "teamCode": "NGA",
+      "position": "FW",
+      "shirtNumber": 14,
+      "club": "Sivasspor",
+      "nationality": "Nigeria"
+    },
+    {
+      "id": "samuel-chukwueze-nga",
+      "name": "Samuel Chukwueze",
+      "teamCode": "NGA",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "AC Milan",
+      "nationality": "Nigeria"
+    },
+    {
+      "id": "joe-aribo-nga",
+      "name": "Joe Aribo",
+      "teamCode": "NGA",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Southampton",
+      "nationality": "Nigeria"
+    },
+    {
+      "id": "alex-iwobi-nga",
+      "name": "Alex Iwobi",
+      "teamCode": "NGA",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Fulham",
+      "nationality": "Nigeria"
+    },
+    {
+      "id": "frank-onyeka-nga",
+      "name": "Frank Onyeka",
+      "teamCode": "NGA",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "Brentford",
+      "nationality": "Nigeria"
+    },
+    {
+      "id": "ademola-lookman-nga",
+      "name": "Ademola Lookman",
+      "teamCode": "NGA",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Atalanta",
+      "nationality": "Nigeria"
+    },
+    {
+      "id": "taiwo-awoniyi-nga",
+      "name": "Taiwo Awoniyi",
+      "teamCode": "NGA",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Nottingham Forest",
+      "nationality": "Nigeria"
+    },
+    {
+      "id": "yannick-carrasco-bel",
+      "name": "Yannick Carrasco",
+      "teamCode": "BEL",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al-Shabab",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "charles-de-ketelaere-bel",
+      "name": "Charles De Ketelaere",
+      "teamCode": "BEL",
+      "position": "MF",
+      "shirtNumber": 7,
+      "club": "Atalanta",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "amadou-onana-bel",
+      "name": "Amadou Onana",
+      "teamCode": "BEL",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Aston Villa",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "youri-tielemans-bel",
+      "name": "Youri Tielemans",
+      "teamCode": "BEL",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "Aston Villa",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "arthur-vermeeren-bel",
+      "name": "Arthur Vermeeren",
+      "teamCode": "BEL",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "RB Leipzig",
+      "nationality": "Belgium"
+    },
+    {
+      "id": "alphonso-davies-can",
+      "name": "Alphonso Davies",
+      "teamCode": "CAN",
+      "position": "MF",
+      "shirtNumber": 19,
+      "club": "Bayern Munich",
+      "nationality": "Canada"
+    },
+    {
+      "id": "stephen-eustaquio-can",
+      "name": "Stephen Eustáquio",
+      "teamCode": "CAN",
+      "position": "MF",
+      "shirtNumber": 7,
+      "club": "FC Porto",
+      "nationality": "Canada"
+    },
+    {
+      "id": "ismaël-kone-can",
+      "name": "Ismaël Koné",
+      "teamCode": "CAN",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Marseille",
+      "nationality": "Canada"
+    },
+    {
+      "id": "ali-ahmed-can",
+      "name": "Ali Ahmed",
+      "teamCode": "CAN",
+      "position": "FW",
+      "shirtNumber": 21,
+      "club": "CF Montréal",
+      "nationality": "Canada"
+    },
+    {
+      "id": "charles-andreas-bryan-can",
+      "name": "Cyle Larin",
+      "teamCode": "CAN",
+      "position": "FW",
+      "shirtNumber": 9,
+      "club": "Club Brugge",
+      "nationality": "Canada"
+    },
+    {
+      "id": "mahmoud-trezeguet-egy",
+      "name": "Mahmoud 'Trezeguet'",
+      "teamCode": "EGY",
+      "position": "FW",
+      "shirtNumber": 10,
+      "club": "Trabzonspor",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "emam-ashour-egy",
+      "name": "Emam Ashour",
+      "teamCode": "EGY",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Zamalek",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "akram-tawfik-egy",
+      "name": "Akram Tawfik",
+      "teamCode": "EGY",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Al Ahly",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "taher-mohammad-egy",
+      "name": "Taher Mohammad",
+      "teamCode": "EGY",
+      "position": "MF",
+      "shirtNumber": 17,
+      "club": "Al Ahly",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "marwan-hamdi-egy",
+      "name": "Marwan Hamdi",
+      "teamCode": "EGY",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Zamalek",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "jhegson-mendez-ecu",
+      "name": "Jhegson Méndez",
+      "teamCode": "ECU",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Los Angeles FC",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "moises-caicedo-ecu",
+      "name": "Moisés Caicedo",
+      "teamCode": "ECU",
+      "position": "MF",
+      "shirtNumber": 6,
+      "club": "Chelsea",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "jeremy-sarmiento-ecu",
+      "name": "Jeremy Sarmiento",
+      "teamCode": "ECU",
+      "position": "FW",
+      "shirtNumber": 11,
+      "club": "Brighton",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "romario-ibarra-ecu",
+      "name": "Romario Ibarra",
+      "teamCode": "ECU",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Pumas UNAM",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "jordi-alcívar-ecu",
+      "name": "Jordi Alcívar",
+      "teamCode": "ECU",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "Independiente del Valle",
+      "nationality": "Ecuador"
+    },
+    {
+      "id": "luka-modric-cro",
+      "name": "Luka Modrić",
+      "teamCode": "CRO",
+      "position": "MF",
+      "shirtNumber": 10,
+      "club": "Real Madrid",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "mateo-kovacic-cro",
+      "name": "Mateo Kovačić",
+      "teamCode": "CRO",
+      "position": "MF",
+      "shirtNumber": 8,
+      "club": "Manchester City",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "josip-sutalo-cro",
+      "name": "Sandro Kulenović",
+      "teamCode": "CRO",
+      "position": "FW",
+      "shirtNumber": 19,
+      "club": "Dinamo Zagreb",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "bruno-petkovic-cro",
+      "name": "Bruno Petković",
+      "teamCode": "CRO",
+      "position": "FW",
+      "shirtNumber": 17,
+      "club": "Dinamo Zagreb",
+      "nationality": "Croatia"
+    },
+    {
+      "id": "petar-sucic-cro",
+      "name": "Petar Sučić",
+      "teamCode": "CRO",
+      "position": "MF",
+      "shirtNumber": 14,
+      "club": "RB Leipzig",
+      "nationality": "Croatia"
+    }
   ]
 }

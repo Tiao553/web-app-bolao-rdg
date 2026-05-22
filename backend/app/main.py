@@ -15,9 +15,12 @@ from app.api.routes.admin import router as admin_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.member import router as member_router
 from app.core.config import Settings, get_settings
-from app.models.schema import Base
-from app.repositories.queries import get_engine
-from app.seed.seeder import run_seed
+from app.core.security import (
+    enforce_rate_limit,
+    ensure_csrf_cookie,
+    is_csrf_protected_request,
+    validate_csrf_request,
+)
 
 
 class ErrorDetail(BaseModel):
@@ -60,28 +63,22 @@ def build_error_response(
 
 
 def get_cors_origins(settings: Settings) -> list[str]:
+    origins = [origin.strip() for origin in settings.frontend_origins if origin.strip() != ""]
     if settings.app.environment == "development":
-        return [
+        origins.extend([
             "http://localhost:3000",
             "http://127.0.0.1:3000",
-        ]
-    return []
-
-
-def get_cors_origin_regex(settings: Settings) -> str | None:
-    if settings.app.environment == "development":
-        return None
-    return r"https://.*\.vercel\.app"
+        ])
+    return list(dict.fromkeys(origins))
 
 
 def configure_cors(app: FastAPI, settings: Settings) -> None:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=get_cors_origins(settings),
-        allow_origin_regex=get_cors_origin_regex(settings),
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=["*"],
+        allow_headers=["content-type", "cookie", "x-csrf-token"],
     )
 
 
@@ -142,8 +139,6 @@ def register_exception_handlers(app: FastAPI) -> None:
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.settings = get_settings()
-    Base.metadata.create_all(get_engine())
-    run_seed()
     yield
 
 
@@ -155,6 +150,37 @@ def create_app() -> FastAPI:
     )
     configure_cors(app, settings)
     register_exception_handlers(app)
+
+    @app.middleware("http")
+    async def security_middleware(request: Request, call_next):
+        ensure_csrf_cookie_on_response = request.cookies.get("bolao_csrf") is None
+        try:
+            enforce_rate_limit(request)
+            if is_csrf_protected_request(request):
+                await validate_csrf_request(request)
+        except HTTPException as exc:
+            code, message, details = extract_http_exception_detail(exc)
+            response = build_error_response(
+                status_code=exc.status_code,
+                code=code,
+                message=message,
+                details=details,
+            )
+            if ensure_csrf_cookie_on_response:
+                ensure_csrf_cookie(response)
+            return response
+
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), geolocation=(), microphone=()"
+        response.headers["X-Frame-Options"] = "DENY"
+        if settings.app.environment != "development":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+        if ensure_csrf_cookie_on_response:
+            ensure_csrf_cookie(response)
+        return response
+
     app.include_router(auth_router)
     app.include_router(member_router)
     app.include_router(admin_router)

@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { PasswordField } from '../../../components/auth/login-client';
+import { CsrfInit, PasswordField } from '../../../components/auth/login-client';
+import { getServerCsrfToken } from '../../../lib/security';
 
 const errorMap: Record<string, string> = {
   invalid_credentials: 'Email ou senha inválidos.',
@@ -10,9 +11,11 @@ const errorMap: Record<string, string> = {
 export default async function LoginPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const params = searchParams ? await searchParams : {};
   const errorCode = typeof params.error === 'string' ? params.error : undefined;
+  const csrfToken = await getServerCsrfToken();
 
   return (
     <main className="auth-page">
+      <CsrfInit />
       {/* ── Brand panel ── */}
       <section className="brand-panel" aria-label="Copa RDG">
         <div className="brand-logo">
@@ -65,6 +68,7 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
       <section className="form-panel" aria-label="Login">
         <form className="form-card" action="/api/auth/login" method="POST">
           <input type="hidden" name="_intent" value="participant" />
+          <input type="hidden" name="csrf_token" value={csrfToken} />
 
           <div className="form-top">
             <div>
@@ -85,8 +89,6 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
             <label className="field-label" htmlFor="password">Senha</label>
             <PasswordField name="password" placeholder="Sua senha" />
           </div>
-
-          <Link href="/forgot-password" className="forgot-link">Esqueceu a senha?</Link>
 
           <button type="submit" className="btn-primary full">Entrar →</button>
 

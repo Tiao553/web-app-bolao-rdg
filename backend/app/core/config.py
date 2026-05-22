@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
@@ -12,6 +13,7 @@ from pydantic import (
     Field,
     SecretStr,
     ValidationError,
+    field_validator,
     model_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -88,7 +90,6 @@ class FileSettings(BaseModel):
 
 class EnvironmentSettings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
         populate_by_name=True,
@@ -97,6 +98,19 @@ class EnvironmentSettings(BaseSettings):
     database_url: str | None = Field(default=None, alias="DATABASE_URL")
     api_football_key: SecretStr | None = Field(default=None, alias="API_FOOTBALL_KEY")
     sync_admin_token: SecretStr | None = Field(default=None, alias="SYNC_ADMIN_TOKEN")
+    frontend_origins: tuple[str, ...] = Field(default=(), alias="FRONTEND_ORIGINS")
+    session_cookie_domain: str | None = Field(default=None, alias="SESSION_COOKIE_DOMAIN")
+
+    @field_validator("frontend_origins", mode="before")
+    @classmethod
+    def parse_frontend_origins(cls, value: object) -> object:
+        if isinstance(value, str):
+            return tuple(
+                item.strip()
+                for item in value.split(",")
+                if item.strip() != ""
+            )
+        return value
 
     @model_validator(mode="after")
     def validate_database_url(self) -> EnvironmentSettings:
@@ -116,10 +130,25 @@ class Settings(BaseModel):
     database_url: str
     api_football_key: SecretStr | None
     sync_admin_token: SecretStr | None
+    frontend_origins: tuple[str, ...]
+    session_cookie_domain: str | None
 
 
 def get_config_file_path() -> Path:
-    return Path(__file__).resolve().parents[2] / "config" / "app-settings.yaml"
+    config_dir = Path(__file__).resolve().parents[2] / "config"
+    if os.environ.get("APP_ENV") == "production":
+        prod_path = config_dir / "app-settings.prod.yaml"
+        if prod_path.exists():
+            return prod_path
+    return config_dir / "app-settings.yaml"
+
+
+def get_environment_file_path() -> Path:
+    project_root = Path(__file__).resolve().parents[3]
+    local_path = project_root / ".env.local"
+    if local_path.exists():
+        return local_path
+    return project_root / ".env"
 
 
 def load_yaml_settings(config_path: Path | None = None) -> FileSettings:
@@ -137,7 +166,7 @@ def load_yaml_settings(config_path: Path | None = None) -> FileSettings:
 
 def load_environment_settings() -> EnvironmentSettings:
     try:
-        return EnvironmentSettings()
+        return EnvironmentSettings(_env_file=get_environment_file_path())
     except ValidationError as exc:
         raise ValueError(str(exc)) from exc
 
@@ -154,6 +183,8 @@ def get_settings() -> Settings:
         database_url=environment_settings.database_url or "",
         api_football_key=environment_settings.api_football_key,
         sync_admin_token=environment_settings.sync_admin_token,
+        frontend_origins=environment_settings.frontend_origins,
+        session_cookie_domain=environment_settings.session_cookie_domain,
     )
 
 
