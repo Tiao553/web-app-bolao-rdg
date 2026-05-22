@@ -1552,15 +1552,16 @@ body > * { position: relative; z-index: 1; }
 .pick-search input:focus { border-color: var(--or); box-shadow: 0 0 0 4px rgba(249,115,22,.10); }
 .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--tx3); font-size: 14px; }
 .option-grid { display: grid; gap: 10px; max-height: 390px; overflow: auto; padding-right: 4px; }
-.option-card { display: grid; grid-template-columns: 42px 1fr auto; gap: 12px; align-items: center; border: 1px solid var(--bd); border-radius: 17px; background: var(--s2); padding: 12px; cursor: pointer; transition: .18s ease; }
+.option-card { display: flex; align-items: center; gap: 12px; border: 1px solid var(--bd); border-radius: 17px; background: var(--s2); padding: 12px; cursor: pointer; transition: .18s ease; }
 .option-card:hover, .option-card.selected { border-color: var(--or-r); background: rgba(249,115,22,.08); transform: translateY(-1px); }
 .option-card.selected { box-shadow: inset 0 0 0 1px var(--or-r); }
-.option-name { color: #fff; font-size: 14px; font-weight: 800; min-width: 0; }
-.option-name .team-badge-name { overflow: visible; white-space: normal; text-overflow: unset; }
+.option-name { color: #fff; font-size: 14px; font-weight: 800; min-width: 0; flex: 1; overflow: hidden; }
+.option-name .team-badge { max-width: 100%; }
+.option-name .team-badge-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .option-meta { color: var(--tx3); font-size: 12px; margin-top: 2px; }
-.player-face { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--s0); border: 1px solid var(--bd2); color: var(--or); font-size: 13px; font-weight: 900; flex: 0 0 auto; }
+.player-face { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--s0); border: 1px solid var(--bd2); color: var(--or); font-size: 13px; font-weight: 900; flex-shrink: 0; }
 .pick-points { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; height: 30px; border-radius: 999px; background: var(--or-g); color: var(--or); border: 1px solid var(--or-r); font-family: 'Fira Code', monospace; font-size: 11px; font-weight: 800; white-space: nowrap; }
-.check { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--s0); border: 1px solid var(--bd2); color: var(--tx3); font-size: 12px; font-weight: 800; }
+.check { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--s0); border: 1px solid var(--bd2); color: var(--tx3); font-size: 12px; font-weight: 800; flex-shrink: 0; margin-left: auto; }
 .option-card.selected .check { background: var(--or-g); border-color: var(--or-r); color: var(--or); }
 
 .pick-selected-card { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 16px; background: rgba(249,115,22,.07); border: 1px solid rgba(249,115,22,.22); }
