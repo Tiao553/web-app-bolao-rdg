@@ -4,11 +4,13 @@
 
 # Frontend artifacts
 app/.next/
+app/.next-user/
 app/.next-local/
 app/node_modules/
 app/tsconfig.tsbuildinfo
 
 .next
+.claude/
 
 # Python artifacts
 backend/.pytest_cache/
