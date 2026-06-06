@@ -30,6 +30,8 @@ services:
       DATABASE_URL: postgresql+psycopg://bolao:bolao@db:5432/bolao
     volumes:
       - ./backend:/app
+      - ./database:/database
+      - ./data:/app/data
     ports:
       - "8000:8000"
     depends_on:

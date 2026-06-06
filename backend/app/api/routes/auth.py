@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import hashlib
+import secrets
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.core.security import (
@@ -20,7 +23,7 @@ from app.core.security import (
     revoke_user_session,
     verify_password,
 )
-from app.models.schema import AccessStatus, User
+from app.models.schema import AccessStatus, PasswordResetToken, User, UserSession
 from app.repositories.queries import (
     CompetitionWindowSnapshot,
     get_active_competition_window,
@@ -28,6 +31,7 @@ from app.repositories.queries import (
     get_db_session,
     get_user_by_email,
 )
+from app.services.email_service import EmailService
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -285,3 +289,128 @@ def get_session(
     user = resolve_current_user(request, db_session)
     competition_window = get_active_competition_window(db_session)
     return build_session_response(competition_window, user=user)
+
+
+# ── Password Reset ─────────────────────────────────────────────────────────────
+
+RESET_TOKEN_TTL = timedelta(hours=1)
+
+
+class ForgotPasswordRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: str
+
+
+class ForgotPasswordResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    message: str
+
+
+class ResetPasswordRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    token: str = Field(min_length=1)
+    password: str = Field(min_length=8, max_length=255)
+
+
+class ResetPasswordResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    message: str
+
+
+@router.post(
+    "/forgot-password",
+    response_model=ForgotPasswordResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def forgot_password(
+    request: Request,
+    db_session: Session = Depends(get_db_session),
+) -> ForgotPasswordResponse:
+    """Solicita recuperação de senha."""
+    payload = await _read_request_payload(request)
+    email = _extract_text(payload, "email") or ""
+    normalized_email = normalize_email(email)
+
+    # Busca usuário (sempre retorna sucesso para não revelar existência)
+    user = get_user_by_email(db_session, normalized_email)
+
+    if user is not None and user.is_active:
+        # Gera token seguro
+        raw_token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+        expires_at = utc_now() + RESET_TOKEN_TTL
+
+        # Salva no banco
+        reset_token = PasswordResetToken(
+            user_id=user.id,
+            token_hash=token_hash,
+            expires_at=expires_at,
+        )
+        db_session.add(reset_token)
+        db_session.flush()
+
+        # Envia email
+        EmailService().send_password_reset_email(user.email, raw_token)
+
+    # Mensagem genérica para não revelar se email existe
+    return ForgotPasswordResponse(
+        message="Se o email existir em nossa base, você receberá instruções em instantes."
+    )
+
+
+@router.post(
+    "/reset-password",
+    response_model=ResetPasswordResponse,
+    status_code=status.HTTP_200_OK,
+)
+def reset_password(
+    payload: ResetPasswordRequest,
+    db_session: Session = Depends(get_db_session),
+) -> ResetPasswordResponse:
+    """Redefine a senha usando token."""
+    token_hash = hashlib.sha256(payload.token.encode()).hexdigest()
+
+    # Busca token válido
+    statement = (
+        select(PasswordResetToken)
+        .where(
+            PasswordResetToken.token_hash == token_hash,
+            PasswordResetToken.expires_at > utc_now(),
+            PasswordResetToken.used_at.is_(None),
+        )
+    )
+    reset_token = db_session.scalar(statement)
+
+    if reset_token is None:
+        raise build_auth_error(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="invalid_token",
+            message="Token inválido ou expirado",
+        )
+
+    # Atualiza senha do usuário
+    user = reset_token.user
+    user.password_hash = hash_password(payload.password)
+    db_session.add(user)
+
+    # Marca token como usado
+    reset_token.used_at = utc_now()
+    db_session.add(reset_token)
+
+    # Revoga todas as sessões do usuário por segurança
+    db_session.execute(
+        update(UserSession)
+        .where(
+            UserSession.user_id == user.id,
+            UserSession.revoked_at.is_(None),
+        )
+        .values(revoked_at=utc_now())
+    )
+
+    db_session.flush()
+
+    return ResetPasswordResponse(message="Senha redefinida com sucesso.")

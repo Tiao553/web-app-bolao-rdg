@@ -27,7 +27,7 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
         </div>
 
         <div className="hero-copy">
-          <div className="eyebrow"><span className="dot" />Copa do Mundo 2026</div>
+          <div className="eyebrow" style={{ marginTop: 12 }}><span className="dot" />Copa do Mundo 2026</div>
           <h1>Entre no bolão e acompanhe seus <span>palpites</span>.</h1>
           <p>Um bolão feito para a Copa do Mundo 2026 — palpites, resultados e ranking num só lugar.</p>
         </div>
@@ -90,6 +90,10 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
             <PasswordField name="password" placeholder="Sua senha" />
           </div>
 
+          <Link href="/forgot-password" className="forgot-link">
+            Esqueceu a senha?
+          </Link>
+
           <button type="submit" className="btn-primary full">Entrar →</button>
 
           <div className="form-divider">
@@ -97,7 +101,7 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
             <Link href="/create-account" className="btn-light">Criar conta</Link>
           </div>
 
-          <div className="form-divider" style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
+          <div className="form-divider" style={{ marginTop: 18, paddingTop: 0, borderTop: 'none' }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--tx3)' }}>Área administrativa?</span>
             <Link href="/admin/login" className="btn-ghost" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>Acesso admin →</Link>
           </div>
