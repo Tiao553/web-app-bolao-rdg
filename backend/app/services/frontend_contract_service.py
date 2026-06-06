@@ -18,6 +18,7 @@ from app.api.schemas.frontend import (
     AdminMatchRowDto,
     AdminPlayerRowDto,
     AdminPlayersScreenDto,
+    AdminPhaseConfigDto,
     AdminSettingsScreenDto,
     AdminUserCountsDto,
     BracketMatchDto,
@@ -40,7 +41,7 @@ from app.models.schema import (
     SyncLog,
     User,
 )
-from app.repositories.queries import get_active_competition_window
+from app.repositories.queries import get_active_competition_window, get_active_scoring_rule, list_active_competition_phase_configs
 from app.services.team_metadata import get_players_by_id, get_team_metadata
 
 
@@ -279,7 +280,7 @@ class FrontendContractService:
         )
 
     def build_admin_players(self) -> AdminPlayersScreenDto:
-        settings = get_settings()
+        scoring_rule = get_active_scoring_rule(self.db_session)
         predictions = list(
             self.db_session.scalars(
                 select(CompetitionPrediction)
@@ -297,7 +298,7 @@ class FrontendContractService:
             for (selection_key, selection_label), count in counts.most_common(12)
         ]
         return AdminPlayersScreenDto(
-            topScorerPoints=settings.scoring.top_scorer_points,
+            topScorerPoints=scoring_rule.top_scorer_points,
             leaders=leaders,
         )
 
@@ -311,33 +312,54 @@ class FrontendContractService:
             return {}
 
     def build_admin_settings(self) -> AdminSettingsScreenDto:
-        settings = get_settings()
-        competition_window = self.db_session.scalar(
+        active_window = get_active_competition_window(self.db_session)
+        phase_configs = list_active_competition_phase_configs(self.db_session)
+        scoring_rule = get_active_scoring_rule(self.db_session)
+        legacy_window = self.db_session.scalar(
             select(CompetitionWindow)
             .where(CompetitionWindow.is_active.is_(True))
             .order_by(CompetitionWindow.updated_at.desc())
         )
-        active_window = get_active_competition_window(self.db_session)
+        if phase_configs:
+            force_locked_phases = sum(1 << idx for idx, phase in enumerate(phase_configs) if phase.is_force_locked)
+        else:
+            force_locked_phases = (legacy_window.force_locked_phases or 0) if legacy_window is not None else 0
         return AdminSettingsScreenDto(
             competitionWindow={
-                "id": str(competition_window.id) if competition_window is not None else "default",
-                "name": competition_window.name if competition_window is not None else "default",
+                "id": "derived",
+                "name": "phase-configs",
                 "prediction_close_at": active_window.prediction_close_at.isoformat(),
                 "explore_release_at": active_window.explore_release_at.isoformat(),
                 "is_active": True,
             },
-            forceLockedPhases=competition_window.force_locked_phases if competition_window is not None else 0,
+            phaseConfigs=[
+                AdminPhaseConfigDto(
+                    id=str(phase.id),
+                    phaseKey=phase.phase_key,
+                    label=phase.label,
+                    phase=phase.phase,
+                    stageRound=phase.stage_round,
+                    sortOrder=phase.sort_order,
+                    firstMatchStartsAt=phase.first_match_starts_at,
+                    lockAt=phase.lock_at,
+                    exploreAt=phase.explore_at,
+                    forceLocked=phase.is_force_locked,
+                    isActive=phase.is_active,
+                )
+                for phase in phase_configs
+            ],
+            forceLockedPhases=force_locked_phases,
             scoring={
-                "exact_points": settings.scoring.exact_points,
-                "result_points": settings.scoring.result_points,
-                "brazil_multiplier": settings.scoring.brazil_multiplier,
-                "champion_points": settings.scoring.champion_points,
-                "top_scorer_points": settings.scoring.top_scorer_points,
+                "exact_points": scoring_rule.exact_points,
+                "result_points": scoring_rule.result_points,
+                "brazil_multiplier": scoring_rule.brazil_multiplier,
+                "champion_points": scoring_rule.champion_points,
+                "top_scorer_points": scoring_rule.top_scorer_points,
             },
             sync={
-                "post_match_offset_minutes": settings.sync.post_match_offset_minutes,
-                "allowed_terminal_statuses": list(settings.sync.allowed_terminal_statuses),
-                "max_runs_per_day": settings.sync.max_runs_per_day,
+                "post_match_offset_minutes": get_settings().sync.post_match_offset_minutes,
+                "allowed_terminal_statuses": list(get_settings().sync.allowed_terminal_statuses),
+                "max_runs_per_day": get_settings().sync.max_runs_per_day,
             },
         )
 

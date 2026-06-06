@@ -194,10 +194,27 @@ class AdminPlayersScreenDto(BaseModel):
     leaders: list[AdminPlayerRowDto]
 
 
+class AdminPhaseConfigDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    phaseKey: str
+    label: str
+    phase: str | None
+    stageRound: int | None
+    sortOrder: int
+    firstMatchStartsAt: datetime | None
+    lockAt: datetime
+    exploreAt: datetime
+    forceLocked: bool
+    isActive: bool
+
+
 class AdminSettingsScreenDto(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     competitionWindow: dict[str, Any]
+    phaseConfigs: list[AdminPhaseConfigDto] = Field(default_factory=list)
     forceLockedPhases: int = 0
     scoring: dict[str, int]
     sync: dict[str, Any]

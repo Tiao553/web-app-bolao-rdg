@@ -6,7 +6,7 @@ export default async function ExplorePage() {
   const { data } = await fetchBackendData<ExploreContract>('/api/member/explore');
   const exploreReleased = data?.exploreReleased ?? false;
 
-  // Group competition predictions (always visible) by user
+  // Group competition predictions by user; only shown after Explore opens
   const grouped = new Map<string, {
     name: string;
     champion?: { label: string; teamName?: string | null; teamCode?: string | null; teamFlag?: string | null; teamIso2?: string | null };
@@ -32,10 +32,10 @@ export default async function ExplorePage() {
     <>
       <section className="hero">
         <div className="hero-content">
-          <div>
+        <div>
             <div className="eyebrow"><span className="dot" />Explore</div>
             <h1>Palpites de <span>campeão e artilheiro</span>.</h1>
-            <p>Campeão e artilheiro são sempre públicos. Os resultados de partidas ficam visíveis após o fechamento oficial.</p>
+            <p>Os palpites iniciais abrem no primeiro bloqueio e os resultados de partidas aparecem de forma cumulativa por fase.</p>
           </div>
           <div className={`pill ${exploreReleased ? 'ok' : 'warn'}`} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
             <span className="dot" />{exploreReleased ? 'Resultados liberados' : 'Resultados bloqueados'}
@@ -43,15 +43,20 @@ export default async function ExplorePage() {
         </div>
       </section>
 
-      {/* Competition predictions — always visible */}
+      {/* Competition predictions — gated by Explore */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
         <div className="card">
           <div className="card-header">
-            <div><div className="card-title">Campeão e artilheiro</div><div className="card-subtitle">Sempre visível para todos</div></div>
-            <div className="pill ok"><span className="dot" />público</div>
+            <div><div className="card-title">Campeão e artilheiro</div><div className="card-subtitle">Liberado junto com o Explore inicial</div></div>
+            <div className={`pill ${exploreReleased ? 'ok' : 'warn'}`}><span className="dot" />{exploreReleased ? 'público' : 'bloqueado'}</div>
           </div>
           <div className="card-body">
-            {entries.length === 0 ? (
+            {!exploreReleased ? (
+              <div style={{ textAlign: 'center', padding: 24, color: 'var(--tx3)', fontSize: 13 }}>
+                <div style={{ fontSize: 20, marginBottom: 8 }}>🔒</div>
+                Os palpites iniciais só ficam visíveis após o primeiro bloqueio da competição.
+              </div>
+            ) : entries.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 32, color: 'var(--tx3)', fontSize: 14 }}>Nenhum palpite registrado ainda.</div>
             ) : (
               <div className="explore-grid">
@@ -112,11 +117,18 @@ export default async function ExplorePage() {
           <div className="card">
             <div className="card-header"><div><div className="card-title">Insights</div><div className="card-subtitle">Comparativo geral</div></div></div>
             <div className="card-body">
-              <div className="insight-list">
-                <div className="insight"><div className="insight-icon">🏆</div><div><div className="insight-title">Campeão mais escolhido</div><div className="insight-text">{entries.length > 0 ? (() => { const counts: Record<string, number> = {}; entries.forEach(([, e]) => { if (e.champion) counts[e.champion.label] = (counts[e.champion.label] || 0) + 1; }); const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]; return top ? `${top[0]} (${top[1]}x)` : '—'; })() : '—'}</div></div></div>
-                <div className="insight"><div className="insight-icon">⚽</div><div><div className="insight-title">Artilheiro favorito</div><div className="insight-text">{entries.length > 0 ? (() => { const counts: Record<string, number> = {}; entries.forEach(([, e]) => { if (e.scorer) counts[e.scorer.label] = (counts[e.scorer.label] || 0) + 1; }); const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]; return top ? `${top[0]} (${top[1]}x)` : '—'; })() : '—'}</div></div></div>
-                <div className="insight"><div className="insight-icon">#</div><div><div className="insight-title">Participantes</div><div className="insight-text">{entries.length} com palpites registrados</div></div></div>
-              </div>
+              {!exploreReleased ? (
+                <div style={{ textAlign: 'center', padding: 24, color: 'var(--tx3)', fontSize: 13 }}>
+                  <div style={{ fontSize: 20, marginBottom: 8 }}>🔒</div>
+                  Os comparativos só aparecem depois da liberação cumulativa do Explore.
+                </div>
+              ) : (
+                <div className="insight-list">
+                  <div className="insight"><div className="insight-icon">🏆</div><div><div className="insight-title">Campeão mais escolhido</div><div className="insight-text">{entries.length > 0 ? (() => { const counts: Record<string, number> = {}; entries.forEach(([, e]) => { if (e.champion) counts[e.champion.label] = (counts[e.champion.label] || 0) + 1; }); const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]; return top ? `${top[0]} (${top[1]}x)` : '—'; })() : '—'}</div></div></div>
+                  <div className="insight"><div className="insight-icon">⚽</div><div><div className="insight-title">Artilheiro favorito</div><div className="insight-text">{entries.length > 0 ? (() => { const counts: Record<string, number> = {}; entries.forEach(([, e]) => { if (e.scorer) counts[e.scorer.label] = (counts[e.scorer.label] || 0) + 1; }); const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]; return top ? `${top[0]} (${top[1]}x)` : '—'; })() : '—'}</div></div></div>
+                  <div className="insight"><div className="insight-icon">#</div><div><div className="insight-title">Participantes</div><div className="insight-text">{entries.length} com palpites registrados</div></div></div>
+                </div>
+              )}
             </div>
           </div>
         </div>

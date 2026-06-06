@@ -16,6 +16,7 @@ from app.api.schemas.frontend import MemberBracketScreenDto, MemberResultsScreen
 from app.core.security import build_auth_error, require_approved_user
 from app.models.schema import (
     CompetitionPhase,
+    CompetitionPhaseConfig,
     CompetitionPrediction,
     CompetitionWindow,
     Match,
@@ -31,6 +32,7 @@ from app.repositories.queries import (
     get_match_by_id,
     get_match_prediction,
     ranking_users_select,
+    list_active_competition_phase_configs,
     visible_competition_predictions_select,
     visible_match_predictions_select,
 )
@@ -610,14 +612,21 @@ def get_explore(
     db_session: Session = Depends(get_db_session),
 ) -> ExploreResponse:
     now = utc_now()
-    # Explore match predictions: released if timestamp passed OR admin has force-locked any phase
-    active_window = db_session.scalar(
-        select(CompetitionWindow)
-        .where(CompetitionWindow.is_active.is_(True))
-        .order_by(CompetitionWindow.updated_at.desc())
-    )
-    force_locked_phases = (active_window.force_locked_phases or 0) if active_window is not None else 0
-    explore_released = (now >= as_utc(competition_window.explore_release_at)) or (force_locked_phases != 0)
+    phase_configs = _phase_config_map(db_session)
+    if phase_configs:
+        release_config = phase_configs.get("initial_predictions")
+        if release_config is None and phase_configs:
+            release_config = sorted(phase_configs.values(), key=lambda item: (item.sort_order, item.lock_at, item.phase_key))[0]
+        explore_released = bool(release_config and (release_config.is_force_locked or now >= as_utc(release_config.explore_at)))
+    else:
+        # Explore match predictions: released if timestamp passed OR admin has force-locked any phase
+        active_window = db_session.scalar(
+            select(CompetitionWindow)
+            .where(CompetitionWindow.is_active.is_(True))
+            .order_by(CompetitionWindow.updated_at.desc())
+        )
+        force_locked_phases = (active_window.force_locked_phases or 0) if active_window is not None else 0
+        explore_released = (now >= as_utc(competition_window.explore_release_at)) or (force_locked_phases != 0)
     match_predictions = list(
         db_session.scalars(
             visible_match_predictions_select(
@@ -626,12 +635,11 @@ def get_explore(
             )
         ).all()
     )
-    # Competition predictions (champion + scorer) are always public — no explore gate
     competition_predictions = list(
         db_session.scalars(
             visible_competition_predictions_select(
                 viewer=user,
-                explore_released=True,
+                explore_released=explore_released,
             )
         ).all()
     )
@@ -684,7 +692,9 @@ def get_available_players(user: User = Depends(require_approved_user)) -> list[d
 
 # ── Phase helpers ─────────────────────────────────────────────────────────────
 
-PHASE_LOCK_OFFSET = timedelta(hours=1)
+PHASE_LOCK_OFFSET = timedelta(minutes=30)
+
+_ROUND_CONFIG_KEYS = ["round1", "round2", "round3", "roundOf32", "roundOf16", "quarterFinal", "semiFinal", "final"]
 
 _ROUND_PHASES = [
     ("round1", CompetitionPhase.GROUP_STAGE, 1),
@@ -698,8 +708,15 @@ _ROUND_PHASES = [
 ]
 
 
+def _phase_config_map(db_session: Session) -> dict[str, CompetitionPhaseConfig]:
+    return {
+        config.phase_key: config
+        for config in list_active_competition_phase_configs(db_session)
+    }
+
+
 def _phase_lock_time(db_session: Session, phase: CompetitionPhase, stage_round: int | None) -> datetime | None:
-    """Return the lock time for a phase = first match starts_at - 1h."""
+    """Return the lock time for a phase = first match starts_at - 30m."""
     stmt = select(Match.starts_at).where(Match.phase == phase)
     if stage_round is not None:
         stmt = stmt.where(Match.stage_round == stage_round)
@@ -713,12 +730,31 @@ def _phase_lock_time(db_session: Session, phase: CompetitionPhase, stage_round: 
     return as_utc(first) - PHASE_LOCK_OFFSET
 
 
+def _compute_phase_locks_from_configs(
+    phase_configs: dict[str, CompetitionPhaseConfig],
+    now: datetime,
+) -> dict[str, bool]:
+    result: dict[str, bool] = {}
+    for key in ["initial_predictions", *_ROUND_CONFIG_KEYS]:
+        config = phase_configs.get(key)
+        if config is None:
+            result[key] = False
+            continue
+        result[key] = config.is_force_locked or now >= as_utc(config.lock_at)
+    return result
+
+
 def _compute_phase_locks(
     db_session: Session,
     now: datetime,
     force_bitmask: int | None,
 ) -> dict[str, bool]:
     """Return a dict key→is_locked for each round."""
+    phase_configs = _phase_config_map(db_session)
+    if phase_configs:
+        result = _compute_phase_locks_from_configs(phase_configs, now)
+        return {key: result.get(key, False) for key, _, _ in _ROUND_PHASES}
+
     result: dict[str, bool] = {}
     for idx, (key, phase, stage_round) in enumerate(_ROUND_PHASES):
         force_bit = bool(force_bitmask and (force_bitmask & (1 << idx)))
@@ -731,8 +767,11 @@ def _compute_phase_locks(
 def _compute_explore_open(phase_locks: dict[str, bool]) -> dict[str, bool]:
     """Explore for round N opens once round N is locked (additive)."""
     explore: dict[str, bool] = {}
-    for key, _ in [(k, v) for k, v in phase_locks.items()]:
-        explore[key] = phase_locks[key]
+    unlocked_prefix = False
+    for key in _ROUND_CONFIG_KEYS:
+        locked = phase_locks.get(key, False)
+        unlocked_prefix = unlocked_prefix or locked
+        explore[key] = unlocked_prefix
     return explore
 
 
@@ -798,13 +837,17 @@ def get_phase_screen(
     db_session: Session = Depends(get_db_session),
 ) -> PhaseScreenResponse:
     now = utc_now()
+    phase_configs = _phase_config_map(db_session)
+    if phase_configs:
+        phase_locks = _compute_phase_locks_from_configs(phase_configs, now)
+        explore_open = _compute_explore_open(phase_locks)
+    else:
+        # Load active competition window for force_locked_phases bitmask
+        cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active.is_(True)))
+        bitmask = cw.force_locked_phases if cw else None
 
-    # Load active competition window for force_locked_phases bitmask
-    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active.is_(True)))
-    bitmask = cw.force_locked_phases if cw else None
-
-    phase_locks = _compute_phase_locks(db_session, now, bitmask)
-    explore_open = _compute_explore_open(phase_locks)
+        phase_locks = _compute_phase_locks(db_session, now, bitmask)
+        explore_open = _compute_explore_open(phase_locks)
 
     # Load all match predictions for this user
     predictions_stmt = select(MatchPrediction).where(MatchPrediction.user_id == user.id)
@@ -821,7 +864,11 @@ def get_phase_screen(
         stmt = stmt.order_by(Match.starts_at.asc())
         matches = list(db_session.scalars(stmt).all())
 
-        lock_time = _phase_lock_time(db_session, phase, stage_round)
+        if phase_configs:
+            lock_time_value = phase_configs.get(key).lock_at if phase_configs.get(key) is not None else None
+            lock_time = as_utc(lock_time_value) if lock_time_value is not None else None
+        else:
+            lock_time = _phase_lock_time(db_session, phase, stage_round)
         locked = phase_locks[key]
 
         match_responses: list[PhaseMatchResponse] = []

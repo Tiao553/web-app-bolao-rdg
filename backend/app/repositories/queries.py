@@ -16,10 +16,12 @@ from app.core.config import Settings, get_settings
 from app.models.schema import (
     AccessStatus,
     CompetitionPrediction,
+    CompetitionPhaseConfig,
     CompetitionWindow,
     Match,
     MatchPrediction,
     PredictionType,
+    ScoringRule,
     User,
     UserSession,
 )
@@ -45,6 +47,33 @@ def get_runtime_settings() -> Settings:
 class CompetitionWindowSnapshot:
     prediction_close_at: datetime
     explore_release_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class CompetitionPhaseConfigSnapshot:
+    id: UUID
+    phase_key: str
+    label: str
+    phase: str | None
+    stage_round: int | None
+    sort_order: int
+    first_match_starts_at: datetime | None
+    lock_at: datetime
+    explore_at: datetime
+    is_force_locked: bool
+    is_active: bool
+
+
+@dataclass(frozen=True, slots=True)
+class ScoringRuleSnapshot:
+    id: UUID
+    name: str
+    exact_points: int
+    result_points: int
+    brazil_multiplier: int
+    champion_points: int
+    top_scorer_points: int
+    is_active: bool
 
 
 def get_db_session() -> Iterator[Session]:
@@ -134,6 +163,22 @@ def get_active_db_session_by_token_hash(
 
 
 def get_active_competition_window(db_session: Session) -> CompetitionWindowSnapshot:
+    now = datetime.now(timezone.utc)
+    phase_configs = list_active_competition_phase_configs(db_session)
+    if phase_configs:
+        ordered = sorted(phase_configs, key=lambda item: (item.sort_order, item.lock_at, item.phase_key))
+        explore_release_at = ordered[0].explore_at
+        future_deadlines = [cfg.lock_at for cfg in ordered if cfg.phase_key != "initial_predictions" and cfg.lock_at > now]
+        if future_deadlines:
+            prediction_close_at = min(future_deadlines)
+        else:
+            prediction_candidates = [cfg.lock_at for cfg in ordered if cfg.phase_key != "initial_predictions"] or [ordered[-1].lock_at]
+            prediction_close_at = max(prediction_candidates)
+        return CompetitionWindowSnapshot(
+            prediction_close_at=prediction_close_at,
+            explore_release_at=explore_release_at,
+        )
+
     statement = (
         select(CompetitionWindow)
         .where(CompetitionWindow.is_active.is_(True))
@@ -149,6 +194,63 @@ def get_active_competition_window(db_session: Session) -> CompetitionWindowSnaps
     return CompetitionWindowSnapshot(
         prediction_close_at=competition_window.prediction_close_at,
         explore_release_at=competition_window.explore_release_at,
+    )
+
+
+def list_active_competition_phase_configs(db_session: Session) -> list[CompetitionPhaseConfigSnapshot]:
+    statement = (
+        select(CompetitionPhaseConfig)
+        .where(CompetitionPhaseConfig.is_active.is_(True))
+        .order_by(CompetitionPhaseConfig.sort_order.asc(), CompetitionPhaseConfig.lock_at.asc())
+    )
+    rows = list(db_session.scalars(statement).all())
+    return [
+        CompetitionPhaseConfigSnapshot(
+            id=row.id,
+            phase_key=row.phase_key,
+            label=row.label,
+            phase=row.phase.value if row.phase is not None else None,
+            stage_round=row.stage_round,
+            sort_order=row.sort_order,
+            first_match_starts_at=row.first_match_starts_at,
+            lock_at=row.lock_at,
+            explore_at=row.explore_at,
+            is_force_locked=row.is_force_locked,
+            is_active=row.is_active,
+        )
+        for row in rows
+    ]
+
+
+def get_active_scoring_rule(db_session: Session) -> ScoringRuleSnapshot:
+    statement = (
+        select(ScoringRule)
+        .where(ScoringRule.is_active.is_(True))
+        .order_by(ScoringRule.updated_at.desc(), ScoringRule.created_at.desc())
+    )
+    scoring_rule = db_session.scalar(statement)
+    if scoring_rule is None:
+        settings = get_runtime_settings()
+        scoring = settings.scoring
+        return ScoringRuleSnapshot(
+            id=UUID(int=0),
+            name="default",
+            exact_points=scoring.exact_points,
+            result_points=scoring.result_points,
+            brazil_multiplier=scoring.brazil_multiplier,
+            champion_points=scoring.champion_points,
+            top_scorer_points=scoring.top_scorer_points,
+            is_active=True,
+        )
+    return ScoringRuleSnapshot(
+        id=scoring_rule.id,
+        name=scoring_rule.name,
+        exact_points=scoring_rule.exact_points,
+        result_points=scoring_rule.result_points,
+        brazil_multiplier=scoring_rule.brazil_multiplier,
+        champion_points=scoring_rule.champion_points,
+        top_scorer_points=scoring_rule.top_scorer_points,
+        is_active=scoring_rule.is_active,
     )
 
 

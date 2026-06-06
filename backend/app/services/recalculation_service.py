@@ -39,6 +39,7 @@ from app.models.schema import (
     PredictionType,
     User,
 )
+from app.repositories.queries import get_active_scoring_rule
 
 
 class RecalculationStageSummary(BaseModel):
@@ -77,11 +78,17 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def get_score_rules() -> ScoreRules:
-    from app.core.config import get_settings
-
-    settings = get_settings()
-    return ScoreRules.from_settings(settings.scoring)
+def get_score_rules(db_session: Session) -> ScoreRules:
+    scoring_rule = get_active_scoring_rule(db_session)
+    return ScoreRules.from_mapping(
+        {
+            "exact_points": scoring_rule.exact_points,
+            "result_points": scoring_rule.result_points,
+            "brazil_multiplier": scoring_rule.brazil_multiplier,
+            "champion_points": scoring_rule.champion_points,
+            "top_scorer_points": scoring_rule.top_scorer_points,
+        }
+    )
 
 
 def _match_status_is_terminal(match: Match) -> bool:
@@ -264,7 +271,7 @@ def recalculate_match_prediction_points(
     *,
     match_id: UUID | None = None,
 ) -> RecalculationStageSummary:
-    rules = get_score_rules()
+    rules = get_score_rules(db_session)
     statement = select(Match).where(
         Match.status.in_(("FT", "AET", "PEN")),
         Match.official_home_goals.is_not(None),
@@ -317,7 +324,7 @@ def recalculate_competition_prediction_points(
     champion_selection_key: str | None = None,
     top_scorer_selection_keys: set[str] | None = None,
 ) -> RecalculationStageSummary:
-    rules = get_score_rules()
+    rules = get_score_rules(db_session)
     predictions = list(db_session.scalars(select(CompetitionPrediction)).all())
     updated_count = 0
     skipped_count = 0

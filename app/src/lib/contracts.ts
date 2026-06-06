@@ -185,6 +185,20 @@ export type AdminCompetitionWindowContract = {
   is_active: boolean;
 };
 
+export type AdminPhaseConfigContract = {
+  id: string;
+  phaseKey: string;
+  label: string;
+  phase: string | null;
+  stageRound: number | null;
+  sortOrder: number;
+  firstMatchStartsAt: string | null;
+  lockAt: string;
+  exploreAt: string;
+  forceLocked: boolean;
+  isActive: boolean;
+};
+
 export type AdminSyncRunContract = {
   provider: string;
   status: string;
@@ -383,6 +397,7 @@ export type AvailablePlayersContract = {
 
 export type AdminSettingsContract = {
   competitionWindow: AdminCompetitionWindowContract;
+  phaseConfigs: AdminPhaseConfigContract[];
   forceLockedPhases: number;
   scoring: {
     exact_points: number;

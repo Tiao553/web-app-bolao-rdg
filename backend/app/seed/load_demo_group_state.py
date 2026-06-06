@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.models.schema import (
     AccessStatus,
     CompetitionPhase,
+    CompetitionPhaseConfig,
     CompetitionPrediction,
     CompetitionWindow,
     Match,
@@ -109,23 +110,35 @@ def build_user_two_prediction(match_index: int, home: int, away: int) -> tuple[i
 
 def ensure_released_window(db_session: Session) -> None:
     now = datetime.now(timezone.utc)
-    window = db_session.scalar(
-        select(CompetitionWindow)
-        .where(CompetitionWindow.is_active.is_(True))
-        .order_by(CompetitionWindow.updated_at.desc(), CompetitionWindow.created_at.desc())
+    phase_configs = list(
+        db_session.scalars(
+            select(CompetitionPhaseConfig).where(CompetitionPhaseConfig.is_active.is_(True))
+        ).all()
     )
-    if window is None:
-        window = CompetitionWindow(
-            name="default",
-            prediction_close_at=now - timedelta(days=7),
-            explore_release_at=now - timedelta(days=6),
-            is_active=True,
-        )
+    if phase_configs:
+        for config in phase_configs:
+            config.lock_at = now - timedelta(days=7)
+            config.explore_at = now - timedelta(days=7)
+            config.is_force_locked = False
+            db_session.add(config)
     else:
-        window.prediction_close_at = now - timedelta(days=7)
-        window.explore_release_at = now - timedelta(days=6)
-        window.is_active = True
-    db_session.add(window)
+        window = db_session.scalar(
+            select(CompetitionWindow)
+            .where(CompetitionWindow.is_active.is_(True))
+            .order_by(CompetitionWindow.updated_at.desc(), CompetitionWindow.created_at.desc())
+        )
+        if window is None:
+            window = CompetitionWindow(
+                name="default",
+                prediction_close_at=now - timedelta(days=7),
+                explore_release_at=now - timedelta(days=6),
+                is_active=True,
+            )
+        else:
+            window.prediction_close_at = now - timedelta(days=7)
+            window.explore_release_at = now - timedelta(days=6)
+            window.is_active = True
+        db_session.add(window)
     db_session.flush()
 
 

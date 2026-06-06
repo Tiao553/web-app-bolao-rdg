@@ -26,6 +26,7 @@ from app.api.schemas.frontend import (
 from app.core.security import build_auth_error, hash_password, require_admin_user
 from app.models.schema import (
     CompetitionPhase,
+    CompetitionPhaseConfig,
     AccessStatus,
     CompetitionWindow,
     Match,
@@ -472,6 +473,20 @@ def get_competition_window(
     db_session: Session = Depends(get_db_session),
 ) -> CompetitionWindowResponse:
     del admin_user
+    phase_config = db_session.scalar(
+        select(CompetitionPhaseConfig)
+        .where(CompetitionPhaseConfig.is_active.is_(True))
+        .order_by(CompetitionPhaseConfig.sort_order.asc(), CompetitionPhaseConfig.lock_at.asc())
+    )
+    if phase_config is not None:
+        active_window = FrontendContractService(db_session).build_admin_settings().competitionWindow
+        return CompetitionWindowResponse(
+            id=phase_config.id,
+            name=phase_config.phase_key,
+            prediction_close_at=datetime.fromisoformat(active_window["prediction_close_at"]),
+            explore_release_at=datetime.fromisoformat(active_window["explore_release_at"]),
+            is_active=phase_config.is_active,
+        )
     statement = (
         select(CompetitionWindow)
         .where(CompetitionWindow.is_active.is_(True))
@@ -635,7 +650,7 @@ def trigger_sync(
 
 # ── Force phase lock / unlock ──────────────────────────────────────────────────
 
-_ROUND_KEYS = ["round1", "round2", "round3", "roundOf32", "roundOf16", "quarterFinal", "semiFinal", "final"]
+_ROUND_KEYS = ["initial_predictions", "round1", "round2", "round3", "roundOf32", "roundOf16", "quarterFinal", "semiFinal", "final"]
 
 
 class PhaseLockRequest(BaseModel):
@@ -663,24 +678,45 @@ def set_phase_lock(
             code="invalid_round_key",
             message=f"roundKey must be one of {_ROUND_KEYS}",
         )
-    idx = _ROUND_KEYS.index(payload.roundKey)
-    bit = 1 << idx
+    phase_config = db_session.scalar(
+        select(CompetitionPhaseConfig).where(CompetitionPhaseConfig.phase_key == payload.roundKey)
+    )
+    if phase_config is not None:
+        phase_config.is_force_locked = payload.locked
+        db_session.add(phase_config)
+        db_session.flush()
 
-    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active == True))  # noqa: E712
-    if cw is None:
+        current = 0
+        ordered_phase_configs = list(
+            db_session.scalars(
+                select(CompetitionPhaseConfig)
+                .where(CompetitionPhaseConfig.is_active.is_(True))
+                .order_by(CompetitionPhaseConfig.sort_order.asc(), CompetitionPhaseConfig.lock_at.asc())
+            ).all()
+        )
+        for idx, item in enumerate(ordered_phase_configs):
+            if item.is_force_locked:
+                current |= 1 << idx
+
+        return PhaseLockResponse(roundKey=payload.roundKey, locked=payload.locked, forceLockedPhases=current)
+
+    legacy_window = db_session.scalar(
+        select(CompetitionWindow).where(CompetitionWindow.is_active.is_(True)).order_by(CompetitionWindow.updated_at.desc())
+    )
+    if legacy_window is None:
         raise build_auth_error(
             status_code=status.HTTP_404_NOT_FOUND,
-            code="competition_window_not_found",
-            message="No active competition window",
+            code="competition_phase_not_found",
+            message="Competition phase was not found",
         )
-
-    current = cw.force_locked_phases or 0
+    idx = _ROUND_KEYS.index(payload.roundKey)
+    bit = 1 << idx
+    current = legacy_window.force_locked_phases or 0
     if payload.locked:
         current = current | bit
     else:
         current = current & ~bit
-
-    cw.force_locked_phases = current
+    legacy_window.force_locked_phases = current
+    db_session.add(legacy_window)
     db_session.flush()
-
     return PhaseLockResponse(roundKey=payload.roundKey, locked=payload.locked, forceLockedPhases=current)

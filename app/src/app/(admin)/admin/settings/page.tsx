@@ -2,7 +2,7 @@ import type { AdminSettingsContract } from '../../../../lib/contracts';
 import { fetchBackendData } from '../../../../lib/session';
 import { getServerCsrfToken } from '../../../../lib/security';
 
-const ROUND_KEYS = ['round1', 'round2', 'round3', 'roundOf32', 'roundOf16', 'quarterFinal', 'semiFinal', 'final'];
+const ROUND_KEYS = ['initial_predictions', 'round1', 'round2', 'round3', 'roundOf32', 'roundOf16', 'quarterFinal', 'semiFinal', 'final'];
 
 export default async function AdminSettingsPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const params = searchParams ? await searchParams : {};
@@ -12,16 +12,30 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
   const { data } = await fetchBackendData<AdminSettingsContract>('/api/admin/settings');
   const w = data?.competitionWindow;
   const sc = data?.scoring;
+  const phaseConfigs = data?.phaseConfigs ?? [];
   const forceLockedPhases = data?.forceLockedPhases ?? 0;
 
   function isRoundLocked(key: string): boolean {
+    const config = phaseConfigs.find((phase) => phase.phaseKey === key);
+    if (config) return config.forceLocked;
     const idx = ROUND_KEYS.indexOf(key);
     if (idx < 0) return false;
     return ((forceLockedPhases >> idx) & 1) === 1;
   }
 
-  const fmt = (v: string | undefined) =>
-    v ? new Date(v).toISOString().slice(0, 16) : '';
+  const phaseRows = (phaseConfigs.length > 0
+    ? phaseConfigs
+    : [
+        { phaseKey: 'initial_predictions', label: 'Palpites iniciais', forceLocked: isRoundLocked('initial_predictions') },
+        { phaseKey: 'round1', label: 'Grupos · Rodada 1', forceLocked: isRoundLocked('round1') },
+        { phaseKey: 'round2', label: 'Grupos · Rodada 2', forceLocked: isRoundLocked('round2') },
+        { phaseKey: 'round3', label: 'Grupos · Rodada 3', forceLocked: isRoundLocked('round3') },
+        { phaseKey: 'roundOf32', label: '16 avos', forceLocked: isRoundLocked('roundOf32') },
+        { phaseKey: 'roundOf16', label: 'Oitavas', forceLocked: isRoundLocked('roundOf16') },
+        { phaseKey: 'quarterFinal', label: 'Quartas', forceLocked: isRoundLocked('quarterFinal') },
+        { phaseKey: 'semiFinal', label: 'Semifinal', forceLocked: isRoundLocked('semiFinal') },
+        { phaseKey: 'final', label: 'Final', forceLocked: isRoundLocked('final') },
+      ]) as Array<{ phaseKey: string; label: string; forceLocked: boolean }>;
 
   return (
     <>
@@ -34,7 +48,7 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
           <div>
             <div className="eyebrow"><span className="dot" />Regras e governança</div>
             <h1>Defina prazos, bloqueios e <span>pontuação</span>.</h1>
-            <p>Configurações globais controlam horário de fechamento dos palpites, liberação do Explore, pesos da pontuação, regra Brasil ×2 e permissões administrativas.</p>
+            <p>Configurações por fase controlam o fechamento dos palpites, a liberação cumulativa do Explore, os pesos da pontuação, a regra Brasil ×2 e as permissões administrativas.</p>
           </div>
           <div className="lock-card">
             <div className="lock-title">{w?.is_active ? 'Competição ativa' : 'Inativa'}</div>
@@ -46,51 +60,29 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
       </section>
 
       <div className="grid-2">
-        {/* Main settings form */}
+        {/* Main settings summary */}
         <div className="card">
           <div className="card-header">
-            <div><div className="card-title">Configurações principais</div><div className="card-subtitle">Prazos, bloqueios e regras do bolão</div></div>
-            <div className="pill orange"><span className="dot" />editável</div>
+            <div><div className="card-title">Configurações por fase</div><div className="card-subtitle">Fonte de verdade: competition_phase_configs</div></div>
+            <div className="pill orange"><span className="dot" />{phaseConfigs.length} fases</div>
           </div>
           <div className="card-body">
-            <form action="/api/admin/settings/window" method="POST">
-              <input type="hidden" name="csrf_token" value={csrfToken} />
-              <div className="settings-grid">
-                <div className="field-admin full">
-                  <div className="field-label-admin">Nome da competição</div>
-                  <input name="name" type="text" className="admin-input" defaultValue={w?.name ?? ''} />
+            <div className="toggle-list">
+              {phaseConfigs.map((phase) => (
+                <div key={phase.phaseKey} className="toggle-row" style={{ gap: 10, alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1 }}>
+                    <div className="toggle-title">{phase.label}</div>
+                    <div className="toggle-text">
+                      {phase.lockAt ? `Lock: ${new Date(phase.lockAt).toLocaleString('pt-BR')}` : 'Lock não configurado'} ·{' '}
+                      {phase.exploreAt ? `Explore: ${new Date(phase.exploreAt).toLocaleString('pt-BR')}` : 'Explore não configurado'}
+                    </div>
+                  </div>
+                  <div className={`pill ${phase.forceLocked ? 'warn' : 'ok'}`} style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
+                    <span className="dot" />{phase.forceLocked ? 'Travado' : 'Automático'}
+                  </div>
                 </div>
-                <div className="field-admin">
-                  <div className="field-label-admin">Fechamento dos palpites</div>
-                  <input name="prediction_close_at" type="datetime-local" className="admin-input" defaultValue={fmt(w?.prediction_close_at)} />
-                </div>
-                <div className="field-admin">
-                  <div className="field-label-admin">Liberação do Explore</div>
-                  <input name="explore_release_at" type="datetime-local" className="admin-input" defaultValue={fmt(w?.explore_release_at)} />
-                </div>
-                <div className="field-admin">
-                  <div className="field-label-admin">Placar exato</div>
-                  <input type="number" className="admin-input" defaultValue={sc?.exact_points ?? 5} min={0} />
-                </div>
-                <div className="field-admin">
-                  <div className="field-label-admin">Resultado correto</div>
-                  <input type="number" className="admin-input" defaultValue={sc?.result_points ?? 3} min={0} />
-                </div>
-                <div className="field-admin">
-                  <div className="field-label-admin">Pontos campeão</div>
-                  <input type="number" className="admin-input" defaultValue={sc?.champion_points ?? 10} min={0} />
-                </div>
-                <div className="field-admin">
-                  <div className="field-label-admin">Pontos artilheiro</div>
-                  <input type="number" className="admin-input" defaultValue={sc?.top_scorer_points ?? 15} min={0} />
-                </div>
-                <div className="field-admin full">
-                  <div className="field-label-admin">Mensagem de bloqueio</div>
-                  <input type="text" className="admin-input" defaultValue="Os palpites foram bloqueados pelo horário oficial definido pelo administrador." />
-                </div>
-              </div>
-              <button type="submit" className="btn-primary full" style={{ marginTop: 18 }}>Salvar configurações →</button>
-            </form>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -128,38 +120,29 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
 
           {/* Force lock por rodada */}
           <div className="card">
-            <div className="card-header"><div><div className="card-title">Controle de bloqueio</div><div className="card-subtitle">Force lock / unlock por rodada</div></div></div>
+            <div className="card-header"><div><div className="card-title">Controle de bloqueio</div><div className="card-subtitle">Force lock / unlock por fase</div></div></div>
             <div className="card-body">
               <div className="toggle-list">
-                {[
-                  { key: 'round1', label: 'Grupos · Rodada 1' },
-                  { key: 'round2', label: 'Grupos · Rodada 2' },
-                  { key: 'round3', label: 'Grupos · Rodada 3' },
-                  { key: 'roundOf32', label: '16 avos' },
-                  { key: 'roundOf16', label: 'Oitavas' },
-                  { key: 'quarterFinal', label: 'Quartas' },
-                  { key: 'semiFinal', label: 'Semifinal' },
-                  { key: 'final', label: 'Final' },
-                ].map(r => {
-                  const locked = isRoundLocked(r.key);
+                {phaseRows.map(r => {
+                  const locked = r.forceLocked;
                   return (
-                    <div key={r.key} className="toggle-row" style={{ gap: 10 }}>
+                    <div key={r.phaseKey} className="toggle-row" style={{ gap: 10 }}>
                       <div style={{ flex: 1 }}>
                         <div className="toggle-title">{r.label}</div>
-                        <div className="toggle-text">Bloqueio automático 1h antes do 1º jogo</div>
+                        <div className="toggle-text">Bloqueio automático 30 min antes do 1º jogo</div>
                       </div>
                       <div className={`pill ${locked ? 'warn' : 'ok'}`} style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
                         <span className="dot" />{locked ? 'Travado' : 'Aberto'}
                       </div>
                       <form action="/api/admin/phase-lock" method="POST">
                         <input type="hidden" name="csrf_token" value={csrfToken} />
-                        <input type="hidden" name="roundKey" value={r.key} />
+                        <input type="hidden" name="roundKey" value={r.phaseKey} />
                         <input type="hidden" name="locked" value="true" />
                         <button type="submit" className="btn-danger" style={{ height: 30, fontSize: 11, padding: '0 10px' }}>Travar</button>
                       </form>
                       <form action="/api/admin/phase-lock" method="POST">
                         <input type="hidden" name="csrf_token" value={csrfToken} />
-                        <input type="hidden" name="roundKey" value={r.key} />
+                        <input type="hidden" name="roundKey" value={r.phaseKey} />
                         <input type="hidden" name="locked" value="false" />
                         <button type="submit" className="btn-ok" style={{ height: 30, fontSize: 11, padding: '0 10px' }}>Abrir</button>
                       </form>

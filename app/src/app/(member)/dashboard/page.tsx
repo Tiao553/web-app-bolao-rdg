@@ -28,6 +28,9 @@ export default async function DashboardPage() {
   const nextMatches = data?.nextMatches ?? [];
   const rankRows = (rankingData?.rows ?? []).slice(0, 4);
   const myRank = rankingData?.currentUserRank;
+  const exploreOpen = Boolean(
+    session.now && session.competition.exploreReleaseAt && Date.parse(session.now) >= Date.parse(session.competition.exploreReleaseAt)
+  );
 
   return (
     <>
@@ -156,7 +159,7 @@ export default async function DashboardPage() {
               </div>
               <div className="phase-row">
                 <div><div className="phase-name">Explore</div><div className="phase-meta">Libera após fechamento</div></div>
-                <div className="phase-status">Bloqueado</div>
+                <div className={`phase-status${exploreOpen ? ' open' : ''}`}>{exploreOpen ? 'Aberto' : 'Bloqueado'}</div>
               </div>
             </div>
           </div>

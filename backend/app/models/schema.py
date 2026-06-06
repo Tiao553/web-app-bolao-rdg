@@ -184,6 +184,56 @@ class CompetitionWindow(TimestampMixin, Base):
     )
 
 
+class CompetitionPhaseConfig(TimestampMixin, Base):
+    __tablename__ = "competition_phase_configs"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    phase_key: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    label: Mapped[str] = mapped_column(String(255), nullable=False)
+    phase: Mapped[CompetitionPhase | None] = mapped_column(
+        SQLEnum(CompetitionPhase, name="competition_phase_enum"),
+        index=True,
+    )
+    stage_round: Mapped[int | None] = mapped_column(Integer, index=True)
+    sort_order: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    first_match_starts_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    lock_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    explore_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    is_force_locked: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default="false",
+        index=True,
+        nullable=False,
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        server_default="true",
+        index=True,
+        nullable=False,
+    )
+
+
+class ScoringRule(TimestampMixin, Base):
+    __tablename__ = "scoring_rules"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    name: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    exact_points: Mapped[int] = mapped_column(Integer, nullable=False)
+    result_points: Mapped[int] = mapped_column(Integer, nullable=False)
+    brazil_multiplier: Mapped[int] = mapped_column(Integer, nullable=False)
+    champion_points: Mapped[int] = mapped_column(Integer, nullable=False)
+    top_scorer_points: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        server_default="true",
+        index=True,
+        nullable=False,
+    )
+
+
 class Match(TimestampMixin, Base):
     __tablename__ = "matches"
     __table_args__ = (
