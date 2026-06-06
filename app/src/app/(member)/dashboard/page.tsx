@@ -11,8 +11,9 @@ function initials(name: string) {
 
 function fmtMatchDate(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) + ' · ' +
-    d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const options = { timeZone: 'America/Sao_Paulo' } as const;
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', ...options }) + ' · ' +
+    d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', ...options });
 }
 
 export default async function DashboardPage() {
@@ -22,7 +23,7 @@ export default async function DashboardPage() {
     fetchAppSession(),
   ]);
 
-  const closeAt = data?.competition.predictionCloseAt ?? session.competition.predictionCloseAt;
+  const closeAt = data?.nextLockAt ?? null;
   const pts = data?.totalPoints ?? 0;
   const rank = data?.rankingPosition;
   const nextMatches = data?.nextMatches ?? [];
