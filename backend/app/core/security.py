@@ -207,6 +207,9 @@ def is_csrf_protected_request(request: Request) -> bool:
     if path.startswith("/api/admin/"):
         return True
     if path.startswith("/api/auth/"):
+        # Rotas públicas de recuperação de senha não precisam de CSRF
+        if path in {"/api/auth/forgot-password", "/api/auth/reset-password"}:
+            return False
         return path != "/api/auth/session"
     return path.startswith("/api/member/predictions/")
 

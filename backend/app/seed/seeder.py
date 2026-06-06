@@ -144,3 +144,11 @@ def run_seed() -> None:
             session.rollback()
             logger.exception("Seed failed — rolled back.")
             raise
+
+
+def main() -> None:
+    run_seed()
+
+
+if __name__ == "__main__":
+    main()

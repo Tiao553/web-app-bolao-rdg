@@ -8,10 +8,11 @@ COPY pyproject.toml ./
 RUN uv pip install --system --no-cache -e ".[dev]" 2>/dev/null || \
     uv pip install --system --no-cache \
         fastapi uvicorn[standard] sqlalchemy alembic \
-        psycopg[binary] pydantic pydantic-settings httpx PyYAML
+        psycopg[binary] pydantic pydantic-settings httpx PyYAML \
+        python-multipart resend
 
 COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["sh", "start.sh"]

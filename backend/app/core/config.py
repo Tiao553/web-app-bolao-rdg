@@ -98,19 +98,11 @@ class EnvironmentSettings(BaseSettings):
     database_url: str | None = Field(default=None, alias="DATABASE_URL")
     api_football_key: SecretStr | None = Field(default=None, alias="API_FOOTBALL_KEY")
     sync_admin_token: SecretStr | None = Field(default=None, alias="SYNC_ADMIN_TOKEN")
-    frontend_origins: tuple[str, ...] = Field(default=(), alias="FRONTEND_ORIGINS")
+    frontend_origins: str | None = Field(default=None, alias="FRONTEND_ORIGINS")
     session_cookie_domain: str | None = Field(default=None, alias="SESSION_COOKIE_DOMAIN")
-
-    @field_validator("frontend_origins", mode="before")
-    @classmethod
-    def parse_frontend_origins(cls, value: object) -> object:
-        if isinstance(value, str):
-            return tuple(
-                item.strip()
-                for item in value.split(",")
-                if item.strip() != ""
-            )
-        return value
+    resend_api_key: SecretStr | None = Field(default=None, alias="RESEND_API_KEY")
+    email_from: str | None = Field(default=None, alias="EMAIL_FROM")
+    frontend_url: str | None = Field(default=None, alias="FRONTEND_URL")
 
     @model_validator(mode="after")
     def validate_database_url(self) -> EnvironmentSettings:
@@ -132,6 +124,9 @@ class Settings(BaseModel):
     sync_admin_token: SecretStr | None
     frontend_origins: tuple[str, ...]
     session_cookie_domain: str | None
+    resend_api_key: SecretStr | None
+    email_from: str | None
+    frontend_url: str | None
 
 
 def get_config_file_path() -> Path:
@@ -171,6 +166,16 @@ def load_environment_settings() -> EnvironmentSettings:
         raise ValueError(str(exc)) from exc
 
 
+def _parse_frontend_origins(value: str | None) -> tuple[str, ...]:
+    if value is None or value.strip() == "":
+        return ()
+    return tuple(
+        item.strip()
+        for item in value.split(",")
+        if item.strip() != ""
+    )
+
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     file_settings = load_yaml_settings()
@@ -183,8 +188,11 @@ def get_settings() -> Settings:
         database_url=environment_settings.database_url or "",
         api_football_key=environment_settings.api_football_key,
         sync_admin_token=environment_settings.sync_admin_token,
-        frontend_origins=environment_settings.frontend_origins,
+        frontend_origins=_parse_frontend_origins(environment_settings.frontend_origins),
         session_cookie_domain=environment_settings.session_cookie_domain,
+        resend_api_key=environment_settings.resend_api_key,
+        email_from=environment_settings.email_from,
+        frontend_url=environment_settings.frontend_url,
     )
 
 
