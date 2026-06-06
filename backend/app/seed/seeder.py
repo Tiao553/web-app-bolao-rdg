@@ -8,12 +8,13 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.schema import CompetitionPhase, Match, SyncProvider
+from app.models.schema import CompetitionPhase, CompetitionPhaseConfig, Match, ScoringRule, SyncProvider
 from app.repositories.queries import get_session_local
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,25 @@ _PHASE_MAP: dict[str, CompetitionPhase] = {
     "FINAL": CompetitionPhase.FINAL,
 }
 
+_PHASE_SCHEDULES: list[tuple[str, str, CompetitionPhase | None, int | None, int, str]] = [
+    (
+        "initial_predictions",
+        "Palpites iniciais",
+        None,
+        None,
+        0,
+        "2026-06-11T16:00:00-03:00",
+    ),
+    ("round1", "Fase de grupos · Rodada 1", CompetitionPhase.GROUP_STAGE, 1, 1, "2026-06-11T16:00:00-03:00"),
+    ("round2", "Fase de grupos · Rodada 2", CompetitionPhase.GROUP_STAGE, 2, 2, "2026-06-18T13:00:00-03:00"),
+    ("round3", "Fase de grupos · Rodada 3", CompetitionPhase.GROUP_STAGE, 3, 3, "2026-06-24T16:00:00-03:00"),
+    ("roundOf32", "16 avos", CompetitionPhase.ROUND_OF_32, None, 4, "2026-06-28T16:00:00-03:00"),
+    ("roundOf16", "Oitavas", CompetitionPhase.ROUND_OF_16, None, 5, "2026-07-04T14:00:00-03:00"),
+    ("quarterFinal", "Quartas", CompetitionPhase.QUARTER_FINAL, None, 6, "2026-07-09T17:00:00-03:00"),
+    ("semiFinal", "Semifinal", CompetitionPhase.SEMI_FINAL, None, 7, "2026-07-14T16:00:00-03:00"),
+    ("final", "Final", CompetitionPhase.FINAL, None, 8, "2026-07-19T16:00:00-03:00"),
+]
+
 
 def _already_seeded(session: Session) -> bool:
     count = session.query(Match).filter(Match.external_provider == SyncProvider.SEED).count()
@@ -41,6 +61,51 @@ def _parse_dt(value: str | None) -> datetime:
         return datetime(2026, 6, 11, 12, 0, 0, tzinfo=timezone.utc)
     dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def _seed_phase_configs(session: Session) -> int:
+    inserted = 0
+    for phase_key, label, phase, stage_round, sort_order, starts_at in _PHASE_SCHEDULES:
+        existing = session.scalar(
+            select(CompetitionPhaseConfig).where(CompetitionPhaseConfig.phase_key == phase_key)
+        )
+        if existing is not None:
+            continue
+        first_match_starts_at = _parse_dt(starts_at)
+        lock_at = first_match_starts_at - timedelta(minutes=30)
+        config = CompetitionPhaseConfig(
+            phase_key=phase_key,
+            label=label,
+            phase=phase,
+            stage_round=stage_round,
+            sort_order=sort_order,
+            first_match_starts_at=first_match_starts_at,
+            lock_at=lock_at,
+            explore_at=lock_at,
+            is_force_locked=False,
+            is_active=True,
+        )
+        session.add(config)
+        inserted += 1
+    return inserted
+
+
+def _seed_scoring_rules(session: Session) -> int:
+    existing = session.scalar(select(ScoringRule).where(ScoringRule.name == "default"))
+    if existing is not None:
+        return 0
+    session.add(
+        ScoringRule(
+            name="default",
+            exact_points=3,
+            result_points=1,
+            brazil_multiplier=2,
+            champion_points=10,
+            top_scorer_points=15,
+            is_active=True,
+        )
+    )
+    return 1
 
 
 def _seed_group_stage(session: Session) -> int:
@@ -130,16 +195,23 @@ def _seed_knockout(session: Session) -> int:
 def run_seed() -> None:
     session_factory = get_session_local()
     with session_factory() as session:
-        if _already_seeded(session):
-            logger.info("Seed already applied — skipping.")
-            return
-
         logger.info("Running initial data seed...")
         try:
-            gs = _seed_group_stage(session)
-            ko = _seed_knockout(session)
+            gs = 0
+            ko = 0
+            if not _already_seeded(session):
+                gs = _seed_group_stage(session)
+                ko = _seed_knockout(session)
+            phase_configs = _seed_phase_configs(session)
+            scoring_rules = _seed_scoring_rules(session)
             session.commit()
-            logger.info("Seed complete: %d group-stage + %d knockout matches inserted.", gs, ko)
+            logger.info(
+                "Seed complete: %d group-stage + %d knockout matches inserted; %d phase configs + %d scoring rows ensured.",
+                gs,
+                ko,
+                phase_configs,
+                scoring_rules,
+            )
         except Exception:
             session.rollback()
             logger.exception("Seed failed — rolled back.")
