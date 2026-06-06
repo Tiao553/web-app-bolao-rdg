@@ -92,6 +92,7 @@ export type MemberDashboardContract = {
     isAdmin: boolean;
   };
   competition: MemberCompetitionWindowContract;
+  nextLockAt: string | null;
   rankingPosition: number | null;
   totalPoints: number;
   savedMatchPredictions: number;

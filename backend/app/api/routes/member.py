@@ -122,6 +122,7 @@ class DashboardResponse(BaseModel):
 
     user: DashboardUserResponse
     competition: CompetitionWindowResponse
+    nextLockAt: datetime | None
     rankingPosition: int | None
     totalPoints: int
     savedMatchPredictions: int
@@ -277,7 +278,23 @@ def build_competition_window_response(
     competition_window: CompetitionWindowSnapshot,
     *,
     now: datetime,
+    db_session: Session,
 ) -> CompetitionWindowResponse:
+    phase_configs = _phase_config_map(db_session)
+    if phase_configs:
+        initial_phase = phase_configs.get("initial_predictions")
+        initial_lock_at = as_utc(initial_phase.lock_at) if initial_phase is not None else as_utc(competition_window.prediction_close_at)
+        initial_explore_at = as_utc(initial_phase.explore_at) if initial_phase is not None else as_utc(competition_window.explore_release_at)
+        prediction_locked = bool(initial_phase and (initial_phase.is_force_locked or now >= initial_lock_at))
+        explore_released = bool(initial_phase and (initial_phase.is_force_locked or now >= initial_explore_at))
+
+        return CompetitionWindowResponse(
+            predictionCloseAt=initial_lock_at,
+            exploreReleaseAt=initial_explore_at,
+            predictionLocked=prediction_locked,
+            exploreReleased=explore_released,
+        )
+
     return CompetitionWindowResponse(
         predictionCloseAt=as_utc(competition_window.prediction_close_at),
         exploreReleaseAt=as_utc(competition_window.explore_release_at),
@@ -373,6 +390,8 @@ def get_dashboard(
         .limit(3)
     )
     next_matches = list(db_session.scalars(next_matches_stmt).all())
+    phase_configs = _phase_config_map(db_session)
+    next_lock_at = _next_lock_at_from_configs(phase_configs, now) if phase_configs else as_utc(competition_window.prediction_close_at)
 
     return DashboardResponse(
         user=DashboardUserResponse(
@@ -382,7 +401,8 @@ def get_dashboard(
             accessStatus=user.access_status.value,
             isAdmin=user.is_admin,
         ),
-        competition=build_competition_window_response(competition_window, now=now),
+        competition=build_competition_window_response(competition_window, now=now, db_session=db_session),
+        nextLockAt=next_lock_at,
         rankingPosition=get_current_user_rank(ranking_rows, user_id=user.id),
         totalPoints=total_points,
         savedMatchPredictions=int(db_session.scalar(match_prediction_count_statement) or 0),
@@ -426,16 +446,7 @@ def get_predictions(
     match_predictions = list(db_session.scalars(match_predictions_statement).all())
     competition_predictions = list(db_session.scalars(competition_predictions_statement).all())
 
-    # Initial predictions lock when round1 is locked (auto or force)
-    cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active.is_(True)))
-    bitmask = cw.force_locked_phases if cw else None
-    phase_locks = _compute_phase_locks(db_session, now, bitmask)
-    initial_locked = (
-        now >= as_utc(competition_window.prediction_close_at)
-        or phase_locks.get("round1", False)
-    )
-    base_comp = build_competition_window_response(competition_window, now=now)
-    comp_response = base_comp.model_copy(update={"predictionLocked": initial_locked})
+    comp_response = build_competition_window_response(competition_window, now=now, db_session=db_session)
 
     return MemberPredictionsResponse(
         competition=comp_response,
@@ -473,18 +484,33 @@ def save_match_prediction(
     db_session: Session = Depends(get_db_session),
 ) -> MatchPredictionResponse:
     now = utc_now()
-    if now >= as_utc(competition_window.prediction_close_at):
-        raise build_auth_error(
-            status_code=status.HTTP_403_FORBIDDEN,
-            code="prediction_window_closed",
-            message="Predictions are locked",
-        )
+    phase_configs = _phase_config_map(db_session)
     match = get_match_by_id(db_session, match_id)
     if match is None:
         raise build_auth_error(
             status_code=status.HTTP_404_NOT_FOUND,
             code="match_not_found",
             message="Match was not found",
+        )
+    match_round_key = _match_round_key(match)
+    if match_round_key is None:
+        raise build_auth_error(
+            status_code=status.HTTP_403_FORBIDDEN,
+            code="prediction_window_closed",
+            message="Predictions are locked",
+        )
+    if phase_configs:
+        if _phase_locked(db_session, match_round_key, now):
+            raise build_auth_error(
+                status_code=status.HTTP_403_FORBIDDEN,
+                code="prediction_window_closed",
+                message="Predictions are locked",
+            )
+    elif now >= as_utc(competition_window.prediction_close_at):
+        raise build_auth_error(
+            status_code=status.HTTP_403_FORBIDDEN,
+            code="prediction_window_closed",
+            message="Predictions are locked",
         )
     prediction = get_match_prediction(db_session, user_id=user.id, match_id=match.id)
     if prediction is None:
@@ -518,7 +544,15 @@ def save_competition_prediction(
     db_session: Session,
 ) -> CompetitionPredictionResponse:
     now = utc_now()
-    if now >= as_utc(competition_window.prediction_close_at):
+    phase_configs = _phase_config_map(db_session)
+    if phase_configs:
+        if _phase_locked(db_session, "initial_predictions", now):
+            raise build_auth_error(
+                status_code=status.HTTP_403_FORBIDDEN,
+                code="prediction_window_closed",
+                message="Predictions are locked",
+            )
+    elif now >= as_utc(competition_window.prediction_close_at):
         raise build_auth_error(
             status_code=status.HTTP_403_FORBIDDEN,
             code="prediction_window_closed",
@@ -639,7 +673,7 @@ def get_explore(
         db_session.scalars(
             visible_competition_predictions_select(
                 viewer=user,
-                explore_released=explore_released,
+                explore_released=True,
             )
         ).all()
     )
@@ -713,6 +747,55 @@ def _phase_config_map(db_session: Session) -> dict[str, CompetitionPhaseConfig]:
         config.phase_key: config
         for config in list_active_competition_phase_configs(db_session)
     }
+
+
+def _next_lock_at_from_configs(
+    phase_configs: dict[str, CompetitionPhaseConfig],
+    now: datetime,
+) -> datetime | None:
+    ordered = sorted(phase_configs.values(), key=lambda item: (item.sort_order, item.lock_at, item.phase_key))
+    for config in ordered:
+        if config.is_force_locked:
+            continue
+        lock_at = as_utc(config.lock_at)
+        if now < lock_at:
+            return lock_at
+    return None
+
+
+def _phase_locked(
+    db_session: Session,
+    phase_key: str,
+    now: datetime,
+    fallback_bitmask: int | None = None,
+) -> bool:
+    phase_configs = _phase_config_map(db_session)
+    config = phase_configs.get(phase_key)
+    if config is not None:
+        return config.is_force_locked or now >= as_utc(config.lock_at)
+
+    if fallback_bitmask is None:
+        return False
+
+    fallback_keys = ["initial_predictions", *_ROUND_CONFIG_KEYS]
+    try:
+        idx = fallback_keys.index(phase_key)
+    except ValueError:
+        return False
+    return bool(fallback_bitmask & (1 << idx))
+
+
+def _match_round_key(match: Match) -> str | None:
+    if match.phase == CompetitionPhase.GROUP_STAGE:
+        return {1: "round1", 2: "round2", 3: "round3"}.get(match.stage_round)
+    mapping = {
+        CompetitionPhase.ROUND_OF_32: "roundOf32",
+        CompetitionPhase.ROUND_OF_16: "roundOf16",
+        CompetitionPhase.QUARTER_FINAL: "quarterFinal",
+        CompetitionPhase.SEMI_FINAL: "semiFinal",
+        CompetitionPhase.FINAL: "final",
+    }
+    return mapping.get(match.phase)
 
 
 def _phase_lock_time(db_session: Session, phase: CompetitionPhase, stage_round: int | None) -> datetime | None:
