@@ -1015,16 +1015,13 @@ body > * { position: relative; z-index: 1; }
   font-size: 13px;
 }
 .explore-live-scroll {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 280px;
-  overflow-y: auto;
-  padding-right: 4px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
 }
 .explore-live-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
   border: 1px solid var(--bd);
@@ -1046,6 +1043,9 @@ body > * { position: relative; z-index: 1; }
   font-family: 'Fira Code', monospace;
   font-size: 12px;
   font-weight: 800;
+}
+.explore-live-row .points {
+  justify-self: end;
 }
 
 /* ── Bracket ─────────────────────────────────────── */
@@ -1767,10 +1767,12 @@ body > * { position: relative; z-index: 1; }
   .sidebar-footer { display: none; }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .rank-row { grid-template-columns: 36px 36px 1fr 70px; }
+  .explore-live-scroll { grid-template-columns: 1fr; }
   .explore-live-row { grid-template-columns: 1fr; }
   .explore-results-row { grid-template-columns: 1fr; }
   .explore-live-match-meta,
   .explore-results-side { justify-content: flex-start; }
+  .explore-live-row .points { justify-self: start; }
   .hide-sm { display: none; }
 }
 @media (max-width: 600px) {

@@ -137,6 +137,11 @@ export default async function ExplorePage() {
         </div>
       </section>
 
+      <ExploreLiveMatchPanel
+        exploreReleased={exploreReleased}
+        matchPredictions={matchPredictions}
+      />
+
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
         <div className="card" id="released-predictions">
           <div className="card-header">
@@ -227,11 +232,6 @@ export default async function ExplorePage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <ExploreLiveMatchPanel
-            exploreReleased={exploreReleased}
-            matchPredictions={matchPredictions}
-          />
-
           <ExploreResultsPanel
             exploreReleased={exploreReleased}
             releasedParticipantCount={releasedParticipantCount}
