@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict
 
 from app.api.routes.admin import router as admin_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.internal import router as internal_router
 from app.api.routes.member import router as member_router
 from app.core.config import Settings, get_settings
 from app.core.security import (
@@ -184,6 +185,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_router)
     app.include_router(member_router)
     app.include_router(admin_router)
+    app.include_router(internal_router)
 
     @app.get(
         "/healthz",

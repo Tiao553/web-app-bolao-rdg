@@ -132,9 +132,18 @@ class AdminIntegrationScreenDto(BaseModel):
 
     primaryProvider: str
     fallbackProvider: str
+    activeProvider: str
     apiConfigured: bool
     dailyRunLimit: int
     allowedTerminalStatuses: list[str]
+    autoSyncEnabled: bool
+    autoSyncIntervalMinutes: int
+    autoSyncIntervalOptions: list[int]
+    schedulerMode: str
+    cronTokenConfigured: bool
+    lastAutoSyncAt: datetime | None
+    nextAutoSyncAt: datetime | None
+    autoSyncStatus: str
     lastSyncs: list[SyncLogDto]
 
 

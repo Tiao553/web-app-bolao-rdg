@@ -13,6 +13,7 @@ from app.integrations.api_football import (
     ProviderSyncBatch,
 )
 from app.integrations.google_sheets import GoogleSheetsClient
+from app.integrations.the_sports_db import TheSportsDBClient
 from app.models.schema import (
     AccessStatus,
     Base,
@@ -26,6 +27,17 @@ from app.services.sync_service import SyncService
 
 class FakeApiFootballClient:
     provider = SyncProvider.API_FOOTBALL
+    configured = True
+
+    def __init__(self, batch: ProviderSyncBatch) -> None:
+        self._batch = batch
+
+    def fetch_match_batch(self, **_: object) -> ProviderSyncBatch:
+        return self._batch
+
+
+class FakeTheSportsDBClient:
+    provider = SyncProvider.THE_SPORTS_DB
     configured = True
 
     def __init__(self, batch: ProviderSyncBatch) -> None:
@@ -111,6 +123,7 @@ def test_sync_service_skips_manual_override_and_preserves_match() -> None:
             top_scorers=(),
         )
         service = SyncService(
+            the_sports_db_client=cast(TheSportsDBClient, FakeTheSportsDBClient(batch)),
             api_football_client=cast(APIFootballClient, FakeApiFootballClient(batch)),
             google_sheets_client=cast(GoogleSheetsClient, FakeGoogleSheetsClient()),
         )
@@ -167,6 +180,7 @@ def test_sync_service_updates_match_when_override_absent() -> None:
             top_scorers=(),
         )
         service = SyncService(
+            the_sports_db_client=cast(TheSportsDBClient, FakeTheSportsDBClient(batch)),
             api_football_client=cast(APIFootballClient, FakeApiFootballClient(batch)),
             google_sheets_client=cast(GoogleSheetsClient, FakeGoogleSheetsClient()),
         )

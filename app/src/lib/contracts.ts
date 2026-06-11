@@ -318,9 +318,18 @@ export type AdminDashboardContract = {
 export type AdminIntegrationContract = {
   primaryProvider: string;
   fallbackProvider: string;
+  activeProvider: string;
   apiConfigured: boolean;
   dailyRunLimit: number;
   allowedTerminalStatuses: string[];
+  autoSyncEnabled: boolean;
+  autoSyncIntervalMinutes: number;
+  autoSyncIntervalOptions: number[];
+  schedulerMode: string;
+  cronTokenConfigured: boolean;
+  lastAutoSyncAt: string | null;
+  nextAutoSyncAt: string | null;
+  autoSyncStatus: string;
   lastSyncs: Array<{
     id: string;
     provider: string;

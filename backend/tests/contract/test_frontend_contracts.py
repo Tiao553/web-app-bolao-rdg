@@ -136,7 +136,8 @@ def test_admin_contracts_expose_screen_summary_shapes() -> None:
         integration = service.build_admin_integration()
         settings = service.build_admin_settings()
         assert dashboard.users.total == 1
-        assert integration.primaryProvider == "API_FOOTBALL"
+        assert integration.primaryProvider == "THE_SPORTS_DB"
+        assert integration.activeProvider == "THE_SPORTS_DB"
         assert settings.scoring["exact_points"] == 3
     finally:
         db_session.close()

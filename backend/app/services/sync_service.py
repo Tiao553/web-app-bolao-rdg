@@ -20,6 +20,7 @@ from app.integrations.api_football import (
     ProviderTopScorer,
 )
 from app.integrations.google_sheets import GoogleSheetsClient
+from app.integrations.the_sports_db import TheSportsDBClient
 from app.models.schema import Match, SyncLog, SyncProvider, SyncStatus
 
 
@@ -82,12 +83,14 @@ class SyncService:
         self,
         *,
         settings: Settings | None = None,
+        the_sports_db_client: TheSportsDBClient | None = None,
         api_football_client: APIFootballClient | None = None,
         google_sheets_client: GoogleSheetsClient | None = None,
         now_provider: Callable[[], datetime] | None = None,
     ) -> None:
         self._settings = settings or get_settings()
         api_key = self._settings.api_football_key.get_secret_value() if self._settings.api_football_key is not None else None
+        self._the_sports_db_client = the_sports_db_client or TheSportsDBClient()
         self._api_football_client = api_football_client or APIFootballClient(api_key=api_key)
         self._google_sheets_client = google_sheets_client or GoogleSheetsClient()
         self._now_provider = now_provider or self._default_now
@@ -145,6 +148,8 @@ class SyncService:
                 respect_timing_window=respect_timing_window,
             )
             if not eligibility.eligible:
+                if fixture_ids is None and eligibility.result_code in {"not_due_yet", "non_terminal_status"}:
+                    continue
                 outcomes.append(
                     self._record_outcome(
                         db_session,
@@ -220,15 +225,29 @@ class SyncService:
         fixture_ids: Sequence[str] | None,
         include_top_scorers: bool,
     ) -> tuple[ProviderSyncBatch, bool]:
+        if requested_provider is SyncProvider.THE_SPORTS_DB:
+            return self._the_sports_db_client.fetch_match_batch(
+                fixture_ids=fixture_ids,
+                include_top_scorers=include_top_scorers,
+            ), False
         if requested_provider is SyncProvider.GOOGLE_SHEETS:
             return self._google_sheets_client.fetch_match_batch(fixture_ids=fixture_ids, include_top_scorers=include_top_scorers), False
         if requested_provider is SyncProvider.API_FOOTBALL:
             return self._api_football_client.fetch_match_batch(fixture_ids=fixture_ids, include_top_scorers=include_top_scorers), False
         try:
-            return self._api_football_client.fetch_match_batch(fixture_ids=fixture_ids, include_top_scorers=include_top_scorers), False
+            return self._the_sports_db_client.fetch_match_batch(
+                fixture_ids=fixture_ids,
+                include_top_scorers=include_top_scorers,
+            ), False
         except (ProviderConfigurationError, ProviderResponseError, ProviderError):
-            if not allow_google_sheets_fallback:
-                raise
+            try:
+                return self._api_football_client.fetch_match_batch(
+                    fixture_ids=fixture_ids,
+                    include_top_scorers=include_top_scorers,
+                ), True
+            except (ProviderConfigurationError, ProviderResponseError, ProviderError):
+                if not allow_google_sheets_fallback:
+                    raise
             return self._google_sheets_client.fetch_match_batch(fixture_ids=fixture_ids, include_top_scorers=include_top_scorers), True
 
     def _load_matches(self, db_session: Session) -> tuple[Match, ...]:

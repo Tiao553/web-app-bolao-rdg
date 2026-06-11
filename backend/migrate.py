@@ -57,13 +57,13 @@ def run_migrations() -> None:
 
             DO $$ BEGIN
                 CREATE TYPE sync_provider_enum AS ENUM (
-                    'API_FOOTBALL','GOOGLE_SHEETS','ADMIN','SEED'
+                    'THE_SPORTS_DB','API_FOOTBALL','GOOGLE_SHEETS','ADMIN','SEED'
                 );
             EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
             DO $$ BEGIN
                 CREATE TYPE sync_log_provider_enum AS ENUM (
-                    'API_FOOTBALL','GOOGLE_SHEETS','ADMIN','SEED'
+                    'THE_SPORTS_DB','API_FOOTBALL','GOOGLE_SHEETS','ADMIN','SEED'
                 );
             EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
@@ -95,6 +95,15 @@ def run_migrations() -> None:
             with engine.begin() as wconn:
                 wconn.execute(text(
                     "ALTER TABLE competition_windows ADD COLUMN force_locked_phases INTEGER"
+                ))
+
+        if engine.dialect.name == "postgresql":
+            with engine.begin() as wconn:
+                wconn.execute(text(
+                    "ALTER TYPE sync_provider_enum ADD VALUE IF NOT EXISTS 'THE_SPORTS_DB'"
+                ))
+                wconn.execute(text(
+                    "ALTER TYPE sync_log_provider_enum ADD VALUE IF NOT EXISTS 'THE_SPORTS_DB'"
                 ))
 
     print("Schema up to date.", flush=True)

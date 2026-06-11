@@ -29,6 +29,7 @@ from app.models.schema import (
     CompetitionPhaseConfig,
     AccessStatus,
     CompetitionWindow,
+    IntegrationSettings,
     Match,
     SyncLog,
     SyncProvider,
@@ -65,6 +66,21 @@ def get_admin_integration(
 ) -> AdminIntegrationScreenDto:
     del admin_user
     return FrontendContractService(db_session).build_admin_integration()
+
+
+def get_or_create_integration_settings(db_session: Session) -> IntegrationSettings:
+    settings_row = db_session.scalar(
+        select(IntegrationSettings).order_by(IntegrationSettings.updated_at.desc(), IntegrationSettings.id.desc())
+    )
+    if settings_row is not None:
+        return settings_row
+    settings_row = IntegrationSettings(
+        auto_sync_enabled=False,
+        auto_sync_interval_minutes=60,
+    )
+    db_session.add(settings_row)
+    db_session.flush()
+    return settings_row
 
 
 @router.get("/matches", response_model=AdminMatchesScreenDto, status_code=status.HTTP_200_OK)
@@ -287,7 +303,7 @@ class SyncRunRequest(BaseModel):
     fixture_id: str | None = Field(default=None, min_length=1, max_length=128)
     provider: SyncProvider | None = None
     allow_google_sheets_fallback: bool = False
-    include_top_scorers: bool = True
+    include_top_scorers: bool = False
 
 
 class SyncRunResponse(BaseModel):
@@ -298,6 +314,20 @@ class SyncRunResponse(BaseModel):
     operation: str
     message: str
     recalculation: RecalculationSummary | None = None
+
+
+class IntegrationSettingsUpdateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    auto_sync_enabled: bool
+    auto_sync_interval_minutes: int = Field(ge=1, le=60)
+
+    @field_validator("auto_sync_interval_minutes")
+    @classmethod
+    def validate_interval(cls, value: int) -> int:
+        if value not in {1, 5, 15, 60}:
+            raise ValueError("auto_sync_interval_minutes must be one of 1, 5, 15, 60")
+        return value
 
 
 def utc_now() -> datetime:
@@ -316,6 +346,21 @@ def build_user_response(user: User) -> AdminUserResponse:
         updated_at=user.updated_at,
         last_login_at=user.last_login_at,
     )
+
+
+@router.put("/integration/settings", response_model=AdminIntegrationScreenDto, status_code=status.HTTP_200_OK)
+def update_admin_integration_settings(
+    payload: IntegrationSettingsUpdateRequest,
+    admin_user: User = Depends(require_admin_user),
+    db_session: Session = Depends(get_db_session),
+) -> AdminIntegrationScreenDto:
+    settings_row = get_or_create_integration_settings(db_session)
+    settings_row.auto_sync_enabled = payload.auto_sync_enabled
+    settings_row.auto_sync_interval_minutes = payload.auto_sync_interval_minutes
+    settings_row.updated_by_user_id = admin_user.id
+    db_session.add(settings_row)
+    db_session.flush()
+    return FrontendContractService(db_session).build_admin_integration()
 
 
 @router.get("/users", response_model=list[AdminUserResponse], status_code=status.HTTP_200_OK)
@@ -612,14 +657,18 @@ def trigger_sync(
     db_session: Session = Depends(get_db_session),
 ) -> SyncRunResponse:
     service = SyncService()
+    requested_provider = payload.provider or SyncProvider.THE_SPORTS_DB
+    include_top_scorers = (
+        False if requested_provider is SyncProvider.THE_SPORTS_DB else payload.include_top_scorers
+    )
     if payload.fixture_id is not None:
         sync_result = service.run_manual_match_sync(
             db_session,
             fixture_id=payload.fixture_id,
             created_by_user_id=admin_user.id,
-            requested_provider=payload.provider,
+            requested_provider=requested_provider,
             allow_google_sheets_fallback=payload.allow_google_sheets_fallback,
-            include_top_scorers=payload.include_top_scorers,
+            include_top_scorers=include_top_scorers,
             recalculation_hook=recalculate_from_sync_request,
         )
         operation = "manual_match_sync"
@@ -627,10 +676,11 @@ def trigger_sync(
         sync_result = service.run_scheduled_sync(
             db_session,
             created_by_user_id=admin_user.id,
-            requested_provider=payload.provider,
+            requested_provider=requested_provider,
             allow_google_sheets_fallback=payload.allow_google_sheets_fallback,
-            include_top_scorers=payload.include_top_scorers,
+            include_top_scorers=include_top_scorers,
             recalculation_hook=recalculate_from_sync_request,
+            respect_timing_window=False,
         )
         operation = "scheduled_sync"
     recalculation = recalculate_competition_state(db_session)

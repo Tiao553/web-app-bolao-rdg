@@ -45,6 +45,7 @@ class PredictionType(str, Enum):
 
 
 class SyncProvider(str, Enum):
+    THE_SPORTS_DB = "THE_SPORTS_DB"
     API_FOOTBALL = "API_FOOTBALL"
     GOOGLE_SHEETS = "GOOGLE_SHEETS"
     ADMIN = "ADMIN"
@@ -391,6 +392,28 @@ class SyncLog(Base):
     created_by_user: Mapped[User | None] = relationship(
         back_populates="created_sync_logs",
         foreign_keys=[created_by_user_id],
+    )
+
+
+class IntegrationSettings(TimestampMixin, Base):
+    __tablename__ = "integration_settings"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    auto_sync_enabled: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default="false",
+        nullable=False,
+    )
+    auto_sync_interval_minutes: Mapped[int] = mapped_column(
+        Integer,
+        default=60,
+        server_default="60",
+        nullable=False,
+    )
+    updated_by_user_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        index=True,
     )
 
 

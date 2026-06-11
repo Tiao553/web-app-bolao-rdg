@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 _DATA_DIR = Path(os.environ.get("DATA_DIR", str(Path(__file__).resolve().parents[2] / "data")))
@@ -35,10 +35,12 @@ from app.models.schema import (
     CompetitionPhase,
     CompetitionPrediction,
     CompetitionWindow,
+    IntegrationSettings,
     Match,
     MatchPrediction,
     PredictionType,
     SyncLog,
+    SyncProvider,
     User,
 )
 from app.repositories.queries import get_active_competition_window, get_active_scoring_rule, list_active_competition_phase_configs
@@ -46,6 +48,8 @@ from app.services.team_metadata import get_players_by_id, get_team_metadata
 
 
 class FrontendContractService:
+    AUTO_SYNC_INTERVAL_OPTIONS = [1, 5, 15, 60]
+
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session
 
@@ -241,17 +245,45 @@ class FrontendContractService:
 
     def build_admin_integration(self) -> AdminIntegrationScreenDto:
         settings = get_settings()
+        now = datetime.now(timezone.utc)
         last_syncs = list(
             self.db_session.scalars(
                 select(SyncLog).order_by(SyncLog.created_at.desc(), SyncLog.id.desc()).limit(8)
             ).all()
         )
+        integration_settings = self._get_integration_settings()
+        last_auto_sync = self.db_session.scalar(
+            select(SyncLog)
+            .where(SyncLog.operation == "automatic_sync")
+            .order_by(SyncLog.created_at.desc(), SyncLog.id.desc())
+        )
+        auto_sync_enabled = integration_settings.auto_sync_enabled if integration_settings is not None else False
+        auto_sync_interval = integration_settings.auto_sync_interval_minutes if integration_settings is not None else 60
+        last_auto_sync_at = last_auto_sync.created_at if last_auto_sync is not None else None
+        next_auto_sync_at = None
+        auto_sync_status = "disabled"
+        if auto_sync_enabled:
+            if last_auto_sync_at is None:
+                auto_sync_status = "ready"
+                next_auto_sync_at = now
+            else:
+                next_auto_sync_at = last_auto_sync_at + timedelta(minutes=auto_sync_interval)
+                auto_sync_status = "ready" if next_auto_sync_at <= now else "waiting"
         return AdminIntegrationScreenDto(
-            primaryProvider="API_FOOTBALL",
-            fallbackProvider="GOOGLE_SHEETS",
-            apiConfigured=settings.api_football_key is not None,
+            primaryProvider=SyncProvider.THE_SPORTS_DB.value,
+            fallbackProvider=SyncProvider.API_FOOTBALL.value,
+            activeProvider=SyncProvider.THE_SPORTS_DB.value,
+            apiConfigured=True,
             dailyRunLimit=settings.sync.max_runs_per_day,
             allowedTerminalStatuses=list(settings.sync.allowed_terminal_statuses),
+            autoSyncEnabled=auto_sync_enabled,
+            autoSyncIntervalMinutes=auto_sync_interval,
+            autoSyncIntervalOptions=list(self.AUTO_SYNC_INTERVAL_OPTIONS),
+            schedulerMode="EXTERNAL_CRON",
+            cronTokenConfigured=settings.sync_admin_token is not None and bool(settings.sync_admin_token.get_secret_value().strip()),
+            lastAutoSyncAt=last_auto_sync_at,
+            nextAutoSyncAt=next_auto_sync_at,
+            autoSyncStatus=auto_sync_status,
             lastSyncs=[self._sync_log_to_dto(log) for log in last_syncs],
         )
 
@@ -371,6 +403,11 @@ class FrontendContractService:
             )
         )
         return prediction.points_awarded or 0 if prediction is not None else 0
+
+    def _get_integration_settings(self) -> IntegrationSettings | None:
+        return self.db_session.scalar(
+            select(IntegrationSettings).order_by(IntegrationSettings.updated_at.desc(), IntegrationSettings.id.desc())
+        )
 
     def _match_status_counts(self, matches: list[Match]) -> MatchStatusCountsDto:
         return MatchStatusCountsDto(
