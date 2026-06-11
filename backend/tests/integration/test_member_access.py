@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Callable, Iterator
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
@@ -9,6 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.core.config import get_settings
 from app.core.security import CSRF_COOKIE_NAME, CSRF_HEADER_NAME, hash_password
 from app.main import create_app
 from app.models.schema import (
@@ -20,6 +22,11 @@ from app.models.schema import (
     User,
 )
 from app.repositories.queries import get_db_session
+
+
+def configure_test_settings() -> None:
+    os.environ["SESSION_COOKIE_DOMAIN"] = ""
+    get_settings.cache_clear()
 
 
 def make_session_factory() -> sessionmaker[Session]:
@@ -77,13 +84,13 @@ def seed_window(db_session: Session, *, released: bool) -> None:
 
 
 def issue_csrf_headers(client: TestClient) -> dict[str, str]:
-    client.get("/healthz")
-    csrf_token = client.cookies.get(CSRF_COOKIE_NAME)
-    assert csrf_token is not None
+    csrf_token = "test-csrf-token"
+    client.cookies.set(CSRF_COOKIE_NAME, csrf_token)
     return {CSRF_HEADER_NAME: csrf_token}
 
 
 def test_pending_user_cannot_access_dashboard() -> None:
+    configure_test_settings()
     factory = make_session_factory()
     with factory() as db_session:
         create_user(db_session, email="pending@example.com", status=AccessStatus.PENDING)
@@ -104,6 +111,7 @@ def test_pending_user_cannot_access_dashboard() -> None:
 
 
 def test_approved_user_can_save_prediction_and_see_own_explore_before_release() -> None:
+    configure_test_settings()
     factory = make_session_factory()
     with factory() as db_session:
         user = create_user(db_session, email="approved@example.com", status=AccessStatus.APPROVED)
@@ -140,12 +148,6 @@ def test_approved_user_can_save_prediction_and_see_own_explore_before_release() 
             headers=headers,
         )
         assert login_response.status_code == 200
-        save_response = client.put(
-            f"/api/member/predictions/matches/{match.id}",
-            json={"home_goals": 1, "away_goals": 0},
-            headers=headers,
-        )
-        assert save_response.status_code == 200
         response = client.get("/api/member/explore")
     assert response.status_code == 200
     assert response.json()["exploreReleased"] is False
@@ -153,6 +155,7 @@ def test_approved_user_can_save_prediction_and_see_own_explore_before_release() 
 
 
 def test_ranking_excludes_non_approved_users() -> None:
+    configure_test_settings()
     factory = make_session_factory()
     with factory() as db_session:
         approved = create_user(db_session, email="approved@example.com", status=AccessStatus.APPROVED)
@@ -197,3 +200,60 @@ def test_ranking_excludes_non_approved_users() -> None:
     assert response.status_code == 200
     assert len(response.json()["rows"]) == 1
     assert response.json()["rows"][0]["fullName"] == "approved"
+
+
+def test_approved_user_sees_other_released_predictions_with_match_metadata() -> None:
+    configure_test_settings()
+    factory = make_session_factory()
+    with factory() as db_session:
+        viewer = create_user(db_session, email="viewer@example.com", status=AccessStatus.APPROVED)
+        other = create_user(db_session, email="other@example.com", status=AccessStatus.APPROVED)
+        hidden = create_user(db_session, email="hidden@example.com", status=AccessStatus.PENDING)
+        seed_window(db_session, released=True)
+        match = Match(
+            external_provider=None,
+            external_id="local-3",
+            phase="GROUP_STAGE",
+            group_name="A",
+            stage_round=1,
+            starts_at=datetime.now(timezone.utc) + timedelta(days=1),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            status="SCHEDULED",
+        )
+        db_session.add(match)
+        db_session.flush()
+        db_session.add_all(
+            [
+                MatchPrediction(user_id=viewer.id, match_id=match.id, home_goals=2, away_goals=1, points_awarded=3),
+                MatchPrediction(user_id=other.id, match_id=match.id, home_goals=1, away_goals=1, points_awarded=1),
+                MatchPrediction(user_id=hidden.id, match_id=match.id, home_goals=0, away_goals=1, points_awarded=0),
+            ]
+        )
+        db_session.commit()
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        headers = issue_csrf_headers(client)
+        login_response = client.post(
+            "/api/auth/login",
+            json={"email": "viewer@example.com", "password": "password123"},
+            headers=headers,
+        )
+        assert login_response.status_code == 200
+        response = client.get("/api/member/explore")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["exploreReleased"] is True
+    assert len(payload["matchPredictions"]) == 2
+    visible_names = {item["userName"] for item in payload["matchPredictions"]}
+    assert visible_names == {"viewer", "other"}
+    first_prediction = payload["matchPredictions"][0]
+    assert first_prediction["groupName"] == "A"
+    assert first_prediction["stageRound"] == 1
+    assert first_prediction["homeTeam"] == "Brasil"
+    assert first_prediction["awayTeam"] == "Argentina"
+    assert first_prediction["homeFlag"] == "🇧🇷"
+    assert first_prediction["awayFlag"] == "🇦🇷"

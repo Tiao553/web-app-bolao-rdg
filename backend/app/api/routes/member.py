@@ -198,6 +198,19 @@ class ExploreMatchPredictionResponse(BaseModel):
     userId: UUID
     userName: str
     matchId: UUID
+    phase: str
+    stageRound: int | None
+    groupName: str | None
+    startsAt: datetime | None
+    status: str
+    homeTeam: str
+    homeCode: str | None
+    homeIso2: str | None
+    homeFlag: str
+    awayTeam: str
+    awayCode: str | None
+    awayIso2: str | None
+    awayFlag: str
     homeGoals: int
     awayGoals: int
     pointsAwarded: int | None
@@ -224,6 +237,36 @@ class ExploreResponse(BaseModel):
     exploreReleased: bool
     matchPredictions: list[ExploreMatchPredictionResponse]
     competitionPredictions: list[ExploreCompetitionPredictionResponse]
+
+
+def build_explore_match_prediction_response(
+    prediction: MatchPrediction,
+) -> ExploreMatchPredictionResponse:
+    match = prediction.match
+    home_team = get_team_metadata(match.home_team_fifa_code, match.home_team_name)
+    away_team = get_team_metadata(match.away_team_fifa_code, match.away_team_name)
+
+    return ExploreMatchPredictionResponse(
+        userId=prediction.user_id,
+        userName=prediction.user.full_name,
+        matchId=prediction.match_id,
+        phase=match.phase.value,
+        stageRound=match.stage_round,
+        groupName=match.group_name,
+        startsAt=match.starts_at,
+        status=match.status,
+        homeTeam=home_team.name,
+        homeCode=home_team.code,
+        homeIso2=home_team.iso2,
+        homeFlag=home_team.flag,
+        awayTeam=away_team.name,
+        awayCode=away_team.code,
+        awayIso2=away_team.iso2,
+        awayFlag=away_team.flag,
+        homeGoals=prediction.home_goals,
+        awayGoals=prediction.away_goals,
+        pointsAwarded=prediction.points_awarded,
+    )
 
 
 def build_explore_competition_prediction_response(
@@ -681,14 +724,7 @@ def get_explore(
     return ExploreResponse(
         exploreReleased=explore_released,
         matchPredictions=[
-            ExploreMatchPredictionResponse(
-                userId=prediction.user_id,
-                userName=prediction.user.full_name,
-                matchId=prediction.match_id,
-                homeGoals=prediction.home_goals,
-                awayGoals=prediction.away_goals,
-                pointsAwarded=prediction.points_awarded,
-            )
+            build_explore_match_prediction_response(prediction)
             for prediction in match_predictions
         ],
         competitionPredictions=[
