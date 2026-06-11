@@ -1,6 +1,7 @@
 import { TeamBadge } from '../../../components/ui/team-badge';
 import type { ExploreContract, ExploreMatchPredictionContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
+import { ExploreResultsPanel } from './results-panel';
 
 type ParticipantEntry = {
   name: string;
@@ -81,8 +82,6 @@ export default async function ExplorePage() {
     return left.name.localeCompare(right.name, 'pt-BR');
   });
   const releasedParticipantCount = entries.filter(([, entry]) => entry.matches.length > 0).length;
-  const samplePredictions = matchPredictions.slice(0, 6);
-
   const championInsight = (() => {
     const counts: Record<string, number> = {};
     entries.forEach(([, entry]) => {
@@ -227,47 +226,11 @@ export default async function ExplorePage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="card">
-            <div className="card-header">
-              <div><div className="card-title">Resultados de partidas</div><div className="card-subtitle">Palpites de placar</div></div>
-              <div className={`pill ${exploreReleased ? 'ok' : 'warn'}`}><span className="dot" />{exploreReleased ? 'liberado' : 'bloqueado'}</div>
-            </div>
-            <div className="card-body">
-              {!exploreReleased ? (
-                <div style={{ textAlign: 'center', padding: 24, color: 'var(--tx3)', fontSize: 13 }}>
-                  <div style={{ fontSize: 20, marginBottom: 8 }}>🔒</div>
-                  Os palpites de placar ficam visíveis após o fechamento oficial configurado pelo admin.
-                </div>
-              ) : matchPredictions.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 24, color: 'var(--tx3)', fontSize: 13 }}>Nenhum palpite de partida registrado.</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div style={{ fontSize: 13, color: 'var(--tx2)' }}>
-                    {matchPredictions.length} palpites de partidas visíveis entre {releasedParticipantCount} participantes.
-                  </div>
-                  {samplePredictions.map((prediction) => {
-                    const badge = formatPoints(prediction.pointsAwarded);
-                    return (
-                      <div key={`${prediction.userId}-${prediction.matchId}`} className="prediction-row">
-                        <div className="prediction-label">{prediction.userName}</div>
-                        <div className="prediction-value" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                          <span className="player-team-inline">
-                            <TeamBadge name={prediction.homeTeam} flag={prediction.homeFlag} iso2={prediction.homeIso2} code={prediction.homeCode} compact />
-                            <span style={{ color: 'var(--tx3)' }}>×</span>
-                            <TeamBadge name={prediction.awayTeam} flag={prediction.awayFlag} iso2={prediction.awayIso2} code={prediction.awayCode} compact />
-                          </span>
-                          <span style={{ fontFamily: 'Fira Code, monospace', color: 'var(--or)', fontSize: 12 }}>
-                            {prediction.homeGoals} × {prediction.awayGoals}
-                          </span>
-                        </div>
-                        <div className={badge.className}>{badge.label}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
+          <ExploreResultsPanel
+            exploreReleased={exploreReleased}
+            releasedParticipantCount={releasedParticipantCount}
+            matchPredictions={matchPredictions}
+          />
 
           <div className="card">
             <div className="card-header"><div><div className="card-title">Insights</div><div className="card-subtitle">Comparativo geral</div></div></div>
