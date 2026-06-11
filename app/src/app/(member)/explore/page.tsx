@@ -1,6 +1,7 @@
 import { TeamBadge } from '../../../components/ui/team-badge';
 import type { ExploreContract, ExploreMatchPredictionContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
+import { ExploreLiveMatchPanel } from './live-match-panel';
 import { ExploreResultsPanel } from './results-panel';
 
 type ParticipantEntry = {
@@ -226,6 +227,11 @@ export default async function ExplorePage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <ExploreLiveMatchPanel
+            exploreReleased={exploreReleased}
+            matchPredictions={matchPredictions}
+          />
+
           <ExploreResultsPanel
             exploreReleased={exploreReleased}
             releasedParticipantCount={releasedParticipantCount}

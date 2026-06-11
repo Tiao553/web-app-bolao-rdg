@@ -4,6 +4,7 @@ import { useDeferredValue, useEffect, useState } from 'react';
 
 import { TeamBadge } from '../../../components/ui/team-badge';
 import type { ExploreMatchPredictionContract } from '../../../lib/contracts';
+import { buildMatchText, formatKickoff, formatPoints, getLiveMatchGroups, isMatchLive } from './live-utils';
 
 type ExploreResultsPanelProps = {
   exploreReleased: boolean;
@@ -12,61 +13,6 @@ type ExploreResultsPanelProps = {
 };
 
 type FilterMode = 'all' | 'participant' | 'match' | 'live';
-
-const LIVE_WINDOW_MS = 3 * 60 * 60 * 1000;
-const LIVE_STATUSES = new Set(['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT']);
-const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'CANC', 'ABD', 'AWD', 'WO']);
-
-function formatPoints(pointsAwarded: number | null): { label: string; className: string } {
-  if (pointsAwarded == null) {
-    return { label: 'pend.', className: 'points pending' };
-  }
-  if (pointsAwarded === 0) {
-    return { label: '+0', className: 'points zero' };
-  }
-  return { label: `+${pointsAwarded}`, className: 'points' };
-}
-
-function formatKickoff(startsAt: string | null): string {
-  if (!startsAt) {
-    return 'Sem horário';
-  }
-
-  const parsed = Date.parse(startsAt);
-  if (Number.isNaN(parsed)) {
-    return 'Sem horário';
-  }
-
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(parsed);
-}
-
-function isMatchLive(prediction: ExploreMatchPredictionContract, nowMs: number): boolean {
-  if (LIVE_STATUSES.has(prediction.status)) {
-    return true;
-  }
-  if (FINISHED_STATUSES.has(prediction.status)) {
-    return false;
-  }
-  if (!prediction.startsAt) {
-    return false;
-  }
-
-  const kickoffMs = Date.parse(prediction.startsAt);
-  if (Number.isNaN(kickoffMs)) {
-    return false;
-  }
-
-  return kickoffMs <= nowMs && nowMs <= kickoffMs + LIVE_WINDOW_MS;
-}
-
-function buildMatchText(prediction: ExploreMatchPredictionContract): string {
-  return `${prediction.homeTeam} ${prediction.awayTeam}`.toLowerCase();
-}
 
 export function ExploreResultsPanel({
   exploreReleased,
@@ -109,7 +55,7 @@ export function ExploreResultsPanel({
     );
   });
 
-  const livePredictionCount = matchPredictions.filter((prediction) => isMatchLive(prediction, nowMs)).length;
+  const livePredictionCount = getLiveMatchGroups(matchPredictions, nowMs).reduce((acc, group) => acc + group.length, 0);
   const placeholder = filterMode === 'participant'
     ? 'Buscar participante...'
     : filterMode === 'match' || filterMode === 'live'
