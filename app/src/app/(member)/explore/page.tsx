@@ -3,6 +3,7 @@ import type { ExploreContract, ExploreMatchPredictionContract } from '../../../l
 import { fetchBackendData } from '../../../lib/session';
 import { ExploreLiveMatchPanel } from './live-match-panel';
 import { ExploreResultsPanel } from './results-panel';
+import { formatMatchLabel } from './live-utils';
 
 type ParticipantEntry = {
   name: string;
@@ -25,16 +26,6 @@ type ParticipantEntry = {
 
 function createParticipantEntry(name: string): ParticipantEntry {
   return { name, matches: [] };
-}
-
-function formatMatchLabel(prediction: ExploreMatchPredictionContract): string {
-  if (prediction.groupName) {
-    return `Grupo ${prediction.groupName}`;
-  }
-  if (prediction.stageRound) {
-    return `Rodada ${prediction.stageRound}`;
-  }
-  return prediction.phase.replaceAll('_', ' ');
 }
 
 function formatPoints(pointsAwarded: number | null): { label: string; className: string } {

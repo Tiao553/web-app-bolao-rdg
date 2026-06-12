@@ -14,6 +14,16 @@ export function formatPoints(pointsAwarded: number | null): { label: string; cla
   return { label: `+${pointsAwarded}`, className: 'points' };
 }
 
+export function formatMatchLabel(prediction: ExploreMatchPredictionContract): string {
+  if (prediction.groupName) {
+    return `Grupo ${prediction.groupName}`;
+  }
+  if (prediction.stageRound) {
+    return `Rodada ${prediction.stageRound}`;
+  }
+  return prediction.phase.replaceAll('_', ' ');
+}
+
 export function formatKickoff(startsAt: string | null): string {
   if (!startsAt) {
     return 'Sem horário';
@@ -55,33 +65,80 @@ export function buildMatchText(prediction: ExploreMatchPredictionContract): stri
   return `${prediction.homeTeam} ${prediction.awayTeam}`.toLowerCase();
 }
 
-export function getLiveMatchGroups(
+type MatchGroup = {
+  matchId: string;
+  predictions: ExploreMatchPredictionContract[];
+  startsAtMs: number;
+  status: string;
+};
+
+function collectMatchGroups(
   matchPredictions: ExploreMatchPredictionContract[],
-  nowMs: number,
-): ExploreMatchPredictionContract[][] {
+): MatchGroup[] {
   const groups = new Map<string, ExploreMatchPredictionContract[]>();
 
   matchPredictions.forEach((prediction) => {
-    if (!isMatchLive(prediction, nowMs)) {
-      return;
-    }
-
     const group = groups.get(prediction.matchId) ?? [];
     group.push(prediction);
     groups.set(prediction.matchId, group);
   });
 
-  return Array.from(groups.values()).sort((left, right) => {
-    const leftStartsAt = left[0]?.startsAt ? Date.parse(left[0].startsAt) : Number.POSITIVE_INFINITY;
-    const rightStartsAt = right[0]?.startsAt ? Date.parse(right[0].startsAt) : Number.POSITIVE_INFINITY;
+  return Array.from(groups.entries()).map(([matchId, predictions]) => {
+    const parsedStartsAt = predictions
+      .map((prediction) => (prediction.startsAt ? Date.parse(prediction.startsAt) : Number.NaN))
+      .find((value) => !Number.isNaN(value)) ?? Number.POSITIVE_INFINITY;
 
-    const leftDistance = Number.isNaN(leftStartsAt) ? Number.POSITIVE_INFINITY : Math.abs(nowMs - leftStartsAt);
-    const rightDistance = Number.isNaN(rightStartsAt) ? Number.POSITIVE_INFINITY : Math.abs(nowMs - rightStartsAt);
-
-    if (leftDistance !== rightDistance) {
-      return leftDistance - rightDistance;
-    }
-
-    return right.length - left.length;
+    return {
+      matchId,
+      predictions,
+      startsAtMs: parsedStartsAt,
+      status: predictions[0]?.status ?? '',
+    };
   });
+}
+
+function sortMatchGroups(left: MatchGroup, right: MatchGroup): number {
+  if (left.startsAtMs !== right.startsAtMs) {
+    return left.startsAtMs - right.startsAtMs;
+  }
+
+  if (right.predictions.length !== left.predictions.length) {
+    return right.predictions.length - left.predictions.length;
+  }
+
+  return left.matchId.localeCompare(right.matchId);
+}
+
+export function getLiveMatchGroups(
+  matchPredictions: ExploreMatchPredictionContract[],
+  nowMs: number,
+): ExploreMatchPredictionContract[][] {
+  return collectMatchGroups(matchPredictions)
+    .filter((group) => group.predictions.some((prediction) => isMatchLive(prediction, nowMs)))
+    .sort(sortMatchGroups)
+    .map((group) => group.predictions);
+}
+
+export function getHighlightedMatchGroup(
+  matchPredictions: ExploreMatchPredictionContract[],
+  nowMs: number,
+): { mode: 'live' | 'next'; predictions: ExploreMatchPredictionContract[] } | null {
+  const groups = collectMatchGroups(matchPredictions);
+  if (groups.length === 0) {
+    return null;
+  }
+
+  const liveGroup = groups
+    .filter((group) => group.predictions.some((prediction) => isMatchLive(prediction, nowMs)))
+    .sort(sortMatchGroups)[0];
+
+  if (liveGroup) {
+    return { mode: 'live', predictions: liveGroup.predictions };
+  }
+
+  const nextGroup = groups
+    .filter((group) => !FINISHED_STATUSES.has(group.status))
+    .sort(sortMatchGroups)[0];
+
+  return nextGroup ? { mode: 'next', predictions: nextGroup.predictions } : null;
 }
