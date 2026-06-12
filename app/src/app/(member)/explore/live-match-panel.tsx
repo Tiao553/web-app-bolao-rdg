@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { TeamBadge } from '../../../components/ui/team-badge';
 import type { ExploreMatchPredictionContract } from '../../../lib/contracts';
-import { formatMatchLabel, formatPoints, getHighlightedMatchGroup } from './live-utils';
+import { formatKickoff, formatMatchLabel, formatPoints, getHighlightedMatchGroup } from './live-utils';
 
 type ExploreLiveMatchPanelProps = {
   exploreReleased: boolean;
@@ -32,7 +32,7 @@ export function ExploreLiveMatchPanel({
   const title = highlightedMode === 'live' ? 'Jogo ao vivo agora' : 'Próximo jogo';
   const subtitle = highlightedMode === 'live'
     ? 'Palpites do confronto em andamento'
-    : 'Palpites do próximo confronto';
+    : 'Palpites do próximo confronto, selecionado pelo kickoff';
   const badgeLabel = highlightedMode === 'live' ? 'ao vivo' : 'próximo';
   const badgeTone = highlightedMode === 'live' ? 'orange' : 'ok';
 
@@ -57,6 +57,7 @@ export function ExploreLiveMatchPanel({
               <div className="explore-live-match-meta">
                 <span className={`badge ${badgeTone}`}>{highlightedMode === 'live' ? 'agora' : 'seguinte'}</span>
                 <span className="badge neutral">{formatMatchLabel(highlightedMatchData)}</span>
+                <span className="explore-live-kickoff">{formatKickoff(highlightedMatchData.startsAt)}</span>
               </div>
               <div className="player-team-inline">
                 <TeamBadge name={highlightedMatchData.homeTeam} flag={highlightedMatchData.homeFlag} iso2={highlightedMatchData.homeIso2} code={highlightedMatchData.homeCode} compact />
@@ -64,7 +65,7 @@ export function ExploreLiveMatchPanel({
                 <TeamBadge name={highlightedMatchData.awayTeam} flag={highlightedMatchData.awayFlag} iso2={highlightedMatchData.awayIso2} code={highlightedMatchData.awayCode} compact />
               </div>
               <div className="explore-live-summary">
-                {highlightedPredictions.length} palpite{highlightedPredictions.length !== 1 ? 's' : ''} do {highlightedMode === 'live' ? 'jogo em andamento' : 'próximo jogo'}
+                Palpites deste jogo: {highlightedPredictions.length}
               </div>
             </div>
 
