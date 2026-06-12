@@ -4,11 +4,13 @@ import type { AdminMatchesContract } from '../../../../lib/contracts';
 import { getServerCsrfToken } from '../../../../lib/security';
 import { fetchBackendData } from '../../../../lib/session';
 
+const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'FINISHED']);
+
 export default async function AdminResultsPage() {
   const csrfToken = await getServerCsrfToken();
   const { data } = await fetchBackendData<AdminMatchesContract>('/api/admin/matches');
   const matches = data?.matches ?? [];
-  const finished = matches.filter(m => m.status === 'FINISHED');
+  const finished = matches.filter(m => FINISHED_STATUSES.has(m.status));
   const live = matches.filter(m => m.status === 'LIVE' || m.status === 'IN_PLAY');
   const overrides = matches.filter(m => m.hasManualOverride);
 

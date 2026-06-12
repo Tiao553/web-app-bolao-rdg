@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
@@ -380,7 +380,7 @@ class SyncService:
     ) -> MatchSyncOutcome:
         db_session.add(
             SyncLog(
-                provider=provider,
+                provider=resolve_sync_log_provider(db_session, provider),
                 status=status,
                 operation="match_sync",
                 match_id=match.id if match is not None else None,
@@ -449,3 +449,31 @@ class SyncService:
 
     def _default_now(self) -> datetime:
         return datetime.now(timezone.utc)
+
+
+def resolve_sync_log_provider(db_session: Session, provider: SyncProvider) -> SyncProvider:
+    if provider is not SyncProvider.THE_SPORTS_DB:
+        return provider
+    bind = db_session.bind
+    if bind is None or bind.dialect.name != "postgresql":
+        return provider
+    try:
+        supported = bool(
+            db_session.execute(
+                text(
+                    """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM pg_enum e
+                        JOIN pg_type t ON t.oid = e.enumtypid
+                        WHERE t.typname = 'sync_log_provider_enum'
+                          AND e.enumlabel = :label
+                    )
+                    """
+                ),
+                {"label": provider.value},
+            ).scalar()
+        )
+    except Exception:
+        return SyncProvider.ADMIN
+    return provider if supported else SyncProvider.ADMIN

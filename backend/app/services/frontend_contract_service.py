@@ -44,6 +44,7 @@ from app.models.schema import (
     User,
 )
 from app.repositories.queries import get_active_competition_window, get_active_scoring_rule, list_active_competition_phase_configs
+from app.services.match_status import is_terminal_match_status
 from app.services.team_metadata import get_players_by_id, get_team_metadata
 
 
@@ -412,8 +413,8 @@ class FrontendContractService:
     def _match_status_counts(self, matches: list[Match]) -> MatchStatusCountsDto:
         return MatchStatusCountsDto(
             total=len(matches),
-            scheduled=sum(1 for match in matches if match.status not in {"FT", "AET", "PEN"}),
-            finished=sum(1 for match in matches if match.status in {"FT", "AET", "PEN"}),
+            scheduled=sum(1 for match in matches if not is_terminal_match_status(match.status)),
+            finished=sum(1 for match in matches if is_terminal_match_status(match.status)),
             overridden=sum(1 for match in matches if match.has_manual_override),
         )
 

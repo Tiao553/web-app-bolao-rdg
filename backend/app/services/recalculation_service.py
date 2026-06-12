@@ -40,6 +40,7 @@ from app.models.schema import (
     User,
 )
 from app.repositories.queries import get_active_scoring_rule
+from app.services.match_status import is_terminal_match_status
 
 
 class RecalculationStageSummary(BaseModel):
@@ -92,7 +93,7 @@ def get_score_rules(db_session: Session) -> ScoreRules:
 
 
 def _match_status_is_terminal(match: Match) -> bool:
-    return match.status in {"FT", "AET", "PEN"}
+    return is_terminal_match_status(match.status)
 
 
 def _build_group_seeds(matches: Iterable[Match]) -> tuple[GroupTeamSeed, ...]:
@@ -273,7 +274,7 @@ def recalculate_match_prediction_points(
 ) -> RecalculationStageSummary:
     rules = get_score_rules(db_session)
     statement = select(Match).where(
-        Match.status.in_(("FT", "AET", "PEN")),
+        Match.status.in_(("FT", "AET", "PEN", "FINISHED")),
         Match.official_home_goals.is_not(None),
         Match.official_away_goals.is_not(None),
     )

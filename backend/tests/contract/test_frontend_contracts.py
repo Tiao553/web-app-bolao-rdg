@@ -79,6 +79,22 @@ def test_member_contracts_expose_mock_driven_shapes() -> None:
         db_session.add(match)
         db_session.flush()
         db_session.add(
+            Match(
+                external_provider=None,
+                external_id="seed-2",
+                phase=CompetitionPhase.GROUP_STAGE,
+                group_name="D",
+                starts_at=datetime.now(timezone.utc),
+                home_team_name="Mexico",
+                away_team_name="South Africa",
+                home_team_fifa_code="MEX",
+                away_team_fifa_code="RSA",
+                status="FINISHED",
+                official_home_goals=1,
+                official_away_goals=0,
+            )
+        )
+        db_session.add(
             MatchPrediction(
                 user_id=user.id,
                 match_id=match.id,
@@ -130,12 +146,29 @@ def test_admin_contracts_expose_screen_summary_shapes() -> None:
                 is_active=True,
             )
         )
+        db_session.add(
+            Match(
+                external_provider=None,
+                external_id="seed-3",
+                phase=CompetitionPhase.GROUP_STAGE,
+                group_name="E",
+                starts_at=datetime.now(timezone.utc),
+                home_team_name="Brazil",
+                away_team_name="Croatia",
+                home_team_fifa_code="BRA",
+                away_team_fifa_code="CRO",
+                status="FINISHED",
+                official_home_goals=2,
+                official_away_goals=1,
+            )
+        )
         db_session.commit()
         service = FrontendContractService(db_session)
         dashboard = service.build_admin_dashboard()
         integration = service.build_admin_integration()
         settings = service.build_admin_settings()
         assert dashboard.users.total == 1
+        assert dashboard.matches.finished == 1
         assert integration.primaryProvider == "THE_SPORTS_DB"
         assert integration.activeProvider == "THE_SPORTS_DB"
         assert settings.scoring["exact_points"] == 3

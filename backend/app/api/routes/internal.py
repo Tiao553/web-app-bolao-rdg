@@ -14,7 +14,7 @@ from app.core.security import build_auth_error
 from app.models.schema import IntegrationSettings, SyncLog, SyncProvider, SyncStatus
 from app.repositories.queries import get_db_session
 from app.services.recalculation_service import RecalculationSummary, recalculate_competition_state, recalculate_from_sync_request
-from app.services.sync_service import SyncService
+from app.services.sync_service import SyncService, resolve_sync_log_provider
 
 router = APIRouter(prefix="/api/internal", tags=["internal"])
 
@@ -91,7 +91,7 @@ def _record_summary_log(
 ) -> None:
     db_session.add(
         SyncLog(
-            provider=SyncProvider.THE_SPORTS_DB,
+            provider=resolve_sync_log_provider(db_session, SyncProvider.THE_SPORTS_DB),
             status=status_value,
             operation="automatic_sync",
             match_id=None,

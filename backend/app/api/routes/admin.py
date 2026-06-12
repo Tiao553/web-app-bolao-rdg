@@ -611,7 +611,7 @@ def update_match_manual_override(
             message="Match was not found",
         )
     if payload.status is not None:
-        match.status = payload.status
+        match.status = "FT" if payload.status == "FINISHED" else payload.status
     if payload.official_home_goals is not None:
         match.official_home_goals = payload.official_home_goals
     if payload.official_away_goals is not None:

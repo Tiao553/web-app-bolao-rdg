@@ -117,7 +117,7 @@ export function ManualResultModal({ matches, csrfToken }: Props) {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
           body: JSON.stringify({
-            status: 'FINISHED',
+            status: 'FT',
             official_home_goals: home,
             official_away_goals: away,
             has_manual_override: true,

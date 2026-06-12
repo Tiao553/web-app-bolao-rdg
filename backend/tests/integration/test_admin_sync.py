@@ -19,9 +19,12 @@ from app.models.schema import (
     Base,
     CompetitionPhase,
     Match,
+    MatchPrediction,
     SyncProvider,
     User,
 )
+from app.api.routes.admin import MatchManualOverrideRequest, update_match_manual_override
+from app.services.recalculation_service import recalculate_match_prediction_points
 from app.services.sync_service import SyncService
 
 
@@ -189,5 +192,80 @@ def test_sync_service_updates_match_when_override_absent() -> None:
         assert match.status == "FT"
         assert match.official_home_goals == 1
         assert match.official_away_goals == 0
+    finally:
+        db_session.close()
+
+
+def test_manual_override_normalizes_finished_status_to_ft() -> None:
+    db_session = make_session()
+    try:
+        admin = create_admin(db_session)
+        match = Match(
+            external_provider=SyncProvider.API_FOOTBALL,
+            external_id="fixture-3",
+            phase=CompetitionPhase.GROUP_STAGE,
+            starts_at=datetime.now(timezone.utc) - timedelta(hours=3),
+            home_team_name="Brazil",
+            away_team_name="Croatia",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="CRO",
+            status="SCHEDULED",
+        )
+        db_session.add(match)
+        db_session.flush()
+
+        response = update_match_manual_override(
+            match.id,
+            MatchManualOverrideRequest(
+                status="FINISHED",
+                official_home_goals=2,
+                official_away_goals=1,
+                has_manual_override=True,
+            ),
+            admin_user=admin,
+            db_session=db_session,
+        )
+
+        assert response.status == "FT"
+        assert match.status == "FT"
+        assert match.official_home_goals == 2
+        assert match.official_away_goals == 1
+    finally:
+        db_session.close()
+
+
+def test_recalculation_processes_finished_status_matches() -> None:
+    db_session = make_session()
+    try:
+        admin = create_admin(db_session)
+        match = Match(
+            external_provider=SyncProvider.API_FOOTBALL,
+            external_id="fixture-4",
+            phase=CompetitionPhase.GROUP_STAGE,
+            starts_at=datetime.now(timezone.utc) - timedelta(hours=3),
+            home_team_name="Brazil",
+            away_team_name="Japan",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="JPN",
+            status="FINISHED",
+            official_home_goals=2,
+            official_away_goals=0,
+        )
+        db_session.add(match)
+        db_session.flush()
+        prediction = MatchPrediction(
+            user_id=admin.id,
+            match_id=match.id,
+            home_goals=2,
+            away_goals=0,
+        )
+        db_session.add(prediction)
+        db_session.flush()
+
+        summary = recalculate_match_prediction_points(db_session)
+
+        assert summary.updated_count == 1
+        assert prediction.points_awarded is not None
+        assert prediction.points_awarded > 0
     finally:
         db_session.close()

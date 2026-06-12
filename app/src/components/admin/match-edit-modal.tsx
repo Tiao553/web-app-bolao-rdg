@@ -214,7 +214,7 @@ export function AdminMatchList({ matches, csrfToken }: Props) {
                 <select className="admin-select" style={{ width: '100%' }} value={editStatus} onChange={e => setEditStatus(e.target.value)}>
                   <option value="SCHEDULED">SCHEDULED</option>
                   <option value="IN_PLAY">IN_PLAY</option>
-                  <option value="FINISHED">FINISHED</option>
+                  <option value="FT">FT</option>
                   <option value="CANCELLED">CANCELLED</option>
                   <option value="POSTPONED">POSTPONED</option>
                 </select>
