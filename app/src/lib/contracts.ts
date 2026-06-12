@@ -308,6 +308,7 @@ export type AdminDashboardContract = {
     provider: string;
     status: string;
     operation: string;
+    resultCode: string | null;
     message: string;
     createdAt: string;
   }>;
@@ -335,6 +336,7 @@ export type AdminIntegrationContract = {
     provider: string;
     status: string;
     operation: string;
+    resultCode: string | null;
     message: string;
     createdAt: string;
   }>;

@@ -427,6 +427,7 @@ class FrontendContractService:
             provider=log.provider.value,
             status=log.status.value,
             operation=log.operation,
+            resultCode=log.result_code,
             message=log.message or "",
             createdAt=log.created_at,
         )

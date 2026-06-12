@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import cast
 from uuid import uuid4
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.integrations.api_football import (
@@ -20,6 +20,7 @@ from app.models.schema import (
     CompetitionPhase,
     Match,
     MatchPrediction,
+    SyncLog,
     SyncProvider,
     User,
 )
@@ -192,6 +193,117 @@ def test_sync_service_updates_match_when_override_absent() -> None:
         assert match.status == "FT"
         assert match.official_home_goals == 1
         assert match.official_away_goals == 0
+    finally:
+        db_session.close()
+
+
+def test_sync_service_matches_seeded_match_by_team_codes_and_kickoff() -> None:
+    db_session = make_session()
+    try:
+        create_admin(db_session)
+        starts_at = datetime.now(timezone.utc) - timedelta(hours=3)
+        match = Match(
+            external_provider=SyncProvider.SEED,
+            external_id="17",
+            phase=CompetitionPhase.GROUP_STAGE,
+            stage_round=3,
+            group_name="C",
+            starts_at=starts_at,
+            home_team_name="BRA",
+            away_team_name="SCO",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="SCO",
+            status="SCHEDULED",
+        )
+        db_session.add(match)
+        db_session.flush()
+        batch = ProviderSyncBatch(
+            provider=SyncProvider.THE_SPORTS_DB,
+            fetched_at=datetime.now(timezone.utc),
+            matches=(
+                ProviderMatchRecord(
+                    provider=SyncProvider.THE_SPORTS_DB,
+                    external_id="2391728",
+                    starts_at=starts_at,
+                    status="FT",
+                    phase=CompetitionPhase.GROUP_STAGE,
+                    stage_round=3,
+                    group_name="C",
+                    bracket_slot=None,
+                    venue="hard_rock_stadium",
+                    home_team_name="Brasil",
+                    away_team_name="Escócia",
+                    home_team_fifa_code="BRA",
+                    away_team_fifa_code="SCO",
+                    involves_brazil=True,
+                    official_home_goals=2,
+                    official_away_goals=0,
+                    winner_team_name="Brasil",
+                ),
+            ),
+            top_scorers=(),
+        )
+        service = SyncService(
+            the_sports_db_client=cast(TheSportsDBClient, FakeTheSportsDBClient(batch)),
+            api_football_client=cast(APIFootballClient, FakeApiFootballClient(batch)),
+            google_sheets_client=cast(GoogleSheetsClient, FakeGoogleSheetsClient()),
+        )
+
+        result = service.run_scheduled_sync(db_session, requested_provider=SyncProvider.THE_SPORTS_DB)
+
+        assert result.success_count == 1
+        assert match.external_provider is SyncProvider.THE_SPORTS_DB
+        assert match.external_id == "2391728"
+        assert match.status == "FT"
+        assert match.official_home_goals == 2
+        assert match.official_away_goals == 0
+    finally:
+        db_session.close()
+
+
+def test_sync_service_logs_missing_local_match_for_scheduled_sync() -> None:
+    db_session = make_session()
+    try:
+        create_admin(db_session)
+        batch = ProviderSyncBatch(
+            provider=SyncProvider.THE_SPORTS_DB,
+            fetched_at=datetime.now(timezone.utc),
+            matches=(
+                ProviderMatchRecord(
+                    provider=SyncProvider.THE_SPORTS_DB,
+                    external_id="missing-1",
+                    starts_at=datetime.now(timezone.utc) - timedelta(hours=3),
+                    status="FT",
+                    phase=CompetitionPhase.GROUP_STAGE,
+                    stage_round=1,
+                    group_name="A",
+                    bracket_slot=None,
+                    venue="venue",
+                    home_team_name="México",
+                    away_team_name="África do Sul",
+                    home_team_fifa_code="MEX",
+                    away_team_fifa_code="RSA",
+                    involves_brazil=False,
+                    official_home_goals=1,
+                    official_away_goals=0,
+                    winner_team_name="México",
+                ),
+            ),
+            top_scorers=(),
+        )
+        service = SyncService(
+            the_sports_db_client=cast(TheSportsDBClient, FakeTheSportsDBClient(batch)),
+            api_football_client=cast(APIFootballClient, FakeApiFootballClient(batch)),
+            google_sheets_client=cast(GoogleSheetsClient, FakeGoogleSheetsClient()),
+        )
+
+        result = service.run_scheduled_sync(db_session, requested_provider=SyncProvider.THE_SPORTS_DB)
+
+        assert result.skipped_count == 1
+        db_session.flush()
+        log = db_session.scalar(select(SyncLog).order_by(SyncLog.created_at.desc(), SyncLog.id.desc()))
+        assert log is not None
+        assert log.result_code == "missing_local_match"
     finally:
         db_session.close()
 

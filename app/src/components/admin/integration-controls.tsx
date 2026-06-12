@@ -259,7 +259,12 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
                     <div className="log-icon">{sync.provider === 'THE_SPORTS_DB' ? 'TSD' : 'API'}</div>
                     <div>
                       <div className="log-row-title">{sync.operation}</div>
-                      <div className="log-row-text">{sync.message || '—'} · {new Date(sync.createdAt).toLocaleString('pt-BR')}</div>
+                      <div className="log-row-text">
+                        {sync.message || '—'}
+                        {sync.resultCode ? ` · ${sync.resultCode}` : ''}
+                        {' · '}
+                        {new Date(sync.createdAt).toLocaleString('pt-BR')}
+                      </div>
                     </div>
                     <div className={`pill ${sync.status === 'SUCCESS' ? 'ok' : sync.status === 'SKIPPED' ? 'orange' : 'warn'}`}>
                       <span className="dot" />{sync.status}

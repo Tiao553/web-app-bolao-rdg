@@ -18,6 +18,9 @@ from app.models.schema import (
     Match,
     MatchPrediction,
     PredictionType,
+    SyncLog,
+    SyncProvider,
+    SyncStatus,
     User,
 )
 from app.services.frontend_contract_service import FrontendContractService
@@ -162,6 +165,19 @@ def test_admin_contracts_expose_screen_summary_shapes() -> None:
                 official_away_goals=1,
             )
         )
+        db_session.flush()
+        db_session.add(
+            SyncLog(
+                provider=SyncProvider.THE_SPORTS_DB,
+                status=SyncStatus.SKIPPED,
+                operation="match_sync",
+                match_id=None,
+                created_by_user_id=admin.id,
+                result_code="missing_local_match",
+                message="No local match could be matched to the provider payload",
+                payload={"external_id": "missing-1"},
+            )
+        )
         db_session.commit()
         service = FrontendContractService(db_session)
         dashboard = service.build_admin_dashboard()
@@ -171,6 +187,8 @@ def test_admin_contracts_expose_screen_summary_shapes() -> None:
         assert dashboard.matches.finished == 1
         assert integration.primaryProvider == "THE_SPORTS_DB"
         assert integration.activeProvider == "THE_SPORTS_DB"
+        assert integration.lastSyncs[0].resultCode == "missing_local_match"
+        assert dashboard.latestSyncs[0].resultCode == "missing_local_match"
         assert settings.scoring["exact_points"] == 3
     finally:
         db_session.close()

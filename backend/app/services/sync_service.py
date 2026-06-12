@@ -127,19 +127,18 @@ class SyncService:
         for provider_match in provider_batch.matches:
             local_match = self._match_local_record(matches=target_matches, provider_match=provider_match)
             if local_match is None:
-                if fixture_ids is not None:
-                    outcomes.append(
-                        self._record_outcome(
-                            db_session,
-                            provider=provider_batch.provider,
-                            status=SyncStatus.SKIPPED,
-                            result_code="missing_local_match",
-                            message="No local match could be matched to the provider payload",
-                            match=None,
-                            created_by_user_id=created_by_user_id,
-                            payload=self._build_log_payload(provider_match=provider_match),
-                        )
+                outcomes.append(
+                    self._record_outcome(
+                        db_session,
+                        provider=provider_batch.provider,
+                        status=SyncStatus.SKIPPED,
+                        result_code="missing_local_match",
+                        message="No local match could be matched to the provider payload",
+                        match=None,
+                        created_by_user_id=created_by_user_id,
+                        payload=self._build_log_payload(provider_match=provider_match),
                     )
+                )
                 continue
             eligibility = self._evaluate_eligibility(
                 local_match=local_match,
@@ -289,6 +288,33 @@ class SyncService:
                 starts_at=self._as_utc(match.starts_at),
             ) == identity:
                 return match
+        fallback_match = self._match_by_team_codes_and_kickoff(
+            matches=matches,
+            provider_match=provider_match,
+        )
+        if fallback_match is not None:
+            return fallback_match
+        return None
+
+    def _match_by_team_codes_and_kickoff(
+        self,
+        *,
+        matches: Sequence[Match],
+        provider_match: ProviderMatchRecord,
+    ) -> Match | None:
+        provider_home_code = provider_match.home_team_fifa_code
+        provider_away_code = provider_match.away_team_fifa_code
+        if provider_home_code is None or provider_away_code is None:
+            return None
+        normalized_starts_at = self._as_utc(provider_match.starts_at).replace(second=0, microsecond=0)
+        for match in matches:
+            if match.home_team_fifa_code != provider_home_code:
+                continue
+            if match.away_team_fifa_code != provider_away_code:
+                continue
+            if self._as_utc(match.starts_at).replace(second=0, microsecond=0) != normalized_starts_at:
+                continue
+            return match
         return None
 
     def _evaluate_eligibility(

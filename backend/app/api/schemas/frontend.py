@@ -104,6 +104,7 @@ class SyncLogDto(BaseModel):
     provider: str
     status: str
     operation: str
+    resultCode: str | None
     message: str
     createdAt: datetime
 
