@@ -72,6 +72,13 @@ type MatchGroup = {
   status: string;
 };
 
+function sortPredictions(
+  left: ExploreMatchPredictionContract,
+  right: ExploreMatchPredictionContract,
+): number {
+  return left.userName.localeCompare(right.userName, 'pt-BR');
+}
+
 function collectMatchGroups(
   matchPredictions: ExploreMatchPredictionContract[],
 ): MatchGroup[] {
@@ -84,15 +91,16 @@ function collectMatchGroups(
   });
 
   return Array.from(groups.entries()).map(([matchId, predictions]) => {
+    const orderedPredictions = [...predictions].sort(sortPredictions);
     const parsedStartsAt = predictions
       .map((prediction) => (prediction.startsAt ? Date.parse(prediction.startsAt) : Number.NaN))
       .find((value) => !Number.isNaN(value)) ?? Number.POSITIVE_INFINITY;
 
     return {
       matchId,
-      predictions,
+      predictions: orderedPredictions,
       startsAtMs: parsedStartsAt,
-      status: predictions[0]?.status ?? '',
+      status: orderedPredictions[0]?.status ?? '',
     };
   });
 }
@@ -100,10 +108,6 @@ function collectMatchGroups(
 function sortMatchGroups(left: MatchGroup, right: MatchGroup): number {
   if (left.startsAtMs !== right.startsAtMs) {
     return left.startsAtMs - right.startsAtMs;
-  }
-
-  if (right.predictions.length !== left.predictions.length) {
-    return right.predictions.length - left.predictions.length;
   }
 
   return left.matchId.localeCompare(right.matchId);
@@ -123,22 +127,30 @@ export function getHighlightedMatchGroup(
   matchPredictions: ExploreMatchPredictionContract[],
   nowMs: number,
 ): { mode: 'live' | 'next'; predictions: ExploreMatchPredictionContract[] } | null {
-  const groups = collectMatchGroups(matchPredictions);
+  const groups = collectMatchGroups(matchPredictions).sort(sortMatchGroups);
   if (groups.length === 0) {
     return null;
   }
 
-  const liveGroup = groups
-    .filter((group) => group.predictions.some((prediction) => isMatchLive(prediction, nowMs)))
-    .sort(sortMatchGroups)[0];
+  const liveGroup = groups.find((group) => group.predictions.some((prediction) => isMatchLive(prediction, nowMs)));
 
   if (liveGroup) {
     return { mode: 'live', predictions: liveGroup.predictions };
   }
 
-  const nextGroup = groups
-    .filter((group) => !FINISHED_STATUSES.has(group.status))
-    .sort(sortMatchGroups)[0];
+  const lastFinishedIndex = groups.reduce((latestIndex, group, index) => {
+    if (FINISHED_STATUSES.has(group.status)) {
+      return index;
+    }
+    return latestIndex;
+  }, -1);
+
+  const nextGroup = groups.find((group, index) => {
+    if (FINISHED_STATUSES.has(group.status)) {
+      return false;
+    }
+    return index > lastFinishedIndex;
+  });
 
   return nextGroup ? { mode: 'next', predictions: nextGroup.predictions } : null;
 }
