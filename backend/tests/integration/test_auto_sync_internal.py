@@ -142,6 +142,36 @@ def test_admin_can_update_integration_settings() -> None:
         assert row.auto_sync_interval_minutes == 15
 
 
+def test_admin_integration_page_handles_missing_integration_settings_table() -> None:
+    configure_test_settings()
+    factory = make_session_factory()
+    with factory() as db_session:
+        create_user(db_session, email="admin@example.com", status=AccessStatus.APPROVED, is_admin=True)
+        seed_window(db_session)
+        db_session.commit()
+        IntegrationSettings.__table__.drop(db_session.get_bind())
+        db_session.commit()
+
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        headers = issue_csrf_headers(client)
+        login_response = client.post(
+            "/api/auth/login",
+            json={"email": "admin@example.com", "password": "password123"},
+            headers=headers,
+        )
+        assert login_response.status_code == 200
+
+        response = client.get("/api/admin/integration")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["autoSyncEnabled"] is False
+    assert payload["autoSyncIntervalMinutes"] == 60
+    assert payload["autoSyncStatus"] == "disabled"
+
+
 def test_internal_auto_sync_skips_when_disabled() -> None:
     configure_test_settings()
     factory = make_session_factory()

@@ -13,6 +13,7 @@ from app.core.config import get_settings
 from app.core.security import build_auth_error
 from app.models.schema import IntegrationSettings, SyncLog, SyncProvider, SyncStatus
 from app.repositories.queries import get_db_session
+from app.services.integration_settings import load_integration_settings
 from app.services.recalculation_service import RecalculationSummary, recalculate_competition_state, recalculate_from_sync_request
 from app.services.sync_service import SyncService, resolve_sync_log_provider
 
@@ -46,9 +47,7 @@ def _get_bearer_token(value: str | None) -> str | None:
 
 
 def _get_integration_settings(db_session: Session) -> IntegrationSettings | None:
-    return db_session.scalar(
-        select(IntegrationSettings).order_by(IntegrationSettings.updated_at.desc(), IntegrationSettings.id.desc())
-    )
+    return load_integration_settings(db_session)
 
 
 def _latest_auto_sync_log(db_session: Session) -> SyncLog | None:

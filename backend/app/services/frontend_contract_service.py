@@ -44,6 +44,7 @@ from app.models.schema import (
     User,
 )
 from app.repositories.queries import get_active_competition_window, get_active_scoring_rule, list_active_competition_phase_configs
+from app.services.integration_settings import load_integration_settings
 from app.services.match_status import is_terminal_match_status
 from app.services.team_metadata import get_players_by_id, get_team_metadata
 
@@ -244,7 +245,11 @@ class FrontendContractService:
             exploreReleaseAt=competition_window.explore_release_at,
         )
 
-    def build_admin_integration(self) -> AdminIntegrationScreenDto:
+    def build_admin_integration(
+        self,
+        *,
+        integration_settings: IntegrationSettings | None = None,
+    ) -> AdminIntegrationScreenDto:
         settings = get_settings()
         now = datetime.now(timezone.utc)
         last_syncs = list(
@@ -252,7 +257,7 @@ class FrontendContractService:
                 select(SyncLog).order_by(SyncLog.created_at.desc(), SyncLog.id.desc()).limit(8)
             ).all()
         )
-        integration_settings = self._get_integration_settings()
+        integration_settings = integration_settings or self._get_integration_settings()
         last_auto_sync = self.db_session.scalar(
             select(SyncLog)
             .where(SyncLog.operation == "automatic_sync")
@@ -406,9 +411,7 @@ class FrontendContractService:
         return prediction.points_awarded or 0 if prediction is not None else 0
 
     def _get_integration_settings(self) -> IntegrationSettings | None:
-        return self.db_session.scalar(
-            select(IntegrationSettings).order_by(IntegrationSettings.updated_at.desc(), IntegrationSettings.id.desc())
-        )
+        return load_integration_settings(self.db_session)
 
     def _match_status_counts(self, matches: list[Match]) -> MatchStatusCountsDto:
         return MatchStatusCountsDto(

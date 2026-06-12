@@ -38,6 +38,7 @@ from app.models.schema import (
     UserSession,
 )
 from app.repositories.queries import get_db_session, get_match_by_id
+from app.services.integration_settings import integration_settings_table_exists, load_integration_settings
 from app.services.frontend_contract_service import FrontendContractService
 from app.services.recalculation_service import (
     RecalculationSummary,
@@ -69,11 +70,15 @@ def get_admin_integration(
 
 
 def get_or_create_integration_settings(db_session: Session) -> IntegrationSettings:
-    settings_row = db_session.scalar(
-        select(IntegrationSettings).order_by(IntegrationSettings.updated_at.desc(), IntegrationSettings.id.desc())
-    )
+    settings_row = load_integration_settings(db_session)
     if settings_row is not None:
         return settings_row
+    if not integration_settings_table_exists(db_session):
+        raise build_auth_error(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            code="integration_settings_missing",
+            message="integration_settings table is missing; run the database migrations",
+        )
     settings_row = IntegrationSettings(
         auto_sync_enabled=False,
         auto_sync_interval_minutes=60,
@@ -360,7 +365,7 @@ def update_admin_integration_settings(
     settings_row.updated_by_user_id = admin_user.id
     db_session.add(settings_row)
     db_session.flush()
-    return FrontendContractService(db_session).build_admin_integration()
+    return FrontendContractService(db_session).build_admin_integration(integration_settings=settings_row)
 
 
 @router.get("/users", response_model=list[AdminUserResponse], status_code=status.HTTP_200_OK)
