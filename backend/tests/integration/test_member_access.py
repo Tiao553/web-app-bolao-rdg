@@ -16,6 +16,7 @@ from app.main import create_app
 from app.models.schema import (
     AccessStatus,
     Base,
+    CompetitionPhaseConfig,
     CompetitionPrediction,
     CompetitionWindow,
     Match,
@@ -188,7 +189,7 @@ def test_approved_user_sees_only_public_explore_groups_when_partial() -> None:
             external_id="local-hidden",
             phase="GROUP_STAGE",
             group_name="B",
-            stage_round=1,
+            stage_round=2,
             starts_at=now + timedelta(hours=2),
             home_team_name="Mexico",
             away_team_name="Japan",
@@ -224,6 +225,113 @@ def test_approved_user_sees_only_public_explore_groups_when_partial() -> None:
     assert len(payload["matchGroups"]) == 1
     assert len(payload["matchPredictions"]) == 2
     assert {item["matchId"] for item in payload["matchPredictions"]} == {payload["matchGroups"][0]["matchId"]}
+
+
+def test_approved_user_sees_all_public_matches_from_the_same_open_round() -> None:
+    configure_test_settings()
+    factory = make_session_factory()
+    now = datetime.now(timezone.utc)
+    phase_now = now.replace(tzinfo=None)
+    with factory() as db_session:
+        viewer = create_user(db_session, email="viewer@example.com", status=AccessStatus.APPROVED)
+        other = create_user(db_session, email="other@example.com", status=AccessStatus.APPROVED)
+        seed_window(db_session, released=False)
+        db_session.add_all(
+            [
+                CompetitionPhaseConfig(
+                    phase_key="round1",
+                    label="Round 1",
+                    phase="GROUP_STAGE",
+                    stage_round=1,
+                    sort_order=1,
+                    first_match_starts_at=phase_now - timedelta(minutes=5),
+                    lock_at=phase_now - timedelta(minutes=30),
+                    explore_at=phase_now - timedelta(minutes=30),
+                    is_active=True,
+                ),
+                CompetitionPhaseConfig(
+                    phase_key="round2",
+                    label="Round 2",
+                    phase="GROUP_STAGE",
+                    stage_round=2,
+                    sort_order=2,
+                    first_match_starts_at=phase_now + timedelta(days=1),
+                    lock_at=phase_now + timedelta(days=1, minutes=-30),
+                    explore_at=phase_now + timedelta(days=1, minutes=-30),
+                    is_active=True,
+                ),
+            ]
+        )
+        public_now = Match(
+            external_provider=None,
+            external_id="local-public-now",
+            phase="GROUP_STAGE",
+            group_name="C",
+            stage_round=1,
+            starts_at=now + timedelta(minutes=5),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            status="SCHEDULED",
+        )
+        public_later = Match(
+            external_provider=None,
+            external_id="local-public-later",
+            phase="GROUP_STAGE",
+            group_name="D",
+            stage_round=1,
+            starts_at=now + timedelta(hours=6),
+            home_team_name="Uruguay",
+            away_team_name="Japan",
+            home_team_fifa_code="URU",
+            away_team_fifa_code="JPN",
+            status="SCHEDULED",
+        )
+        hidden_next_round = Match(
+            external_provider=None,
+            external_id="local-hidden-round2",
+            phase="GROUP_STAGE",
+            group_name="E",
+            stage_round=2,
+            starts_at=now + timedelta(days=1, hours=3),
+            home_team_name="Mexico",
+            away_team_name="Korea Republic",
+            home_team_fifa_code="MEX",
+            away_team_fifa_code="KOR",
+            status="SCHEDULED",
+        )
+        db_session.add_all([public_now, public_later, hidden_next_round])
+        db_session.flush()
+        db_session.add_all(
+            [
+                MatchPrediction(user_id=viewer.id, match_id=public_now.id, home_goals=2, away_goals=1, points_awarded=0),
+                MatchPrediction(user_id=other.id, match_id=public_now.id, home_goals=1, away_goals=1, points_awarded=0),
+                MatchPrediction(user_id=viewer.id, match_id=public_later.id, home_goals=1, away_goals=0, points_awarded=0),
+                MatchPrediction(user_id=other.id, match_id=public_later.id, home_goals=2, away_goals=0, points_awarded=0),
+                MatchPrediction(user_id=viewer.id, match_id=hidden_next_round.id, home_goals=0, away_goals=0, points_awarded=0),
+                MatchPrediction(user_id=other.id, match_id=hidden_next_round.id, home_goals=1, away_goals=0, points_awarded=0),
+            ]
+        )
+        db_session.commit()
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        headers = issue_csrf_headers(client)
+        login_response = client.post(
+            "/api/auth/login",
+            json={"email": "viewer@example.com", "password": "password123"},
+            headers=headers,
+        )
+        assert login_response.status_code == 200
+        response = client.get("/api/member/explore")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["exploreState"] == "partial"
+    assert {group["homeTeam"] for group in payload["matchGroups"]} == {"Brasil", "Uruguai"}
+    assert {group["awayTeam"] for group in payload["matchGroups"]} == {"Argentina", "Japão"}
+    assert all(group["stageRound"] == 1 for group in payload["matchGroups"])
+    assert len(payload["matchPredictions"]) == 4
 
 
 def test_ranking_excludes_non_approved_users() -> None:

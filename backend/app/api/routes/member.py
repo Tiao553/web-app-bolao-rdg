@@ -352,8 +352,16 @@ def build_explore_competition_prediction_response(
     )
 
 
-def _is_explore_match_public(match: Match, now: datetime) -> bool:
+def _is_explore_match_public(
+    match: Match,
+    *,
+    now: datetime,
+    db_session: Session,
+) -> bool:
     if is_terminal_match_status(match.status):
+        return True
+    round_key = _match_round_key(match)
+    if round_key is not None and _phase_locked(db_session, round_key, now):
         return True
     if match.starts_at is None:
         return False
@@ -957,7 +965,7 @@ def get_explore(
     for prediction in match_predictions:
         match = prediction.match
         ordered_matches[match.id] = match
-        if _is_explore_match_public(match, now):
+        if _is_explore_match_public(match, now=now, db_session=db_session):
             grouped_predictions[match.id].append(prediction)
 
     sorted_match_ids = sorted(

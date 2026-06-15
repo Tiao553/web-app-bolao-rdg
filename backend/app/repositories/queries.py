@@ -49,6 +49,12 @@ def get_runtime_settings() -> Settings:
     return get_settings()
 
 
+def as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
 @dataclass(frozen=True, slots=True)
 class CompetitionWindowSnapshot:
     prediction_close_at: datetime
@@ -174,7 +180,11 @@ def get_active_competition_window(db_session: Session) -> CompetitionWindowSnaps
     if phase_configs:
         ordered = sorted(phase_configs, key=lambda item: (item.sort_order, item.lock_at, item.phase_key))
         explore_release_at = ordered[0].explore_at
-        future_deadlines = [cfg.lock_at for cfg in ordered if cfg.phase_key != "initial_predictions" and cfg.lock_at > now]
+        future_deadlines = [
+            cfg.lock_at
+            for cfg in ordered
+            if cfg.phase_key != "initial_predictions" and as_utc(cfg.lock_at) > now
+        ]
         if future_deadlines:
             prediction_close_at = min(future_deadlines)
         else:
@@ -218,9 +228,9 @@ def list_active_competition_phase_configs(db_session: Session) -> list[Competiti
             phase=row.phase.value if row.phase is not None else None,
             stage_round=row.stage_round,
             sort_order=row.sort_order,
-            first_match_starts_at=row.first_match_starts_at,
-            lock_at=row.lock_at,
-            explore_at=row.explore_at,
+            first_match_starts_at=as_utc(row.first_match_starts_at) if row.first_match_starts_at is not None else None,
+            lock_at=as_utc(row.lock_at),
+            explore_at=as_utc(row.explore_at),
             is_force_locked=row.is_force_locked,
             is_active=row.is_active,
         )
