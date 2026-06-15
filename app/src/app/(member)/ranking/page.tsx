@@ -2,7 +2,7 @@ import type { RankingContract } from '../../../lib/contracts';
 import { fetchBackendData } from '../../../lib/session';
 
 export default async function RankingPage() {
-  const { data } = await fetchBackendData<RankingContract>('/api/member/ranking');
+  const { data, error } = await fetchBackendData<RankingContract>('/api/member/ranking');
   const rows = data?.rows ?? [];
   const myRank = data?.currentUserRank;
   const breakdown = data?.currentUserBreakdown;
@@ -18,15 +18,35 @@ export default async function RankingPage() {
           <div>
             <div className="eyebrow"><span className="dot" />Apenas usuários aprovados</div>
             <h1>Ranking geral do <span>bolão</span>.</h1>
-            <p>Classificação atualizada com pontos totais, critérios de desempate e movimentação da última rodada.</p>
+            <p>
+              {error
+                ? 'O ranking nao conseguiu carregar agora. Tente novamente enquanto corrigimos a sincronizacao dos dados.'
+                : 'Classificação atualizada com pontos totais, critérios de desempate e movimentação da última rodada.'}
+            </p>
           </div>
           <div className="deadline-card" style={{ minWidth: 200 }}>
             <div className="deadline-label">Sua posição</div>
-            <div style={{ fontSize: 48, fontWeight: 900, color: 'var(--or)', letterSpacing: '-.04em', lineHeight: 1, margin: '10px 0 6px' }}>{myRank ?? '—'}<span style={{ fontSize: 20 }}>º</span></div>
+            <div style={{ fontSize: 48, fontWeight: 900, color: 'var(--or)', letterSpacing: '-.04em', lineHeight: 1, margin: '10px 0 6px' }}>
+              {myRank ?? '—'}
+              {myRank !== null && myRank !== undefined ? <span style={{ fontSize: 20 }}>º</span> : null}
+            </div>
             <div className="pill ok" style={{ width: 'fit-content' }}><span className="dot" />no ranking</div>
           </div>
         </div>
       </section>
+
+      {error ? (
+        <div className="card">
+          <div className="card-body" style={{ padding: 24 }}>
+            <div className="warning-admin">
+              <div className="warning-title-admin">Ranking indisponivel</div>
+              <div className="warning-text-admin">
+                {error}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* Pódio */}
       {podium.length > 0 && (
@@ -80,7 +100,13 @@ export default async function RankingPage() {
                 <div key={row.userId} className={`rank-row${row.rank === 1 ? ' top1' : ''}${row.rank === myRank ? ' me' : ''}`}>
                   <div className="rank-pos">{row.rank}</div>
                   <div className="mini-avatar">{row.fullName.split(' ').map((p: string) => p[0]).slice(0,2).join('')}</div>
-                  <div><div className="rank-name">{row.fullName}{row.rank === myRank ? ' (você)' : ''}</div></div>
+                  <div>
+                    <div className="rank-name">
+                      {row.rank === myRank && !row.fullName.includes('(você)')
+                        ? `${row.fullName} (você)`
+                        : row.fullName}
+                    </div>
+                  </div>
                   <div className="metric">{row.exactPoints}</div>
                   <div className="metric good">{row.resultPoints}</div>
                   <div className="metric hide-sm gold">{row.brazilPoints}</div>
@@ -91,6 +117,14 @@ export default async function RankingPage() {
           </div>
         </div>
       )}
+
+      {!error && rows.length === 0 ? (
+        <div className="card">
+          <div className="card-body" style={{ textAlign: 'center', padding: 40, color: 'var(--tx3)', fontSize: 14 }}>
+            O ranking ainda nao tem participantes pontuados para exibir.
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid-2">
         {/* Breakdown */}
