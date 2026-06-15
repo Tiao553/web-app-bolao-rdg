@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 from uuid import UUID
+from typing import Literal
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.api.schemas.frontend import MemberBracketScreenDto, MemberResultsScreenDto
 from app.core.security import build_auth_error, require_approved_user
@@ -19,6 +21,7 @@ from app.models.schema import (
     CompetitionPhaseConfig,
     CompetitionPrediction,
     CompetitionWindow,
+    AccessStatus,
     Match,
     MatchPrediction,
     PredictionType,
@@ -33,10 +36,9 @@ from app.repositories.queries import (
     get_match_prediction,
     ranking_users_select,
     list_active_competition_phase_configs,
-    visible_competition_predictions_select,
-    visible_match_predictions_select,
 )
 from app.services.frontend_contract_service import FrontendContractService
+from app.services.match_status import is_terminal_match_status
 from app.services.team_metadata import (
     get_players_by_id,
     get_team_metadata,
@@ -216,6 +218,26 @@ class ExploreMatchPredictionResponse(BaseModel):
     pointsAwarded: int | None
 
 
+class ExploreMatchGroupResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    matchId: UUID
+    phase: str
+    stageRound: int | None
+    groupName: str | None
+    startsAt: datetime | None
+    status: str
+    homeTeam: str
+    homeCode: str | None
+    homeIso2: str | None
+    homeFlag: str
+    awayTeam: str
+    awayCode: str | None
+    awayIso2: str | None
+    awayFlag: str
+    predictions: list[ExploreMatchPredictionResponse]
+
+
 class ExploreCompetitionPredictionResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -234,7 +256,9 @@ class ExploreCompetitionPredictionResponse(BaseModel):
 class ExploreResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    exploreState: Literal["locked", "partial", "released"]
     exploreReleased: bool
+    matchGroups: list[ExploreMatchGroupResponse]
     matchPredictions: list[ExploreMatchPredictionResponse]
     competitionPredictions: list[ExploreCompetitionPredictionResponse]
 
@@ -304,6 +328,43 @@ def build_explore_competition_prediction_response(
         selectionTeamIso2=team_iso2,
         selectionTeamFlag=team_flag,
         pointsAwarded=prediction.points_awarded,
+    )
+
+
+def _is_explore_match_public(match: Match, now: datetime) -> bool:
+    if is_terminal_match_status(match.status):
+        return True
+    if match.starts_at is None:
+        return False
+    return now >= as_utc(match.starts_at) - PHASE_LOCK_OFFSET
+
+
+def _build_explore_match_group_response(
+    *,
+    match: Match,
+    predictions: list[MatchPrediction],
+) -> ExploreMatchGroupResponse:
+    home_team = get_team_metadata(match.home_team_fifa_code, match.home_team_name)
+    away_team = get_team_metadata(match.away_team_fifa_code, match.away_team_name)
+    return ExploreMatchGroupResponse(
+        matchId=match.id,
+        phase=match.phase.value,
+        stageRound=match.stage_round,
+        groupName=match.group_name,
+        startsAt=match.starts_at,
+        status=match.status,
+        homeTeam=home_team.name,
+        homeCode=home_team.code,
+        homeIso2=home_team.iso2,
+        homeFlag=home_team.flag,
+        awayTeam=away_team.name,
+        awayCode=away_team.code,
+        awayIso2=away_team.iso2,
+        awayFlag=away_team.flag,
+        predictions=[
+            build_explore_match_prediction_response(prediction)
+            for prediction in predictions
+        ],
     )
 
 
@@ -689,43 +750,82 @@ def get_explore(
     db_session: Session = Depends(get_db_session),
 ) -> ExploreResponse:
     now = utc_now()
-    phase_configs = _phase_config_map(db_session)
-    if phase_configs:
-        release_config = phase_configs.get("initial_predictions")
-        if release_config is None and phase_configs:
-            release_config = sorted(phase_configs.values(), key=lambda item: (item.sort_order, item.lock_at, item.phase_key))[0]
-        explore_released = bool(release_config and (release_config.is_force_locked or now >= as_utc(release_config.explore_at)))
-    else:
-        # Explore match predictions: released if timestamp passed OR admin has force-locked any phase
-        active_window = db_session.scalar(
-            select(CompetitionWindow)
-            .where(CompetitionWindow.is_active.is_(True))
-            .order_by(CompetitionWindow.updated_at.desc())
-        )
-        force_locked_phases = (active_window.force_locked_phases or 0) if active_window is not None else 0
-        explore_released = (now >= as_utc(competition_window.explore_release_at)) or (force_locked_phases != 0)
+    del competition_window
     match_predictions = list(
         db_session.scalars(
-            visible_match_predictions_select(
-                viewer=user,
-                explore_released=explore_released,
+            select(MatchPrediction)
+            .join(User, User.id == MatchPrediction.user_id)
+            .join(Match, Match.id == MatchPrediction.match_id)
+            .options(
+                joinedload(MatchPrediction.user),
+                joinedload(MatchPrediction.match),
+            )
+            .where(User.access_status == AccessStatus.APPROVED, User.is_active.is_(True))
+            .order_by(
+                Match.starts_at.asc(),
+                Match.id.asc(),
+                MatchPrediction.created_at.asc(),
+                MatchPrediction.id.asc(),
             )
         ).all()
     )
     competition_predictions = list(
         db_session.scalars(
-            visible_competition_predictions_select(
-                viewer=user,
-                explore_released=True,
+            select(CompetitionPrediction)
+            .join(User, User.id == CompetitionPrediction.user_id)
+            .options(joinedload(CompetitionPrediction.user))
+            .where(User.access_status == AccessStatus.APPROVED, User.is_active.is_(True))
+            .order_by(
+                CompetitionPrediction.created_at.asc(),
+                CompetitionPrediction.id.asc(),
             )
         ).all()
     )
 
+    grouped_predictions: dict[UUID, list[MatchPrediction]] = defaultdict(list)
+    ordered_matches: dict[UUID, Match] = {}
+    for prediction in match_predictions:
+        match = prediction.match
+        ordered_matches[match.id] = match
+        if _is_explore_match_public(match, now):
+            grouped_predictions[match.id].append(prediction)
+
+    sorted_match_ids = sorted(
+        grouped_predictions,
+        key=lambda match_id: (
+            as_utc(ordered_matches[match_id].starts_at),
+            ordered_matches[match_id].id,
+        ),
+    )
+
+    match_groups = [
+        _build_explore_match_group_response(
+            match=ordered_matches[match_id],
+            predictions=grouped_predictions[match_id],
+        )
+        for match_id in sorted_match_ids
+    ]
+    flat_match_predictions = [
+        prediction
+        for match_id in sorted_match_ids
+        for prediction in grouped_predictions[match_id]
+    ]
+    total_match_ids = {prediction.match_id for prediction in match_predictions}
+    public_match_ids = set(sorted_match_ids)
+    if not public_match_ids:
+        explore_state = "locked"
+    elif public_match_ids == total_match_ids:
+        explore_state = "released"
+    else:
+        explore_state = "partial"
+
     return ExploreResponse(
-        exploreReleased=explore_released,
+        exploreState=explore_state,
+        exploreReleased=explore_state == "released",
+        matchGroups=match_groups,
         matchPredictions=[
             build_explore_match_prediction_response(prediction)
-            for prediction in match_predictions
+            for prediction in flat_match_predictions
         ],
         competitionPredictions=[
             build_explore_competition_prediction_response(prediction)

@@ -285,7 +285,7 @@ class FrontendContractService:
             autoSyncEnabled=auto_sync_enabled,
             autoSyncIntervalMinutes=auto_sync_interval,
             autoSyncIntervalOptions=list(self.AUTO_SYNC_INTERVAL_OPTIONS),
-            schedulerMode="EXTERNAL_CRON",
+            schedulerMode="GITHUB_ACTIONS_5MIN",
             cronTokenConfigured=settings.sync_admin_token is not None and bool(settings.sync_admin_token.get_secret_value().strip()),
             lastAutoSyncAt=last_auto_sync_at,
             nextAutoSyncAt=next_auto_sync_at,

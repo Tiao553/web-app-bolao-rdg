@@ -160,6 +160,24 @@ export type ExploreMatchPredictionContract = {
   pointsAwarded: number | null;
 };
 
+export type ExploreMatchGroupContract = {
+  matchId: string;
+  phase: string;
+  stageRound: number | null;
+  groupName: string | null;
+  startsAt: string | null;
+  status: string;
+  homeTeam: string;
+  homeCode: string | null;
+  homeIso2: string | null;
+  homeFlag: string;
+  awayTeam: string;
+  awayCode: string | null;
+  awayIso2: string | null;
+  awayFlag: string;
+  predictions: ExploreMatchPredictionContract[];
+};
+
 export type ExploreCompetitionPredictionContract = {
   userId: string;
   userName: string;
@@ -173,8 +191,12 @@ export type ExploreCompetitionPredictionContract = {
   pointsAwarded: number | null;
 };
 
+export type ExploreStateContract = 'locked' | 'partial' | 'released';
+
 export type ExploreContract = {
+  exploreState: ExploreStateContract;
   exploreReleased: boolean;
+  matchGroups: ExploreMatchGroupContract[];
   matchPredictions: ExploreMatchPredictionContract[];
   competitionPredictions: ExploreCompetitionPredictionContract[];
 };

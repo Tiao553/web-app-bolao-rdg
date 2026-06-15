@@ -16,6 +16,13 @@ function formatDate(value: string | null): string {
   return new Date(value).toLocaleString('pt-BR');
 }
 
+function formatScheduler(mode: string): string {
+  if (mode === 'GITHUB_ACTIONS_5MIN') {
+    return 'GitHub Actions a cada 5 min';
+  }
+  return mode;
+}
+
 export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
   const [data, setData] = useState(initialData);
   const [enabled, setEnabled] = useState(initialData.autoSyncEnabled);
@@ -24,6 +31,10 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
   const [error, setError] = useState('');
   const [isSaving, startSaving] = useTransition();
   const [isRunning, startRunning] = useTransition();
+  const schedulerLabel = formatScheduler(data.schedulerMode);
+  const syncStatusTone = data.autoSyncEnabled ? 'ok' : 'warn';
+  const nextRunLabel = data.nextAutoSyncAt ? formatDate(data.nextAutoSyncAt) : 'Habilite o auto sync';
+  const lastRunLabel = formatDate(data.lastAutoSyncAt);
 
   function saveSettings() {
     setMessage('');
@@ -92,11 +103,11 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
       <section className="hero">
         <div className="hero-content">
           <div>
-            <div className="eyebrow"><span className="dot" />TheSportsDB v1</div>
-            <h1>Automatize resultados com <span>heartbeat externo</span>.</h1>
+            <div className="eyebrow"><span className="dot" />Integrations</div>
+            <h1>Resultados automáticos sem depender de cron na plataforma.</h1>
             <p>
-              O backend recebe um cron externo a cada minuto, decide se o intervalo configurado venceu
-              e sincroniza resultados do TheSportsDB sem depender de alguém com a tela aberta.
+              O agendamento sai do código: um job externo dispara a API, o backend decide pela cadência
+              salva e aplica o sync do TheSportsDB sem operação manual.
             </p>
           </div>
           <div className="connection-card">
@@ -104,8 +115,26 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
             <div className="conn-title">{data.activeProvider}</div>
             <div className="conn-text">
               {data.apiConfigured
-                ? 'TheSportsDB livre ativo para sync automático de resultados.'
+                ? 'TheSportsDB livre ativo para resultados e Explore.'
                 : 'Provedor indisponível.'}
+            </div>
+            <div className="stat-grid-admin" style={{ marginTop: 16 }}>
+              <div className="stat-admin">
+                <div className="stat-value-admin">{schedulerLabel}</div>
+                <div className="stat-label-admin">scheduler</div>
+              </div>
+              <div className="stat-admin">
+                <div className="stat-value-admin">{data.cronTokenConfigured ? 'OK' : 'Ausente'}</div>
+                <div className="stat-label-admin">token</div>
+              </div>
+              <div className="stat-admin">
+                <div className="stat-value-admin">{data.autoSyncEnabled ? 'Ligado' : 'Desligado'}</div>
+                <div className="stat-label-admin">auto sync</div>
+              </div>
+              <div className="stat-admin">
+                <div className="stat-value-admin">{data.autoSyncStatus}</div>
+                <div className="stat-label-admin">estado</div>
+              </div>
             </div>
           </div>
         </div>
@@ -116,9 +145,9 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
           <div className="card-header">
             <div>
               <div className="card-title">Configuração da integração</div>
-              <div className="card-subtitle">Fonte ativa, cron e cadência</div>
+              <div className="card-subtitle">Fonte ativa, gate e intervalo salvo</div>
             </div>
-            <div className={`pill ${data.autoSyncEnabled ? 'ok' : 'warn'}`}>
+            <div className={`pill ${syncStatusTone}`}>
               <span className="dot" />{data.autoSyncEnabled ? 'auto ligado' : 'auto desligado'}
             </div>
           </div>
@@ -127,10 +156,10 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
               {[
                 { label: 'Provider ativo', value: data.activeProvider },
                 { label: 'Fallback', value: data.fallbackProvider },
-                { label: 'Base URL', value: 'https://www.thesportsdb.com/api/v1/json/123' },
-                { label: 'Endpoint principal', value: '/eventsseason.php?id=4429&s=2026' },
-                { label: 'Scheduler', value: data.schedulerMode },
+                { label: 'Scheduler', value: schedulerLabel },
                 { label: 'Cron token', value: data.cronTokenConfigured ? 'Configurado' : 'Ausente' },
+                { label: 'Intervalo', value: `${data.autoSyncIntervalMinutes} minuto${data.autoSyncIntervalMinutes > 1 ? 's' : ''}` },
+                { label: 'Estados terminais', value: String(data.allowedTerminalStatuses.length) },
               ].map(({ label, value }) => (
                 <div key={label} className="field-admin">
                   <div className="field-label-admin">{label}</div>
@@ -145,7 +174,7 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
           <div className="card-header">
             <div>
               <div className="card-title">Auto sync</div>
-              <div className="card-subtitle">Liga/desliga e intervalo persistido</div>
+              <div className="card-subtitle">Liga/desliga e intervalo persistido no backend</div>
             </div>
           </div>
           <div className="card-body">
@@ -153,7 +182,7 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
               <div className="toggle-row">
                 <div>
                   <div className="toggle-title">Habilitar sync automático</div>
-                  <div className="toggle-text">Cron externo bate todo minuto; o backend filtra pela cadência.</div>
+                  <div className="toggle-text">O job externo bate a cada 5 minutos; o backend aplica o gate por intervalo.</div>
                 </div>
                 <button
                   type="button"
@@ -202,13 +231,13 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
               <div className="toggle-row">
                 <div>
                   <div className="toggle-title">Último auto sync</div>
-                  <div className="toggle-text">{formatDate(data.lastAutoSyncAt)}</div>
+                  <div className="toggle-text">{lastRunLabel}</div>
                 </div>
               </div>
               <div className="toggle-row">
                 <div>
                   <div className="toggle-title">Próximo elegível</div>
-                  <div className="toggle-text">{formatDate(data.nextAutoSyncAt)}</div>
+                  <div className="toggle-text">{nextRunLabel}</div>
                 </div>
               </div>
             </div>
@@ -266,8 +295,11 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
                         {new Date(sync.createdAt).toLocaleString('pt-BR')}
                       </div>
                     </div>
-                    <div className={`pill ${sync.status === 'SUCCESS' ? 'ok' : sync.status === 'SKIPPED' ? 'orange' : 'warn'}`}>
-                      <span className="dot" />{sync.status}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                      <div className={`pill ${sync.status === 'SUCCESS' ? 'ok' : sync.status === 'SKIPPED' ? 'orange' : 'warn'}`}>
+                        <span className="dot" />{sync.status}
+                      </div>
+                      {sync.resultCode ? <div className="pill neutral">{sync.resultCode}</div> : null}
                     </div>
                   </div>
                 ))}

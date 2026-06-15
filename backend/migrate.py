@@ -20,6 +20,12 @@ def normalize_database_url(database_url: str) -> str:
     return database_url
 
 
+def build_connect_args(database_url: str) -> dict[str, object]:
+    if database_url.startswith("sqlite"):
+        return {"check_same_thread": False}
+    return {"connect_timeout": 10}
+
+
 def run_migrations() -> None:
     database_url = os.environ.get("DATABASE_URL", "")
     if not database_url:
@@ -31,7 +37,7 @@ def run_migrations() -> None:
 
     engine = create_engine(
         normalize_database_url(database_url),
-        connect_args={"connect_timeout": 10},
+        connect_args=build_connect_args(database_url),
         poolclass=NullPool,
     )
 

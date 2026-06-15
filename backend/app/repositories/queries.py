@@ -35,6 +35,12 @@ def normalize_database_url(database_url: str) -> str:
         return database_url.replace("postgresql://", "postgresql+psycopg://", 1)
     return database_url
 
+
+def build_connect_args(database_url: str) -> dict[str, object]:
+    if database_url.startswith("sqlite"):
+        return {"check_same_thread": False}
+    return {"connect_timeout": 10}
+
 _engine: Engine | None = None
 _session_local: sessionmaker[Session] | None = None
 
@@ -97,7 +103,7 @@ def get_engine() -> Engine:
         settings = get_runtime_settings()
         _engine = create_engine(
             normalize_database_url(settings.database_url),
-            connect_args={"connect_timeout": 10},
+            connect_args=build_connect_args(settings.database_url),
             poolclass=NullPool,
             pool_pre_ping=True,
             future=True,

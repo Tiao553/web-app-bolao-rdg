@@ -15,72 +15,12 @@ from app.integrations.api_football import (
 )
 from app.models.schema import CompetitionPhase, SyncProvider
 from app.services.team_metadata import get_team_metadata
-
-THE_SPORTS_DB_BASE_URL = "https://www.thesportsdb.com/api/v1/json/123"
-THE_SPORTS_DB_LEAGUE_ID = "4429"
-
-THE_SPORTS_DB_TEAM_ALIASES: dict[str, str] = {
-    "mexico": "MEX",
-    "south africa": "RSA",
-    "south korea": "KOR",
-    "czech republic": "CZE",
-    "canada": "CAN",
-    "bosnia-herzegovina": "BIH",
-    "qatar": "QAT",
-    "switzerland": "SUI",
-    "brazil": "BRA",
-    "morocco": "MAR",
-    "haiti": "HAI",
-    "scotland": "SCO",
-    "usa": "USA",
-    "paraguay": "PAR",
-    "australia": "AUS",
-    "turkey": "TUR",
-    "germany": "GER",
-    "curacao": "CUW",
-    "ivory coast": "CIV",
-    "ecuador": "ECU",
-    "netherlands": "NED",
-    "japan": "JPN",
-    "sweden": "SWE",
-    "tunisia": "TUN",
-    "belgium": "BEL",
-    "egypt": "EGY",
-    "iran": "IRN",
-    "new zealand": "NZL",
-    "spain": "ESP",
-    "cape verde": "CPV",
-    "saudi arabia": "KSA",
-    "uruguay": "URU",
-    "france": "FRA",
-    "senegal": "SEN",
-    "iraq": "IRQ",
-    "norway": "NOR",
-    "argentina": "ARG",
-    "algeria": "ALG",
-    "austria": "AUT",
-    "jordan": "JOR",
-    "portugal": "POR",
-    "dr congo": "COD",
-    "uzbekistan": "UZB",
-    "colombia": "COL",
-    "england": "ENG",
-    "croatia": "CRO",
-    "ghana": "GHA",
-    "panama": "PAN",
-}
-
-THE_SPORTS_DB_STATUS_MAP: dict[str, str] = {
-    "ns": "NS",
-    "ft": "FT",
-    "aet": "AET",
-    "pen": "PEN",
-    "postponed": "POSTPONED",
-    "cancelled": "CANCELLED",
-    "abd": "ABANDONED",
-    "live": "LIVE",
-    "ht": "HT",
-}
+from app.integrations.the_sports_db_utils import (
+    THE_SPORTS_DB_BASE_URL,
+    THE_SPORTS_DB_LEAGUE_ID,
+    TheSportsDBEventResult,
+    normalize_event_row,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,6 +57,7 @@ class TheSportsDBClient:
         include_top_scorers: bool = False,
     ) -> ProviderSyncBatch:
         del include_top_scorers
+        requested_fixture_ids = set(fixture_ids or ())
         payload = self._request_json(
             "/eventsseason.php",
             {
@@ -133,7 +74,7 @@ class TheSportsDBClient:
             for row in rows
             if isinstance(row, dict)
             for match in self._map_event_row(row)
-            if fixture_ids is None or match.external_id in set(fixture_ids)
+            if not requested_fixture_ids or match.external_id in requested_fixture_ids
         )
         return ProviderSyncBatch(
             provider=self.provider,
@@ -151,58 +92,40 @@ class TheSportsDBClient:
         return ()
 
     def _map_event_row(self, row: Mapping[str, Any]) -> tuple[ProviderMatchRecord, ...]:
-        event_id = self._require_str(row.get("idEvent"), "idEvent")
-        provider_home_name = self._require_str(row.get("strHomeTeam"), "strHomeTeam")
-        provider_away_name = self._require_str(row.get("strAwayTeam"), "strAwayTeam")
-        home_code = self._provider_name_to_code(provider_home_name)
-        away_code = self._provider_name_to_code(provider_away_name)
-        if home_code is None or away_code is None:
+        normalized = normalize_event_row(row)
+        if normalized is None:
             return ()
-
-        home_team = get_team_metadata(home_code)
-        away_team = get_team_metadata(away_code)
-        if home_team.group is None or away_team.group is None or home_team.group != away_team.group:
-            return ()
-
-        round_number = self._optional_int(row.get("intRound"))
-        if round_number not in {1, 2, 3}:
-            return ()
-
-        starts_at = self._parse_timestamp(
-            self._require_str(row.get("strTimestamp"), "strTimestamp")
-        )
-        status = self._normalize_status(row.get("strStatus"))
-        home_goals = self._optional_int(row.get("intHomeScore"))
-        away_goals = self._optional_int(row.get("intAwayScore"))
-        winner_team_name = None
-        if home_goals is not None and away_goals is not None:
-            if home_goals > away_goals:
-                winner_team_name = home_team.name
-            elif away_goals > home_goals:
-                winner_team_name = away_team.name
-
         return (
             ProviderMatchRecord(
                 provider=self.provider,
-                external_id=event_id,
-                starts_at=starts_at,
-                status=status,
+                external_id=normalized.event_id,
+                starts_at=normalized.starts_at,
+                status=normalized.status,
                 phase=CompetitionPhase.GROUP_STAGE,
-                stage_round=round_number,
-                group_name=home_team.group,
+                stage_round=normalized.round,
+                group_name=get_team_metadata(normalized.home_code).group,
                 bracket_slot=None,
                 venue=self._optional_str(row.get("strVenue")),
-                home_team_name=home_team.name,
-                away_team_name=away_team.name,
-                home_team_fifa_code=home_team.code,
-                away_team_fifa_code=away_team.code,
-                involves_brazil="BRA" in {home_team.code, away_team.code},
-                official_home_goals=home_goals,
-                official_away_goals=away_goals,
-                winner_team_name=winner_team_name,
-                source_payload=dict(row),
+                home_team_name=normalized.home_name,
+                away_team_name=normalized.away_name,
+                home_team_fifa_code=normalized.home_code,
+                away_team_fifa_code=normalized.away_code,
+                involves_brazil="BRA" in {normalized.home_code, normalized.away_code},
+                official_home_goals=normalized.home_goals,
+                official_away_goals=normalized.away_goals,
+                winner_team_name=self._winner_name(normalized),
+                source_payload=normalized.source_payload,
             ),
         )
+
+    def _winner_name(self, normalized: TheSportsDBEventResult) -> str | None:
+        if normalized.home_goals is None or normalized.away_goals is None:
+            return None
+        if normalized.home_goals > normalized.away_goals:
+            return normalized.home_name
+        if normalized.away_goals > normalized.home_goals:
+            return normalized.away_name
+        return None
 
     def _request_json(self, path: str, params: Mapping[str, str]) -> dict[str, Any]:
         response = self._perform_request(
@@ -224,30 +147,6 @@ class TheSportsDBClient:
         with httpx.Client() as client:
             return client.get(url, params=params, timeout=self._timeout)
 
-    def _provider_name_to_code(self, name: str) -> str | None:
-        normalized = name.strip().casefold()
-        return THE_SPORTS_DB_TEAM_ALIASES.get(normalized)
-
-    def _normalize_status(self, value: Any) -> str:
-        raw = self._optional_str(value)
-        if raw is None:
-            return "UNKNOWN"
-        return THE_SPORTS_DB_STATUS_MAP.get(raw.casefold(), raw.strip().upper())
-
-    def _parse_timestamp(self, value: str) -> datetime:
-        parsed = datetime.fromisoformat(value.strip())
-        if parsed.tzinfo is None:
-            return parsed.replace(tzinfo=timezone.utc)
-        return parsed.astimezone(timezone.utc)
-
-    def _require_str(self, value: Any, field_name: str) -> str:
-        normalized = self._optional_str(value)
-        if normalized is None:
-            raise ProviderResponseError(
-                f"TheSportsDB field '{field_name}' must be a non-empty string"
-            )
-        return normalized
-
     def _optional_str(self, value: Any) -> str | None:
         if value is None:
             return None
@@ -256,13 +155,4 @@ class TheSportsDBClient:
             return normalized or None
         if isinstance(value, int):
             return str(value)
-        return None
-
-    def _optional_int(self, value: Any) -> int | None:
-        if value is None or value == "" or isinstance(value, bool):
-            return None
-        if isinstance(value, int):
-            return value
-        if isinstance(value, str):
-            return int(value)
         return None

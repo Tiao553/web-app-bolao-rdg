@@ -1,0 +1,32 @@
+name: Auto Sync Results
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: auto-sync-results
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger backend auto sync
+        env:
+          SYNC_AUTO_SYNC_URL: ${{ secrets.SYNC_AUTO_SYNC_URL }}
+          SYNC_ADMIN_TOKEN: ${{ secrets.SYNC_ADMIN_TOKEN }}
+        run: |
+          if [ -z "$SYNC_AUTO_SYNC_URL" ]; then
+            echo "SYNC_AUTO_SYNC_URL is missing"
+            exit 1
+          fi
+          if [ -z "$SYNC_ADMIN_TOKEN" ]; then
+            echo "SYNC_ADMIN_TOKEN is missing"
+            exit 1
+          fi
+          curl --fail --silent --show-error \
+            --request POST \
+            --url "$SYNC_AUTO_SYNC_URL" \
+            --header "Authorization: Bearer $SYNC_ADMIN_TOKEN"

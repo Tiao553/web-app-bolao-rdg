@@ -110,7 +110,7 @@ def test_pending_user_cannot_access_dashboard() -> None:
     assert response.status_code == 403
 
 
-def test_approved_user_can_save_prediction_and_see_own_explore_before_release() -> None:
+def test_approved_user_sees_public_match_group_when_match_is_terminal() -> None:
     configure_test_settings()
     factory = make_session_factory()
     with factory() as db_session:
@@ -120,12 +120,14 @@ def test_approved_user_can_save_prediction_and_see_own_explore_before_release() 
             external_provider=None,
             external_id="local-1",
             phase="GROUP_STAGE",
-            starts_at=datetime.now(timezone.utc) + timedelta(days=1),
+            starts_at=datetime.now(timezone.utc) - timedelta(minutes=5),
             home_team_name="Brazil",
             away_team_name="Argentina",
             home_team_fifa_code="BRA",
             away_team_fifa_code="ARG",
-            status="SCHEDULED",
+            status="FT",
+            official_home_goals=2,
+            official_away_goals=1,
         )
         db_session.add(match)
         db_session.flush()
@@ -150,8 +152,76 @@ def test_approved_user_can_save_prediction_and_see_own_explore_before_release() 
         assert login_response.status_code == 200
         response = client.get("/api/member/explore")
     assert response.status_code == 200
-    assert response.json()["exploreReleased"] is False
-    assert len(response.json()["matchPredictions"]) == 1
+    payload = response.json()
+    assert payload["exploreState"] == "released"
+    assert payload["exploreReleased"] is True
+    assert len(payload["matchGroups"]) == 1
+    assert len(payload["matchPredictions"]) == 1
+    assert payload["matchPredictions"][0]["matchId"] == payload["matchGroups"][0]["matchId"]
+
+
+def test_approved_user_sees_only_public_explore_groups_when_partial() -> None:
+    configure_test_settings()
+    factory = make_session_factory()
+    now = datetime.now(timezone.utc)
+    with factory() as db_session:
+        viewer = create_user(db_session, email="viewer@example.com", status=AccessStatus.APPROVED)
+        other = create_user(db_session, email="other@example.com", status=AccessStatus.APPROVED)
+        seed_window(db_session, released=False)
+        public_match = Match(
+            external_provider=None,
+            external_id="local-public",
+            phase="GROUP_STAGE",
+            group_name="A",
+            stage_round=1,
+            starts_at=now + timedelta(minutes=10),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            status="SCHEDULED",
+        )
+        hidden_match = Match(
+            external_provider=None,
+            external_id="local-hidden",
+            phase="GROUP_STAGE",
+            group_name="B",
+            stage_round=1,
+            starts_at=now + timedelta(hours=2),
+            home_team_name="Mexico",
+            away_team_name="Japan",
+            home_team_fifa_code="MEX",
+            away_team_fifa_code="JPN",
+            status="SCHEDULED",
+        )
+        db_session.add_all([public_match, hidden_match])
+        db_session.flush()
+        db_session.add_all(
+            [
+                MatchPrediction(user_id=viewer.id, match_id=public_match.id, home_goals=2, away_goals=1, points_awarded=3),
+                MatchPrediction(user_id=other.id, match_id=public_match.id, home_goals=1, away_goals=1, points_awarded=1),
+                MatchPrediction(user_id=viewer.id, match_id=hidden_match.id, home_goals=1, away_goals=0, points_awarded=0),
+                MatchPrediction(user_id=other.id, match_id=hidden_match.id, home_goals=0, away_goals=1, points_awarded=0),
+            ]
+        )
+        db_session.commit()
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        headers = issue_csrf_headers(client)
+        login_response = client.post(
+            "/api/auth/login",
+            json={"email": "viewer@example.com", "password": "password123"},
+            headers=headers,
+        )
+        assert login_response.status_code == 200
+        response = client.get("/api/member/explore")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["exploreState"] == "partial"
+    assert len(payload["matchGroups"]) == 1
+    assert len(payload["matchPredictions"]) == 2
+    assert {item["matchId"] for item in payload["matchPredictions"]} == {payload["matchGroups"][0]["matchId"]}
 
 
 def test_ranking_excludes_non_approved_users() -> None:
@@ -202,7 +272,7 @@ def test_ranking_excludes_non_approved_users() -> None:
     assert response.json()["rows"][0]["fullName"] == "approved"
 
 
-def test_approved_user_sees_other_released_predictions_with_match_metadata() -> None:
+def test_approved_user_sees_released_predictions_with_match_metadata() -> None:
     configure_test_settings()
     factory = make_session_factory()
     with factory() as db_session:
@@ -216,12 +286,14 @@ def test_approved_user_sees_other_released_predictions_with_match_metadata() -> 
             phase="GROUP_STAGE",
             group_name="A",
             stage_round=1,
-            starts_at=datetime.now(timezone.utc) + timedelta(days=1),
+            starts_at=datetime.now(timezone.utc) - timedelta(minutes=5),
             home_team_name="Brazil",
             away_team_name="Argentina",
             home_team_fifa_code="BRA",
             away_team_fifa_code="ARG",
-            status="SCHEDULED",
+            status="FT",
+            official_home_goals=2,
+            official_away_goals=1,
         )
         db_session.add(match)
         db_session.flush()
@@ -247,6 +319,8 @@ def test_approved_user_sees_other_released_predictions_with_match_metadata() -> 
     assert response.status_code == 200
     payload = response.json()
     assert payload["exploreReleased"] is True
+    assert payload["exploreState"] == "released"
+    assert len(payload["matchGroups"]) == 1
     assert len(payload["matchPredictions"]) == 2
     visible_names = {item["userName"] for item in payload["matchPredictions"]}
     assert visible_names == {"viewer", "other"}
