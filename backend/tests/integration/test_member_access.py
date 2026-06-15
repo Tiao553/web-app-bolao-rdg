@@ -16,6 +16,7 @@ from app.main import create_app
 from app.models.schema import (
     AccessStatus,
     Base,
+    CompetitionPhase,
     CompetitionPhaseConfig,
     CompetitionPrediction,
     CompetitionWindow,
@@ -90,6 +91,16 @@ def issue_csrf_headers(client: TestClient) -> dict[str, str]:
     csrf_token = "test-csrf-token"
     client.cookies.set(CSRF_COOKIE_NAME, csrf_token)
     return {CSRF_HEADER_NAME: csrf_token}
+
+
+def login_approved_user(client: TestClient, email: str) -> None:
+    headers = issue_csrf_headers(client)
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": email, "password": "password123"},
+        headers=headers,
+    )
+    assert login_response.status_code == 200
 
 
 def test_pending_user_cannot_access_dashboard() -> None:
@@ -227,11 +238,10 @@ def test_approved_user_sees_only_public_explore_groups_when_partial() -> None:
     assert {item["matchId"] for item in payload["matchPredictions"]} == {payload["matchGroups"][0]["matchId"]}
 
 
-def test_approved_user_sees_all_public_matches_from_the_same_open_round() -> None:
+def test_approved_user_sees_round_public_when_explore_opens_before_lock() -> None:
     configure_test_settings()
     factory = make_session_factory()
     now = datetime.now(timezone.utc)
-    phase_now = now.replace(tzinfo=None)
     with factory() as db_session:
         viewer = create_user(db_session, email="viewer@example.com", status=AccessStatus.APPROVED)
         other = create_user(db_session, email="other@example.com", status=AccessStatus.APPROVED)
@@ -244,9 +254,9 @@ def test_approved_user_sees_all_public_matches_from_the_same_open_round() -> Non
                     phase="GROUP_STAGE",
                     stage_round=1,
                     sort_order=1,
-                    first_match_starts_at=phase_now - timedelta(minutes=5),
-                    lock_at=phase_now - timedelta(minutes=30),
-                    explore_at=phase_now - timedelta(minutes=30),
+                    first_match_starts_at=now - timedelta(minutes=5),
+                    lock_at=now + timedelta(hours=2),
+                    explore_at=now - timedelta(minutes=5),
                     is_active=True,
                 ),
                 CompetitionPhaseConfig(
@@ -255,9 +265,9 @@ def test_approved_user_sees_all_public_matches_from_the_same_open_round() -> Non
                     phase="GROUP_STAGE",
                     stage_round=2,
                     sort_order=2,
-                    first_match_starts_at=phase_now + timedelta(days=1),
-                    lock_at=phase_now + timedelta(days=1, minutes=-30),
-                    explore_at=phase_now + timedelta(days=1, minutes=-30),
+                    first_match_starts_at=now + timedelta(days=1),
+                    lock_at=now + timedelta(days=1, minutes=-30),
+                    explore_at=now + timedelta(days=1, minutes=-30),
                     is_active=True,
                 ),
             ]
@@ -268,7 +278,7 @@ def test_approved_user_sees_all_public_matches_from_the_same_open_round() -> Non
             phase="GROUP_STAGE",
             group_name="C",
             stage_round=1,
-            starts_at=now + timedelta(minutes=5),
+            starts_at=now + timedelta(hours=1),
             home_team_name="Brazil",
             away_team_name="Argentina",
             home_team_fifa_code="BRA",
@@ -317,13 +327,7 @@ def test_approved_user_sees_all_public_matches_from_the_same_open_round() -> Non
     app = create_app()
     app.dependency_overrides[get_db_session] = build_db_override(factory)
     with TestClient(app) as client:
-        headers = issue_csrf_headers(client)
-        login_response = client.post(
-            "/api/auth/login",
-            json={"email": "viewer@example.com", "password": "password123"},
-            headers=headers,
-        )
-        assert login_response.status_code == 200
+        login_approved_user(client, "viewer@example.com")
         response = client.get("/api/member/explore")
     assert response.status_code == 200
     payload = response.json()
@@ -332,6 +336,81 @@ def test_approved_user_sees_all_public_matches_from_the_same_open_round() -> Non
     assert {group["awayTeam"] for group in payload["matchGroups"]} == {"Argentina", "Japão"}
     assert all(group["stageRound"] == 1 for group in payload["matchGroups"])
     assert len(payload["matchPredictions"]) == 4
+
+    with TestClient(app) as client:
+        login_approved_user(client, "viewer@example.com")
+        response = client.get("/api/member/phase-screen")
+    assert response.status_code == 200
+    phase_payload = response.json()
+    rounds = {round_item["key"]: round_item for round_item in phase_payload["rounds"]}
+    assert rounds["round1"]["locked"] is False
+    assert rounds["round1"]["exploreOpen"] is True
+    assert rounds["round2"]["locked"] is False
+    assert rounds["round2"]["exploreOpen"] is False
+
+
+def test_force_locked_round_is_public_in_explore_but_locked_for_editing() -> None:
+    configure_test_settings()
+    factory = make_session_factory()
+    now = datetime.now(timezone.utc)
+    with factory() as db_session:
+        viewer = create_user(db_session, email="viewer@example.com", status=AccessStatus.APPROVED)
+        other = create_user(db_session, email="other@example.com", status=AccessStatus.APPROVED)
+        seed_window(db_session, released=False)
+        db_session.add(
+            CompetitionPhaseConfig(
+                phase_key="round1",
+                label="Round 1",
+                phase=CompetitionPhase.GROUP_STAGE,
+                stage_round=1,
+                sort_order=1,
+                first_match_starts_at=now + timedelta(hours=1),
+                lock_at=now + timedelta(hours=2),
+                explore_at=now + timedelta(hours=3),
+                is_force_locked=True,
+                is_active=True,
+            )
+        )
+        match = Match(
+            external_provider=None,
+            external_id="local-force-locked",
+            phase="GROUP_STAGE",
+            group_name="A",
+            stage_round=1,
+            starts_at=now + timedelta(hours=1),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            status="SCHEDULED",
+        )
+        db_session.add(match)
+        db_session.flush()
+        db_session.add_all(
+            [
+                MatchPrediction(user_id=viewer.id, match_id=match.id, home_goals=2, away_goals=1, points_awarded=0),
+                MatchPrediction(user_id=other.id, match_id=match.id, home_goals=1, away_goals=1, points_awarded=0),
+            ]
+        )
+        db_session.commit()
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        login_approved_user(client, "viewer@example.com")
+        response = client.get("/api/member/explore")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["exploreState"] == "released"
+    assert len(payload["matchGroups"]) == 1
+
+    with TestClient(app) as client:
+        login_approved_user(client, "viewer@example.com")
+        response = client.get("/api/member/phase-screen")
+    assert response.status_code == 200
+    phase_payload = response.json()
+    round1 = next(round_item for round_item in phase_payload["rounds"] if round_item["key"] == "round1")
+    assert round1["locked"] is True
+    assert round1["exploreOpen"] is True
 
 
 def test_ranking_excludes_non_approved_users() -> None:

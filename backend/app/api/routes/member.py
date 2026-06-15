@@ -357,12 +357,16 @@ def _is_explore_match_public(
     *,
     now: datetime,
     db_session: Session,
+    phase_configs: dict[str, CompetitionPhaseConfig] | None = None,
 ) -> bool:
     if is_terminal_match_status(match.status):
         return True
     round_key = _match_round_key(match)
-    if round_key is not None and _phase_locked(db_session, round_key, now):
-        return True
+    if round_key is not None:
+        configs = phase_configs if phase_configs is not None else _phase_config_map(db_session)
+        config = configs.get(round_key)
+        if config is not None:
+            return config.is_force_locked or now >= as_utc(config.explore_at)
     if match.starts_at is None:
         return False
     return now >= as_utc(match.starts_at) - PHASE_LOCK_OFFSET
@@ -929,6 +933,7 @@ def get_explore(
 ) -> ExploreResponse:
     now = utc_now()
     del competition_window
+    phase_configs = _phase_config_map(db_session)
     match_predictions = list(
         db_session.scalars(
             select(MatchPrediction)
@@ -965,7 +970,12 @@ def get_explore(
     for prediction in match_predictions:
         match = prediction.match
         ordered_matches[match.id] = match
-        if _is_explore_match_public(match, now=now, db_session=db_session):
+        if _is_explore_match_public(
+            match,
+            now=now,
+            db_session=db_session,
+            phase_configs=phase_configs,
+        ):
             grouped_predictions[match.id].append(prediction)
 
     sorted_match_ids = sorted(
@@ -1172,6 +1182,21 @@ def _compute_explore_open(phase_locks: dict[str, bool]) -> dict[str, bool]:
     return explore
 
 
+def _compute_explore_open_from_configs(
+    phase_configs: dict[str, CompetitionPhaseConfig],
+    now: datetime,
+) -> dict[str, bool]:
+    """Explore visibility follows exploreAt for each round independently."""
+    explore: dict[str, bool] = {}
+    for key in ["initial_predictions", *_ROUND_CONFIG_KEYS]:
+        config = phase_configs.get(key)
+        if config is None:
+            explore[key] = False
+            continue
+        explore[key] = config.is_force_locked or now >= as_utc(config.explore_at)
+    return explore
+
+
 # ── Phase matches response models ────────────────────────────────────────────
 
 class PhaseMatchResponse(BaseModel):
@@ -1237,7 +1262,7 @@ def get_phase_screen(
     phase_configs = _phase_config_map(db_session)
     if phase_configs:
         phase_locks = _compute_phase_locks_from_configs(phase_configs, now)
-        explore_open = _compute_explore_open(phase_locks)
+        explore_open = _compute_explore_open_from_configs(phase_configs, now)
     else:
         # Load active competition window for force_locked_phases bitmask
         cw = db_session.scalar(select(CompetitionWindow).where(CompetitionWindow.is_active.is_(True)))

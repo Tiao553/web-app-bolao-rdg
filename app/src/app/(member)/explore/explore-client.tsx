@@ -18,6 +18,7 @@ type Props = {
   exploreState: ExploreStateContract;
   matchGroups: ExploreMatchGroupContract[];
   competitionPredictions: ExploreCompetitionPredictionContract[];
+  loadError?: string | null;
 };
 
 function stateLabel(state: ExploreStateContract): string {
@@ -178,6 +179,7 @@ export function ExploreClient({
   exploreState,
   matchGroups,
   competitionPredictions,
+  loadError = null,
 }: Props) {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [searchOpen, setSearchOpen] = useState(false);
@@ -217,6 +219,8 @@ export function ExploreClient({
     return text.includes(search) || group.predictions.some((prediction) => prediction.userName.toLowerCase().includes(search));
   });
 
+  const isUnavailable = Boolean(loadError);
+
   return (
     <>
       <section className="hero explore-hero">
@@ -225,19 +229,39 @@ export function ExploreClient({
             <div className="eyebrow"><span className="dot" />Explore</div>
             <h1>Palpites públicos, sem ruído.</h1>
             <p>
-              Campeão e artilheiro ficam sempre públicos. Os palpites de jogo aparecem por partida,
-              ordenados pela data, com o próximo jogo ou o ao vivo destacado no topo.
+              {isUnavailable
+                ? 'O Explore não conseguiu carregar agora. Os palpites continuam disponíveis assim que a integração responder.'
+                : 'Campeão e artilheiro ficam sempre públicos. Os palpites de jogo aparecem por partida, ordenados pela data, com o próximo jogo ou o ao vivo destacado no topo.'}
             </p>
           </div>
           <div className="explore-hero-actions">
-            <div className={`pill ${stateTone(exploreState)}`}><span className="dot" />{stateLabel(exploreState)}</div>
-            <button type="button" className="btn-primary explore-search-btn" onClick={() => setSearchOpen(true)}>
-              Pesquisar palpites
-            </button>
+            <div className={`pill ${isUnavailable ? 'warn' : stateTone(exploreState)}`}>
+              <span className="dot" />
+              {isUnavailable ? 'Indisponível' : stateLabel(exploreState)}
+            </div>
+            {!isUnavailable ? (
+              <button type="button" className="btn-primary explore-search-btn" onClick={() => setSearchOpen(true)}>
+                Pesquisar palpites
+              </button>
+            ) : null}
           </div>
         </div>
       </section>
 
+      {isUnavailable ? (
+        <div className="card">
+          <div className="card-body" style={{ padding: 24 }}>
+            <div className="warning-admin">
+              <div className="warning-title-admin">Explore indisponível</div>
+              <div className="warning-text-admin">
+                {loadError}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isUnavailable ? null : (
       <div className="grid-2 explore-layout">
         <div className="card">
           <div className="card-header">
@@ -309,8 +333,9 @@ export function ExploreClient({
           </div>
         </div>
       </div>
+      )}
 
-      {searchOpen ? (
+      {!isUnavailable && searchOpen ? (
         <div className="modal-overlay explore-sheet-overlay" onClick={() => setSearchOpen(false)}>
           <div
             className="explore-sheet"

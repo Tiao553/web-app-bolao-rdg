@@ -11,12 +11,13 @@ const FALLBACK_DATA: ExploreContract = {
 };
 
 export default async function ExplorePage() {
-  const { data } = await fetchBackendData<ExploreContract>('/api/member/explore');
+  const { data, error } = await fetchBackendData<ExploreContract>('/api/member/explore');
   return (
     <ExploreClient
       exploreState={data?.exploreState ?? FALLBACK_DATA.exploreState}
       matchGroups={data?.matchGroups ?? FALLBACK_DATA.matchGroups}
       competitionPredictions={data?.competitionPredictions ?? FALLBACK_DATA.competitionPredictions}
+      loadError={error}
     />
   );
 }
