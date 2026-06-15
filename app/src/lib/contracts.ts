@@ -133,9 +133,21 @@ export type RankingRowContract = {
   bonusPoints: number;
 };
 
+export type RankingBreakdownContract = {
+  matchPoints: number;
+  exactPoints: number;
+  resultPoints: number;
+  brazilPoints: number;
+  championPoints: number;
+  topScorerPoints: number;
+  bonusPoints: number;
+  totalPoints: number;
+};
+
 export type RankingContract = {
   rows: RankingRowContract[];
   currentUserRank: number | null;
+  currentUserBreakdown: RankingBreakdownContract | null;
 };
 
 export type ExploreMatchPredictionContract = {

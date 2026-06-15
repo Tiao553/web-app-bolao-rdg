@@ -16,7 +16,6 @@ const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'FINISHED']);
 
 type Props = {
   exploreState: ExploreStateContract;
-  exploreReleased: boolean;
   matchGroups: ExploreMatchGroupContract[];
   competitionPredictions: ExploreCompetitionPredictionContract[];
 };
@@ -87,23 +86,11 @@ function getSortedGroups(groups: ExploreMatchGroupContract[], nowMs: number): Ex
   });
 }
 
-function buildSelectionSummary(
+function getCompetitionPredictions(
   predictions: ExploreCompetitionPredictionContract[],
   kind: 'CHAMPION' | 'TOP_SCORER',
-): { title: string; selection: ExploreCompetitionPredictionContract | null; count: number } {
-  const filtered = predictions.filter((prediction) => prediction.predictionType === kind);
-  const counts = new Map<string, { item: ExploreCompetitionPredictionContract; count: number }>();
-  filtered.forEach((prediction) => {
-    const entry = counts.get(prediction.selectionLabel) ?? { item: prediction, count: 0 };
-    entry.count += 1;
-    counts.set(prediction.selectionLabel, entry);
-  });
-  const top = [...counts.values()].sort((left, right) => right.count - left.count)[0] ?? null;
-  return {
-    title: kind === 'CHAMPION' ? 'Campeão' : 'Artilheiro',
-    selection: top?.item ?? null,
-    count: top?.count ?? 0,
-  };
+): ExploreCompetitionPredictionContract[] {
+  return predictions.filter((prediction) => prediction.predictionType === kind);
 }
 
 function getGroupLabel(group: ExploreMatchGroupContract): string {
@@ -159,7 +146,7 @@ function MatchCard({
       </div>
 
       <div className="explore-feature-list">
-        {group.predictions.slice(0, 4).map((prediction) => {
+        {group.predictions.map((prediction) => {
           const badge = formatPoints(prediction.pointsAwarded);
           return (
             <div key={`${prediction.userId}-${prediction.matchId}`} className="explore-feature-row">
@@ -178,7 +165,6 @@ function MatchCard({
 
 export function ExploreClient({
   exploreState,
-  exploreReleased,
   matchGroups,
   competitionPredictions,
 }: Props) {
@@ -197,8 +183,8 @@ export function ExploreClient({
 
   const orderedGroups = getSortedGroups(matchGroups, nowMs);
   const featuredGroup = orderedGroups[0] ?? null;
-  const championSummary = buildSelectionSummary(competitionPredictions, 'CHAMPION');
-  const scorerSummary = buildSelectionSummary(competitionPredictions, 'TOP_SCORER');
+  const championPredictions = getCompetitionPredictions(competitionPredictions, 'CHAMPION');
+  const scorerPredictions = getCompetitionPredictions(competitionPredictions, 'TOP_SCORER');
 
   const filteredGroups = orderedGroups.filter((group) => {
     const text = groupSearchText(group);
@@ -233,10 +219,9 @@ export function ExploreClient({
           </div>
           <div className="explore-hero-actions">
             <div className={`pill ${stateTone(exploreState)}`}><span className="dot" />{stateLabel(exploreState)}</div>
-            <button type="button" className="btn-secondary" onClick={() => setSearchOpen(true)}>
+            <button type="button" className="btn-primary explore-search-btn" onClick={() => setSearchOpen(true)}>
               Pesquisar palpites
             </button>
-            <div className={`pill ${exploreReleased ? 'ok' : 'warn'}`}><span className="dot" />{exploreReleased ? 'público' : 'parcial'}</div>
           </div>
         </div>
       </section>
@@ -248,9 +233,6 @@ export function ExploreClient({
               <div className="card-title">Jogo em destaque</div>
               <div className="card-subtitle">Ao vivo primeiro, depois o próximo confronto público</div>
             </div>
-            <button type="button" className="btn-ghost" onClick={() => setSearchOpen(true)}>
-              Abrir busca
-            </button>
           </div>
           <div className="card-body">
             {featuredGroup ? (
@@ -273,29 +255,38 @@ export function ExploreClient({
           <div className="card-body">
             <div className="explore-picks">
               {[
-                championSummary,
-                scorerSummary,
+                { title: 'Campeão', predictions: championPredictions },
+                { title: 'Artilheiro', predictions: scorerPredictions },
               ].map((summary) => (
                 <div key={summary.title} className="explore-pick-card">
                   <div className="explore-pick-head">
                     <div>
                       <div className="explore-pick-title">{summary.title}</div>
-                      <div className="explore-pick-sub">{summary.count} escolha{summary.count === 1 ? '' : 's'} pública{summary.count === 1 ? '' : 's'}</div>
+                      <div className="explore-pick-sub">{summary.predictions.length} escolha{summary.predictions.length === 1 ? '' : 's'} pública{summary.predictions.length === 1 ? '' : 's'}</div>
                     </div>
                     <div className="pill neutral"><span className="dot" />público</div>
                   </div>
-                  {summary.selection ? (
-                    <div className="explore-pick-body">
-                      <div className="explore-pick-name">{summary.selection.selectionLabel}</div>
-                      {summary.selection.selectionTeamCode || summary.selection.selectionTeamName ? (
-                        <TeamBadge
-                          name={summary.selection.selectionTeamName ?? summary.selection.selectionLabel}
-                          code={summary.selection.selectionTeamCode}
-                          iso2={summary.selection.selectionTeamIso2}
-                          flag={summary.selection.selectionTeamFlag ?? undefined}
-                          compact
-                        />
-                      ) : null}
+                  {summary.predictions.length > 0 ? (
+                    <div className="explore-pick-list">
+                      {summary.predictions.map((prediction) => (
+                        <div key={`${summary.title}-${prediction.userId}-${prediction.selectionKey}`} className="explore-pick-row">
+                          <div className="explore-pick-meta">
+                            <div className="explore-pick-user">{prediction.userName}</div>
+                            <div className="explore-pick-choice">{prediction.selectionLabel}</div>
+                          </div>
+                          {prediction.selectionTeamCode || prediction.selectionTeamName ? (
+                            <TeamBadge
+                              name={prediction.selectionTeamName ?? prediction.selectionLabel}
+                              code={prediction.selectionTeamCode}
+                              iso2={prediction.selectionTeamIso2}
+                              flag={prediction.selectionTeamFlag ?? undefined}
+                              compact
+                            />
+                          ) : (
+                            <div className="pill neutral"><span className="dot" />público</div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="explore-empty explore-empty-soft">Nenhum palpite público registrado.</div>

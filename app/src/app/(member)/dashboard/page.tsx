@@ -11,9 +11,11 @@ function initials(name: string) {
 
 function fmtMatchDate(iso: string) {
   const d = new Date(iso);
-  const options = { timeZone: 'America/Sao_Paulo' } as const;
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', ...options }) + ' · ' +
-    d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', ...options });
+  return (
+    d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '') +
+    ' · ' +
+    d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false })
+  );
 }
 
 export default async function DashboardPage() {

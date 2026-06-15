@@ -6,6 +6,7 @@ import type { AppSession } from '../../lib/session';
 
 const primaryNav = [
   { href: '/dashboard', label: 'Dashboard', icon: '◈' },
+  { href: '/explore', label: 'Explore', icon: '◎' },
   { href: '/initial-predictions', label: 'Palpites iniciais', icon: '★' },
   { href: '/phase-predictions', label: 'Palpites por fase', icon: '▦' },
   { href: '/results', label: 'Resultados', icon: '◆' },
@@ -14,7 +15,6 @@ const competitionNav = [
   { href: '/ranking', label: 'Ranking', icon: '#' },
   { href: '/standings', label: 'Classificação', icon: '≡' },
   { href: '/bracket', label: 'Chaveamento', icon: '⌁' },
-  { href: '/explore', label: 'Explore', icon: '◎' },
 ];
 
 export function MemberShell({ session, children }: { session: AppSession; children: ReactNode }) {

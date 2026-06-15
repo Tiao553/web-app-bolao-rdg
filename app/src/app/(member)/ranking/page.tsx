@@ -5,11 +5,11 @@ export default async function RankingPage() {
   const { data } = await fetchBackendData<RankingContract>('/api/member/ranking');
   const rows = data?.rows ?? [];
   const myRank = data?.currentUserRank;
+  const breakdown = data?.currentUserBreakdown;
   const podium = rows.slice(0, 3);
-  const rest = rows.slice(3);
 
   const maxPts = rows[0]?.totalPoints ?? 200;
-  const barPct = (n: number) => Math.min(100, maxPts > 0 ? (n / maxPts) * 100 : 0);
+  const barPct = (n: number, max = maxPts) => Math.min(100, max > 0 ? (n / max) * 100 : 0);
 
   return (
     <>
@@ -99,11 +99,20 @@ export default async function RankingPage() {
         <div className="card">
           <div className="card-header"><div><div className="card-title">Seus pontos</div><div className="card-subtitle">Breakdown geral</div></div></div>
           <div className="card-body">
-            {rows.find(r => r.rank === myRank) ? (
-              <div className="bar-list">
-                <div className="bar-row"><div className="bar-label">Partidas</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(rows.find(r => r.rank === myRank)?.matchPoints ?? 0)}%` }} /></div><div className="bar-value">{rows.find(r => r.rank === myRank)?.matchPoints ?? 0}</div></div>
-                <div className="bar-row"><div className="bar-label">Bônus</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(rows.find(r => r.rank === myRank)?.bonusPoints ?? 0)}%` }} /></div><div className="bar-value">{rows.find(r => r.rank === myRank)?.bonusPoints ?? 0}</div></div>
-                <div className="bar-row"><div className="bar-label">Total</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(rows.find(r => r.rank === myRank)?.totalPoints ?? 0)}%` }} /></div><div className="bar-value">{rows.find(r => r.rank === myRank)?.totalPoints ?? 0}</div></div>
+            {breakdown ? (
+              <div className="ranking-breakdown">
+                <div className="ranking-total">
+                  <div className="ranking-total-label">Pontuação total</div>
+                  <div className="ranking-total-value">{breakdown.totalPoints}</div>
+                  <div className="ranking-total-meta">{breakdown.matchPoints} pontos em jogos · {breakdown.bonusPoints} em bônus</div>
+                </div>
+                <div className="bar-list">
+                  <div className="bar-row"><div className="bar-label">Exatos</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(breakdown.exactPoints, breakdown.totalPoints)}%` }} /></div><div className="bar-value">{breakdown.exactPoints}</div></div>
+                  <div className="bar-row"><div className="bar-label">Resultado</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(breakdown.resultPoints, breakdown.totalPoints)}%` }} /></div><div className="bar-value">{breakdown.resultPoints}</div></div>
+                  <div className="bar-row"><div className="bar-label">Brasil ×2</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(breakdown.brazilPoints, breakdown.totalPoints)}%` }} /></div><div className="bar-value">{breakdown.brazilPoints}</div></div>
+                  <div className="bar-row"><div className="bar-label">Campeão</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(breakdown.championPoints, breakdown.totalPoints)}%` }} /></div><div className="bar-value">{breakdown.championPoints}</div></div>
+                  <div className="bar-row"><div className="bar-label">Artilheiro</div><div className="bar-track"><div className="bar-fill" style={{ width: `${barPct(breakdown.topScorerPoints, breakdown.totalPoints)}%` }} /></div><div className="bar-value">{breakdown.topScorerPoints}</div></div>
+                </div>
               </div>
             ) : <div style={{ fontSize: 13, color: 'var(--tx3)' }}>Dados indisponíveis.</div>}
           </div>

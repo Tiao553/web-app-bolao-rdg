@@ -16,9 +16,11 @@ from app.main import create_app
 from app.models.schema import (
     AccessStatus,
     Base,
+    CompetitionPrediction,
     CompetitionWindow,
     Match,
     MatchPrediction,
+    PredictionType,
     User,
 )
 from app.repositories.queries import get_db_session
@@ -231,7 +233,7 @@ def test_ranking_excludes_non_approved_users() -> None:
         approved = create_user(db_session, email="approved@example.com", status=AccessStatus.APPROVED)
         create_user(db_session, email="pending@example.com", status=AccessStatus.PENDING)
         seed_window(db_session, released=True)
-        match = Match(
+        exact_match = Match(
             external_provider=None,
             external_id="local-2",
             phase="GROUP_STAGE",
@@ -240,19 +242,60 @@ def test_ranking_excludes_non_approved_users() -> None:
             away_team_name="Japan",
             home_team_fifa_code="BRA",
             away_team_fifa_code="JPN",
+            involves_brazil=True,
             status="FT",
             official_home_goals=1,
             official_away_goals=0,
         )
-        db_session.add(match)
+        result_match = Match(
+            external_provider=None,
+            external_id="local-3",
+            phase="GROUP_STAGE",
+            starts_at=datetime.now(timezone.utc),
+            home_team_name="Mexico",
+            away_team_name="Japan",
+            home_team_fifa_code="MEX",
+            away_team_fifa_code="JPN",
+            status="FT",
+            official_home_goals=1,
+            official_away_goals=0,
+        )
+        db_session.add_all([exact_match, result_match])
         db_session.flush()
         db_session.add(
             MatchPrediction(
                 user_id=approved.id,
-                match_id=match.id,
+                match_id=exact_match.id,
                 home_goals=1,
                 away_goals=0,
                 points_awarded=6,
+            )
+        )
+        db_session.add(
+            MatchPrediction(
+                user_id=approved.id,
+                match_id=result_match.id,
+                home_goals=2,
+                away_goals=1,
+                points_awarded=1,
+            )
+        )
+        db_session.add(
+            CompetitionPrediction(
+                user_id=approved.id,
+                prediction_type=PredictionType.CHAMPION,
+                selection_key="BRA",
+                selection_label="Brazil",
+                points_awarded=10,
+            )
+        )
+        db_session.add(
+            CompetitionPrediction(
+                user_id=approved.id,
+                prediction_type=PredictionType.TOP_SCORER,
+                selection_key="NEY",
+                selection_label="Neymar",
+                points_awarded=15,
             )
         )
         db_session.commit()
@@ -268,8 +311,19 @@ def test_ranking_excludes_non_approved_users() -> None:
         assert login_response.status_code == 200
         response = client.get("/api/member/ranking")
     assert response.status_code == 200
-    assert len(response.json()["rows"]) == 1
-    assert response.json()["rows"][0]["fullName"] == "approved"
+    payload = response.json()
+    assert len(payload["rows"]) == 1
+    assert payload["rows"][0]["fullName"] == "approved"
+    assert payload["currentUserBreakdown"] == {
+        "matchPoints": 7,
+        "exactPoints": 3,
+        "resultPoints": 1,
+        "brazilPoints": 3,
+        "championPoints": 10,
+        "topScorerPoints": 15,
+        "bonusPoints": 25,
+        "totalPoints": 32,
+    }
 
 
 def test_approved_user_sees_released_predictions_with_match_metadata() -> None:

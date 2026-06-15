@@ -130,6 +130,12 @@ body > * { position: relative; z-index: 1; }
 }
 .btn-secondary:hover { border-color: var(--or-r); background: var(--s3); }
 
+.explore-search-btn {
+  height: 38px;
+  padding: 0 18px;
+  width: fit-content;
+}
+
 .btn-ghost {
   display: inline-flex;
   align-items: center;
@@ -292,6 +298,33 @@ body > * { position: relative; z-index: 1; }
 .bar-track { height: 7px; border-radius: 999px; background: var(--s3); overflow: hidden; }
 .bar-fill { height: 100%; background: linear-gradient(90deg, var(--or), var(--or-dk)); border-radius: inherit; transition: width .6s ease; }
 .bar-value { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--or); text-align: right; }
+.ranking-breakdown { display: grid; gap: 16px; }
+.ranking-total {
+  border: 1px solid var(--bd);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(249,115,22,.10), rgba(20,20,24,.88));
+  padding: 18px;
+}
+.ranking-total-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  color: var(--tx3);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+.ranking-total-value {
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.04em;
+  color: var(--or);
+  margin-top: 10px;
+}
+.ranking-total-meta {
+  margin-top: 8px;
+  color: var(--tx2);
+  font-size: 12px;
+}
 
 /* ── Sidebar layout (shared member/admin) ─────── */
 .app { display: flex; min-height: 100vh; }
@@ -525,6 +558,7 @@ body > * { position: relative; z-index: 1; }
 .podium-meta { font-size: 11px; color: var(--tx3); }
 
 /* ── Result card ────────────────────────────────── */
+.results-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start; }
 .result-card {
   border: 1px solid var(--bd);
   border-radius: 18px;
@@ -1123,8 +1157,20 @@ body > * { position: relative; z-index: 1; }
 }
 .explore-pick-title { font-size: 15px; font-weight: 900; color: #fff; }
 .explore-pick-sub { font-size: 11px; color: var(--tx3); margin-top: 3px; font-family: 'Fira Code', monospace; text-transform: uppercase; letter-spacing: .08em; }
-.explore-pick-body { display: flex; flex-direction: column; gap: 8px; }
-.explore-pick-name { font-size: 18px; font-weight: 900; letter-spacing: -.03em; color: var(--or); }
+.explore-pick-list { display: grid; gap: 8px; }
+.explore-pick-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  background: rgba(15,15,18,.6);
+}
+.explore-pick-meta { min-width: 0; display: grid; gap: 2px; }
+.explore-pick-user { font-size: 13px; font-weight: 800; color: #fff; }
+.explore-pick-choice { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--or); letter-spacing: .04em; text-transform: uppercase; }
 .explore-empty {
   padding: 18px;
   border: 1px dashed var(--bd2);
@@ -1942,12 +1988,20 @@ body > * { position: relative; z-index: 1; }
 @media (max-width: 900px) {
   .app { flex-direction: column; }
   .sidebar { width: 100%; height: auto; position: static; flex-direction: column; padding: 12px 14px; gap: 6px; }
-  .sidebar .nav-section:last-of-type { display: none; }
   .nav-section { margin-top: 12px; }
   .nav-title { margin-bottom: 6px; }
   .nav-item { padding: 8px 10px; }
   .sidebar-footer { display: none; }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .results-layout { grid-template-columns: 1fr !important; }
+  .results-layout > * { min-width: 0; }
+  .scoreline { grid-template-columns: 1fr; gap: 10px; }
+  .comparison { grid-template-columns: 1fr; justify-items: start; }
+  .points-earned { text-align: left; }
+  .result-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .standings-grid { grid-template-columns: 1fr; }
+  .ranking-total { padding: 16px; }
+  .ranking-total-value { font-size: 30px; }
   .rank-row { grid-template-columns: 36px 36px 1fr 70px; }
   .explore-live-scroll { grid-template-columns: 1fr; }
   .explore-live-row { grid-template-columns: 1fr; }
@@ -1973,6 +2027,7 @@ body > * { position: relative; z-index: 1; }
     flex-direction: column;
     align-items: flex-start;
   }
+  .bar-row { grid-template-columns: 92px 1fr 34px; gap: 8px; }
   .hide-md { display: none; }
 }
 

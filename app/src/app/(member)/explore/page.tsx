@@ -15,7 +15,6 @@ export default async function ExplorePage() {
   return (
     <ExploreClient
       exploreState={data?.exploreState ?? FALLBACK_DATA.exploreState}
-      exploreReleased={data?.exploreReleased ?? FALLBACK_DATA.exploreReleased}
       matchGroups={data?.matchGroups ?? FALLBACK_DATA.matchGroups}
       competitionPredictions={data?.competitionPredictions ?? FALLBACK_DATA.competitionPredictions}
     />

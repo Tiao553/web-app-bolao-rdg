@@ -29,6 +29,7 @@ from app.models.schema import (
 )
 from app.repositories.queries import (
     CompetitionWindowSnapshot,
+    get_active_scoring_rule,
     get_competition_prediction,
     get_competition_window_dependency,
     get_db_session,
@@ -82,6 +83,19 @@ class RankingRowData:
     total_points: int
     match_points: int
     bonus_points: int
+
+
+class RankingBreakdownResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    matchPoints: int
+    exactPoints: int
+    resultPoints: int
+    brazilPoints: int
+    championPoints: int
+    topScorerPoints: int
+    bonusPoints: int
+    totalPoints: int
 
 
 class CompetitionWindowResponse(BaseModel):
@@ -192,6 +206,7 @@ class RankingResponse(BaseModel):
 
     rows: list[RankingRowResponse]
     currentUserRank: int | None
+    currentUserBreakdown: RankingBreakdownResponse | None
 
 
 class ExploreMatchPredictionResponse(BaseModel):
@@ -458,6 +473,82 @@ def build_ranking_rows(db_session: Session) -> list[RankingRowData]:
             )
         )
     return rows
+
+
+def build_current_user_breakdown(db_session: Session, *, user_id: UUID) -> RankingBreakdownResponse:
+    scoring_rule = get_active_scoring_rule(db_session)
+    predictions = list(
+        db_session.scalars(
+            select(MatchPrediction)
+            .where(MatchPrediction.user_id == user_id)
+            .order_by(MatchPrediction.created_at.asc(), MatchPrediction.id.asc())
+        ).all()
+    )
+    by_match_id = {prediction.match_id: prediction for prediction in predictions}
+    matches: list[Match] = []
+    if by_match_id:
+        matches = list(
+            db_session.scalars(
+                select(Match)
+                .where(Match.id.in_(tuple(by_match_id)))
+                .order_by(Match.starts_at.asc(), Match.id.asc())
+            ).all()
+        )
+
+    exact_points = 0
+    result_points = 0
+    brazil_points = 0
+    for match in matches:
+        prediction = by_match_id[match.id]
+        if match.official_home_goals is None or match.official_away_goals is None:
+            continue
+        is_exact = (
+            prediction.home_goals == match.official_home_goals
+            and prediction.away_goals == match.official_away_goals
+        )
+        same_outcome = False
+        if not is_exact:
+            prediction_outcome = "HOME" if prediction.home_goals > prediction.away_goals else "AWAY" if prediction.home_goals < prediction.away_goals else "DRAW"
+            official_outcome = "HOME" if match.official_home_goals > match.official_away_goals else "AWAY" if match.official_home_goals < match.official_away_goals else "DRAW"
+            same_outcome = prediction_outcome == official_outcome
+        if not (is_exact or same_outcome):
+            continue
+
+        base_points = scoring_rule.exact_points if is_exact else scoring_rule.result_points
+        if is_exact:
+            exact_points += base_points
+        else:
+            result_points += base_points
+        if match.involves_brazil and scoring_rule.brazil_multiplier > 1:
+            brazil_points += base_points * (scoring_rule.brazil_multiplier - 1)
+
+    champion_points = 0
+    top_scorer_points = 0
+    for prediction_type in (PredictionType.CHAMPION, PredictionType.TOP_SCORER):
+        competition_prediction = db_session.scalar(
+            select(CompetitionPrediction).where(
+                CompetitionPrediction.user_id == user_id,
+                CompetitionPrediction.prediction_type == prediction_type,
+            )
+        )
+        points_awarded = int(competition_prediction.points_awarded or 0) if competition_prediction is not None else 0
+        if prediction_type is PredictionType.CHAMPION:
+            champion_points = points_awarded
+        else:
+            top_scorer_points = points_awarded
+
+    match_points = exact_points + result_points + brazil_points
+    bonus_points = champion_points + top_scorer_points
+    return RankingBreakdownResponse(
+        matchPoints=match_points,
+        exactPoints=exact_points,
+        resultPoints=result_points,
+        brazilPoints=brazil_points,
+        championPoints=champion_points,
+        topScorerPoints=top_scorer_points,
+        bonusPoints=bonus_points,
+        totalPoints=match_points + bonus_points,
+    )
 
 
 def get_current_user_rank(rows: list[RankingRowData], *, user_id: UUID) -> int | None:
@@ -740,6 +831,7 @@ def get_ranking(
             for row in rows
         ],
         currentUserRank=get_current_user_rank(rows, user_id=user.id),
+        currentUserBreakdown=build_current_user_breakdown(db_session, user_id=user.id),
     )
 
 

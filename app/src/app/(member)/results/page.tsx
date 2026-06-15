@@ -26,7 +26,7 @@ export default async function ResultsPage() {
         </div>
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+      <div className="results-layout">
         {/* Partidas */}
         <div className="card">
           <div className="card-header">
