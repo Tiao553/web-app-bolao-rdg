@@ -484,22 +484,24 @@ def resolve_sync_log_provider(db_session: Session, provider: SyncProvider) -> Sy
     if bind is None or bind.dialect.name != "postgresql":
         return provider
     try:
-        supported = bool(
-            db_session.execute(
-                text(
-                    """
-                    SELECT EXISTS (
-                        SELECT 1
-                        FROM pg_enum e
-                        JOIN pg_type t ON t.oid = e.enumtypid
-                        WHERE t.typname = 'sync_log_provider_enum'
-                          AND e.enumlabel = :label
-                    )
-                    """
-                ),
-                {"label": provider.value},
-            ).scalar()
-        )
+        engine = getattr(bind, "engine", bind)
+        with engine.connect() as connection:
+            supported = bool(
+                connection.execute(
+                    text(
+                        """
+                        SELECT EXISTS (
+                            SELECT 1
+                            FROM pg_enum e
+                            JOIN pg_type t ON t.oid = e.enumtypid
+                            WHERE t.typname = 'sync_log_provider_enum'
+                              AND e.enumlabel = :label
+                        )
+                        """
+                    ),
+                    {"label": provider.value},
+                ).scalar()
+            )
     except Exception:
         return SyncProvider.ADMIN
     return provider if supported else SyncProvider.ADMIN

@@ -14,13 +14,36 @@ class FakeResult:
         return self._value
 
 
-class FakeSession:
+class FakeConnection:
     def __init__(self, enum_supported: bool) -> None:
-        self.bind = SimpleNamespace(dialect=SimpleNamespace(name="postgresql"))
         self._enum_supported = enum_supported
+
+    def __enter__(self) -> FakeConnection:
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        return None
 
     def execute(self, *_: object, **__: object) -> FakeResult:
         return FakeResult(self._enum_supported)
+
+
+class FakeBind:
+    def __init__(self, enum_supported: bool) -> None:
+        self.dialect = SimpleNamespace(name="postgresql")
+        self._enum_supported = enum_supported
+
+    @property
+    def engine(self) -> FakeBind:
+        return self
+
+    def connect(self) -> FakeConnection:
+        return FakeConnection(self._enum_supported)
+
+
+class FakeSession:
+    def __init__(self, enum_supported: bool) -> None:
+        self.bind = FakeBind(enum_supported)
 
 
 def test_resolve_sync_log_provider_falls_back_when_enum_is_missing() -> None:
@@ -33,4 +56,3 @@ def test_resolve_sync_log_provider_keeps_supported_provider() -> None:
     session = FakeSession(enum_supported=True)
 
     assert resolve_sync_log_provider(session, SyncProvider.THE_SPORTS_DB) is SyncProvider.THE_SPORTS_DB
-
