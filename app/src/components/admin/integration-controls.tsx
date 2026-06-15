@@ -72,7 +72,7 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
         const res = await fetch('/api/admin/sync/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
-          body: JSON.stringify({ provider: 'THE_SPORTS_DB', include_top_scorers: false }),
+          body: JSON.stringify({ provider: 'THE_SPORTS_DB', include_top_scorers: false, mode: 'LATEST_RESULT_ONLY' }),
         });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) {

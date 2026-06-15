@@ -5,7 +5,7 @@ import secrets
 import string
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 import os
@@ -309,6 +309,7 @@ class SyncRunRequest(BaseModel):
     provider: SyncProvider | None = None
     allow_google_sheets_fallback: bool = False
     include_top_scorers: bool = False
+    mode: Literal["LATEST_RESULT_ONLY", "SCHEDULED"] = "LATEST_RESULT_ONLY"
 
 
 class SyncRunResponse(BaseModel):
@@ -677,6 +678,16 @@ def trigger_sync(
             recalculation_hook=recalculate_from_sync_request,
         )
         operation = "manual_match_sync"
+    elif payload.mode == "LATEST_RESULT_ONLY":
+        sync_result = service.run_latest_result_sync(
+            db_session,
+            created_by_user_id=admin_user.id,
+            requested_provider=requested_provider,
+            allow_google_sheets_fallback=payload.allow_google_sheets_fallback,
+            include_top_scorers=include_top_scorers,
+            recalculation_hook=recalculate_from_sync_request,
+        )
+        operation = "manual_latest_result_sync"
     else:
         sync_result = service.run_scheduled_sync(
             db_session,

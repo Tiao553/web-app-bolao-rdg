@@ -82,6 +82,9 @@ class RankingRowData:
     full_name: str
     total_points: int
     match_points: int
+    exact_points: int
+    result_points: int
+    brazil_points: int
     bonus_points: int
 
 
@@ -198,6 +201,9 @@ class RankingRowResponse(BaseModel):
     fullName: str
     totalPoints: int
     matchPoints: int
+    exactPoints: int
+    resultPoints: int
+    brazilPoints: int
     bonusPoints: int
 
 
@@ -422,60 +428,15 @@ def build_competition_window_response(
     )
 
 
-def build_ranking_rows(db_session: Session) -> list[RankingRowData]:
-    approved_users = list(db_session.scalars(ranking_users_select()).all())
-
-    match_points_statement = (
-        select(
-            MatchPrediction.user_id,
-            func.coalesce(func.sum(MatchPrediction.points_awarded), 0),
-        )
-        .group_by(MatchPrediction.user_id)
-    )
-    bonus_points_statement = (
-        select(
-            CompetitionPrediction.user_id,
-            func.coalesce(func.sum(CompetitionPrediction.points_awarded), 0),
-        )
-        .group_by(CompetitionPrediction.user_id)
-    )
-
-    match_points_by_user = {
-        user_id: int(total_points)
-        for user_id, total_points in db_session.execute(match_points_statement).all()
-    }
-    bonus_points_by_user = {
-        user_id: int(total_points)
-        for user_id, total_points in db_session.execute(bonus_points_statement).all()
-    }
-
-    sorted_users = sorted(
-        approved_users,
-        key=lambda item: (
-            -(match_points_by_user.get(item.id, 0) + bonus_points_by_user.get(item.id, 0)),
-            item.created_at,
-            str(item.id),
-        ),
-    )
-
-    rows: list[RankingRowData] = []
-    for index, approved_user in enumerate(sorted_users, start=1):
-        match_points = match_points_by_user.get(approved_user.id, 0)
-        bonus_points = bonus_points_by_user.get(approved_user.id, 0)
-        rows.append(
-            RankingRowData(
-                rank=index,
-                user_id=approved_user.id,
-                full_name=approved_user.full_name,
-                total_points=match_points + bonus_points,
-                match_points=match_points,
-                bonus_points=bonus_points,
-            )
-        )
-    return rows
+@dataclass(frozen=True, slots=True)
+class RankingMatchBreakdown:
+    match_points: int
+    exact_points: int
+    result_points: int
+    brazil_points: int
 
 
-def build_current_user_breakdown(db_session: Session, *, user_id: UUID) -> RankingBreakdownResponse:
+def build_match_breakdown(db_session: Session, *, user_id: UUID) -> RankingMatchBreakdown:
     scoring_rule = get_active_scoring_rule(db_session)
     predictions = list(
         db_session.scalars(
@@ -522,6 +483,66 @@ def build_current_user_breakdown(db_session: Session, *, user_id: UUID) -> Ranki
         if match.involves_brazil and scoring_rule.brazil_multiplier > 1:
             brazil_points += base_points * (scoring_rule.brazil_multiplier - 1)
 
+    match_points = exact_points + result_points + brazil_points
+    return RankingMatchBreakdown(
+        match_points=match_points,
+        exact_points=exact_points,
+        result_points=result_points,
+        brazil_points=brazil_points,
+    )
+
+
+def build_ranking_rows(db_session: Session) -> list[RankingRowData]:
+    approved_users = list(db_session.scalars(ranking_users_select()).all())
+
+    bonus_points_statement = (
+        select(
+            CompetitionPrediction.user_id,
+            func.coalesce(func.sum(CompetitionPrediction.points_awarded), 0),
+        )
+        .group_by(CompetitionPrediction.user_id)
+    )
+    bonus_points_by_user = {
+        user_id: int(total_points)
+        for user_id, total_points in db_session.execute(bonus_points_statement).all()
+    }
+    match_breakdowns_by_user = {
+        approved_user.id: build_match_breakdown(db_session, user_id=approved_user.id)
+        for approved_user in approved_users
+    }
+
+    sorted_users = sorted(
+        approved_users,
+        key=lambda item: (
+            -(match_breakdowns_by_user[item.id].match_points + bonus_points_by_user.get(item.id, 0)),
+            item.created_at,
+            str(item.id),
+        ),
+    )
+
+    rows: list[RankingRowData] = []
+    for index, approved_user in enumerate(sorted_users, start=1):
+        breakdown = match_breakdowns_by_user[approved_user.id]
+        bonus_points = bonus_points_by_user.get(approved_user.id, 0)
+        rows.append(
+            RankingRowData(
+                rank=index,
+                user_id=approved_user.id,
+                full_name=approved_user.full_name,
+                total_points=breakdown.match_points + bonus_points,
+                match_points=breakdown.match_points,
+                exact_points=breakdown.exact_points,
+                result_points=breakdown.result_points,
+                brazil_points=breakdown.brazil_points,
+                bonus_points=bonus_points,
+            )
+        )
+    return rows
+
+
+def build_current_user_breakdown(db_session: Session, *, user_id: UUID) -> RankingBreakdownResponse:
+    breakdown = build_match_breakdown(db_session, user_id=user_id)
+
     champion_points = 0
     top_scorer_points = 0
     for prediction_type in (PredictionType.CHAMPION, PredictionType.TOP_SCORER):
@@ -537,13 +558,13 @@ def build_current_user_breakdown(db_session: Session, *, user_id: UUID) -> Ranki
         else:
             top_scorer_points = points_awarded
 
-    match_points = exact_points + result_points + brazil_points
+    match_points = breakdown.match_points
     bonus_points = champion_points + top_scorer_points
     return RankingBreakdownResponse(
         matchPoints=match_points,
-        exactPoints=exact_points,
-        resultPoints=result_points,
-        brazilPoints=brazil_points,
+        exactPoints=breakdown.exact_points,
+        resultPoints=breakdown.result_points,
+        brazilPoints=breakdown.brazil_points,
         championPoints=champion_points,
         topScorerPoints=top_scorer_points,
         bonusPoints=bonus_points,
@@ -826,6 +847,9 @@ def get_ranking(
                 fullName=row.full_name,
                 totalPoints=row.total_points,
                 matchPoints=row.match_points,
+                exactPoints=row.exact_points,
+                resultPoints=row.result_points,
+                brazilPoints=row.brazil_points,
                 bonusPoints=row.bonus_points,
             )
             for row in rows

@@ -54,6 +54,18 @@ body::before {
 
 body > * { position: relative; z-index: 1; }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ── Brand Logo ─────────────────────────────────── */
 .brand-logo {
   display: inline-flex;
@@ -499,7 +511,7 @@ body > * { position: relative; z-index: 1; }
 .ranking-table { display: flex; flex-direction: column; gap: 6px; }
 .rank-row {
   display: grid;
-  grid-template-columns: 36px 36px 1fr repeat(4, 60px) 70px;
+  grid-template-columns: 36px 36px minmax(0, 1fr) 68px 74px 64px 70px;
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
@@ -1969,6 +1981,7 @@ body > * { position: relative; z-index: 1; }
 .st-pos { color: var(--tx3); font-family: 'Fira Code', monospace; font-size: 11px; font-weight: 800; text-align: center; }
 .standings-row.qualify .st-pos { color: var(--or); }
 .standings-row.qualify-3rd .st-pos { color: #ca8a04; }
+.st-pos-mobile { display: none; }
 .st-team { color: var(--tx); font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .st-num { color: var(--tx2); font-family: 'Fira Code', monospace; font-size: 12px; text-align: center; }
 .st-num.good { color: var(--g5); }
@@ -2002,7 +2015,7 @@ body > * { position: relative; z-index: 1; }
   .standings-grid { grid-template-columns: 1fr; }
   .ranking-total { padding: 16px; }
   .ranking-total-value { font-size: 30px; }
-  .rank-row { grid-template-columns: 36px 36px 1fr 70px; }
+  .rank-row { grid-template-columns: 32px 32px minmax(0, 1fr) 54px 54px 60px; }
   .explore-live-scroll { grid-template-columns: 1fr; }
   .explore-live-row { grid-template-columns: 1fr; }
   .explore-results-row { grid-template-columns: 1fr; }
@@ -2029,6 +2042,10 @@ body > * { position: relative; z-index: 1; }
   }
   .bar-row { grid-template-columns: 92px 1fr 34px; gap: 8px; }
   .hide-md { display: none; }
+  .st-pos-desktop { display: none; }
+  .st-pos-mobile { display: inline-flex; align-items: center; justify-content: center; }
+  .st-pos-mobile .team-badge { gap: 0; }
+  .st-pos-mobile .team-badge-name { display: none; }
 }
 
 /* ── Manual result modal ──────────────────────────────────────────── */

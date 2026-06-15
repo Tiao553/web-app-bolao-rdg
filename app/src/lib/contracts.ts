@@ -130,6 +130,9 @@ export type RankingRowContract = {
   fullName: string;
   totalPoints: number;
   matchPoints: number;
+  exactPoints: number;
+  resultPoints: number;
+  brazilPoints: number;
   bonusPoints: number;
 };
 

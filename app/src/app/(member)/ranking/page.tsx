@@ -71,10 +71,9 @@ export default async function RankingPage() {
               <div className="rank-row header">
                 <div className="th">Pos</div><div />
                 <div className="th">Participante</div>
-                <div className="th hide-sm">Jogos</div>
-                <div className="th hide-sm">Exatos</div>
-                <div className="th hide-md">Brasil</div>
-                <div className="th hide-md">Camp.</div>
+                <div className="th">Exatos</div>
+                <div className="th">Resultado</div>
+                <div className="th hide-sm">Brasil</div>
                 <div className="th">Total</div>
               </div>
               {rows.map(row => (
@@ -82,10 +81,9 @@ export default async function RankingPage() {
                   <div className="rank-pos">{row.rank}</div>
                   <div className="mini-avatar">{row.fullName.split(' ').map((p: string) => p[0]).slice(0,2).join('')}</div>
                   <div><div className="rank-name">{row.fullName}{row.rank === myRank ? ' (você)' : ''}</div></div>
-                  <div className="metric hide-sm">{row.matchPoints}</div>
-                  <div className="metric good hide-sm">—</div>
-                  <div className="metric hide-md">—</div>
-                  <div className="metric gold hide-md">{row.bonusPoints}</div>
+                  <div className="metric">{row.exactPoints}</div>
+                  <div className="metric good">{row.resultPoints}</div>
+                  <div className="metric hide-sm gold">{row.brazilPoints}</div>
                   <div className="metric total">{row.totalPoints}</div>
                 </div>
               ))}

@@ -314,6 +314,9 @@ def test_ranking_excludes_non_approved_users() -> None:
     payload = response.json()
     assert len(payload["rows"]) == 1
     assert payload["rows"][0]["fullName"] == "approved"
+    assert payload["rows"][0]["exactPoints"] == 3
+    assert payload["rows"][0]["resultPoints"] == 1
+    assert payload["rows"][0]["brazilPoints"] == 3
     assert payload["currentUserBreakdown"] == {
         "matchPoints": 7,
         "exactPoints": 3,

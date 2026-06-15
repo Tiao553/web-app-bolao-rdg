@@ -86,6 +86,17 @@ function getSortedGroups(groups: ExploreMatchGroupContract[], nowMs: number): Ex
   });
 }
 
+function getChronologicalGroups(groups: ExploreMatchGroupContract[]): ExploreMatchGroupContract[] {
+  return [...groups].sort((left, right) => {
+    const leftStartsAt = left.startsAt ? Date.parse(left.startsAt) : Number.POSITIVE_INFINITY;
+    const rightStartsAt = right.startsAt ? Date.parse(right.startsAt) : Number.POSITIVE_INFINITY;
+    if (leftStartsAt !== rightStartsAt) {
+      return leftStartsAt - rightStartsAt;
+    }
+    return left.matchId.localeCompare(right.matchId);
+  });
+}
+
 function getCompetitionPredictions(
   predictions: ExploreCompetitionPredictionContract[],
   kind: 'CHAMPION' | 'TOP_SCORER',
@@ -182,11 +193,12 @@ export function ExploreClient({
   }, []);
 
   const orderedGroups = getSortedGroups(matchGroups, nowMs);
+  const chronologicalGroups = getChronologicalGroups(matchGroups);
   const featuredGroup = orderedGroups[0] ?? null;
   const championPredictions = getCompetitionPredictions(competitionPredictions, 'CHAMPION');
   const scorerPredictions = getCompetitionPredictions(competitionPredictions, 'TOP_SCORER');
 
-  const filteredGroups = orderedGroups.filter((group) => {
+  const filteredGroups = chronologicalGroups.filter((group) => {
     const text = groupSearchText(group);
     const search = deferredSearchText;
 

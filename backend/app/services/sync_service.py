@@ -194,6 +194,83 @@ class SyncService:
             used_fallback=used_fallback,
         )
 
+    def run_latest_result_sync(
+        self,
+        db_session: Session,
+        *,
+        created_by_user_id: UUID | None = None,
+        requested_provider: SyncProvider | None = None,
+        allow_google_sheets_fallback: bool = False,
+        include_top_scorers: bool = False,
+        recalculation_hook: RecalculationHook | None = None,
+    ) -> SyncRunResult:
+        started_at = self._now_provider()
+        provider_batch, used_fallback = self._fetch_provider_batch(
+            requested_provider=requested_provider,
+            allow_google_sheets_fallback=allow_google_sheets_fallback,
+            fixture_ids=None,
+            include_top_scorers=include_top_scorers,
+        )
+        matches = self._load_matches(db_session)
+        selected = self._select_latest_persistable_match(
+            matches=matches,
+            provider_matches=provider_batch.matches,
+        )
+        if selected is None:
+            outcome = self._record_outcome(
+                db_session,
+                provider=provider_batch.provider,
+                status=SyncStatus.SKIPPED,
+                result_code="no_eligible_latest_result",
+                message="No eligible latest result was found",
+                match=None,
+                created_by_user_id=created_by_user_id,
+                payload={
+                    "provider": provider_batch.provider.value,
+                    "fetched_at": provider_batch.fetched_at.isoformat(),
+                    "provider_match_count": len(provider_batch.matches),
+                    "used_fallback": used_fallback,
+                },
+                operation="manual_latest_result_sync",
+            )
+            return SyncRunResult(
+                provider=provider_batch.provider,
+                started_at=started_at,
+                finished_at=self._now_provider(),
+                outcomes=(outcome,),
+                used_fallback=used_fallback,
+            )
+
+        provider_match, local_match = selected
+        outcome = self._merge_provider_match(
+            db_session=db_session,
+            local_match=local_match,
+            provider_match=provider_match,
+            fetched_at=provider_batch.fetched_at,
+            created_by_user_id=created_by_user_id,
+            operation="manual_latest_result_sync",
+        )
+        if recalculation_hook is not None and outcome.status is SyncStatus.SUCCESS and outcome.changed_fields:
+            db_session.flush()
+            recalculation_hook(
+                db_session,
+                SyncRecalculationRequest(
+                    provider=provider_batch.provider,
+                    run_at=self._now_provider(),
+                    changed_match_ids=(local_match.id,),
+                    changed_external_ids=(provider_match.external_id,),
+                    top_scorers=provider_batch.top_scorers if include_top_scorers else (),
+                    metadata=dict(provider_batch.metadata),
+                ),
+            )
+        return SyncRunResult(
+            provider=provider_batch.provider,
+            started_at=started_at,
+            finished_at=self._now_provider(),
+            outcomes=(outcome,),
+            used_fallback=used_fallback,
+        )
+
     def run_manual_match_sync(
         self,
         db_session: Session,
@@ -344,6 +421,7 @@ class SyncService:
         provider_match: ProviderMatchRecord,
         fetched_at: datetime,
         created_by_user_id: UUID | None,
+        operation: str = "match_sync",
     ) -> MatchSyncOutcome:
         if local_match.has_manual_override:
             return self._record_outcome(
@@ -355,6 +433,7 @@ class SyncService:
                 match=local_match,
                 created_by_user_id=created_by_user_id,
                 payload=self._build_log_payload(provider_match=provider_match),
+                operation=operation,
             )
         changed_fields: list[str] = []
         for field_name, new_value in (
@@ -389,6 +468,7 @@ class SyncService:
             created_by_user_id=created_by_user_id,
             payload=self._build_log_payload(provider_match=provider_match, changed_fields=tuple(changed_fields)),
             changed_fields=tuple(changed_fields),
+            operation=operation,
         )
 
     def _record_outcome(
@@ -403,12 +483,13 @@ class SyncService:
         created_by_user_id: UUID | None,
         payload: dict[str, Any],
         changed_fields: tuple[str, ...] = (),
+        operation: str = "match_sync",
     ) -> MatchSyncOutcome:
         db_session.add(
             SyncLog(
                 provider=resolve_sync_log_provider(db_session, provider),
                 status=status,
-                operation="match_sync",
+                operation=operation,
                 match_id=match.id if match is not None else None,
                 created_by_user_id=created_by_user_id,
                 result_code=result_code,
@@ -426,6 +507,32 @@ class SyncService:
             changed_fields=changed_fields,
             payload=payload,
         )
+
+    def _select_latest_persistable_match(
+        self,
+        *,
+        matches: Sequence[Match],
+        provider_matches: Sequence[ProviderMatchRecord],
+    ) -> tuple[ProviderMatchRecord, Match] | None:
+        ordered_provider_matches = sorted(
+            provider_matches,
+            key=lambda item: (
+                self._as_utc(item.starts_at),
+                item.external_id,
+            ),
+        )
+        for provider_match in reversed(ordered_provider_matches):
+            if provider_match.status not in self._settings.sync.allowed_terminal_statuses:
+                continue
+            local_match = self._match_local_record(matches=matches, provider_match=provider_match)
+            if local_match is None:
+                continue
+            if local_match.has_manual_override:
+                continue
+            if not self._has_material_difference(local_match=local_match, provider_match=provider_match):
+                continue
+            return provider_match, local_match
+        return None
 
     def _build_log_payload(self, *, provider_match: ProviderMatchRecord, changed_fields: tuple[str, ...] = ()) -> dict[str, Any]:
         return {
