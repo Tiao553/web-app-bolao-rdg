@@ -661,14 +661,17 @@ class FifaGamedayClient:
             if fixture_ids:
                 requested = {item for item in fixture_ids if item}
                 filtered = tuple(match for match in batch.matches if match.external_id in requested)
-                if filtered:
-                    return ProviderSyncBatch(
-                        provider=batch.provider,
-                        fetched_at=batch.fetched_at,
-                        matches=filtered,
-                        top_scorers=(),
-                        metadata={**batch.metadata, "requested_fixture_ids": list(requested)},
-                    )
+                return ProviderSyncBatch(
+                    provider=batch.provider,
+                    fetched_at=batch.fetched_at,
+                    matches=filtered,
+                    top_scorers=(),
+                    metadata={
+                        **batch.metadata,
+                        "requested_fixture_ids": list(requested),
+                        "requested_fixture_match_count": len(filtered),
+                    },
+                )
             return batch
         except Exception:
             from app.integrations.the_sports_db import TheSportsDBClient

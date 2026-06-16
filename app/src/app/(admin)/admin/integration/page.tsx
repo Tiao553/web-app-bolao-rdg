@@ -13,7 +13,7 @@ const FALLBACK_DATA: AdminIntegrationContract = {
   autoSyncEnabled: false,
   autoSyncIntervalMinutes: 60,
   autoSyncIntervalOptions: [1, 5, 15, 60],
-  schedulerMode: 'GITHUB_ACTIONS_5MIN',
+  schedulerMode: 'EXTERNAL_TRIGGER_ONLY',
   cronTokenConfigured: false,
   lastAutoSyncAt: null,
   nextAutoSyncAt: null,

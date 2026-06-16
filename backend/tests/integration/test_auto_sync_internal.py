@@ -13,9 +13,22 @@ from sqlalchemy.pool import StaticPool
 from app.core.config import get_settings
 from app.core.security import CSRF_COOKIE_NAME, CSRF_HEADER_NAME, hash_password
 from app.main import create_app
-from app.models.schema import AccessStatus, Base, CompetitionWindow, IntegrationSettings, SyncLog, SyncProvider, User
+from app.models.schema import (
+    AccessStatus,
+    Base,
+    CompetitionWindow,
+    IntegrationSettings,
+    SyncLog,
+    SyncProvider,
+    SyncStatus,
+    User,
+)
 from app.repositories.queries import get_db_session
-from app.services.recalculation_service import RecalculationStageSummary, RecalculationSummary
+from app.services.automatic_sync import AutomaticSyncExecution
+from app.services.recalculation_service import (
+    RecalculationStageSummary,
+    RecalculationSummary,
+)
 from app.services.sync_service import SyncRunResult
 
 
@@ -191,6 +204,48 @@ def test_internal_auto_sync_skips_when_disabled() -> None:
     assert response.json()["status"] == "SKIPPED"
 
 
+def test_internal_auto_sync_rejects_invalid_token() -> None:
+    configure_test_settings()
+    factory = make_session_factory()
+    with factory() as db_session:
+        seed_window(db_session)
+        db_session.commit()
+
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/internal/sync/auto",
+            headers={"Authorization": "Bearer wrong-token"},
+        )
+
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "invalid_sync_token"
+
+
+def test_internal_auto_sync_requires_configured_token() -> None:
+    os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
+    os.environ["SESSION_COOKIE_DOMAIN"] = ""
+    os.environ["SYNC_ADMIN_TOKEN"] = ""
+    get_settings.cache_clear()
+
+    factory = make_session_factory()
+    with factory() as db_session:
+        seed_window(db_session)
+        db_session.commit()
+
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/internal/sync/auto",
+            headers={"Authorization": "Bearer anything"},
+        )
+
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "sync_admin_token_missing"
+
+
 def test_internal_auto_sync_runs_when_due(monkeypatch) -> None:
     configure_test_settings()
     factory = make_session_factory()
@@ -199,18 +254,16 @@ def test_internal_auto_sync_runs_when_due(monkeypatch) -> None:
         db_session.add(IntegrationSettings(auto_sync_enabled=True, auto_sync_interval_minutes=1))
         db_session.commit()
 
-    class FakeSyncService:
-        def run_scheduled_sync(self, db_session: Session, **_: object) -> SyncRunResult:
-            return SyncRunResult(
-                provider=SyncProvider.THE_SPORTS_DB,
-                started_at=datetime.now(timezone.utc),
-                finished_at=datetime.now(timezone.utc),
-                outcomes=(),
-                used_fallback=False,
-            )
-
-    monkeypatch.setattr("app.api.routes.internal.SyncService", FakeSyncService)
-    monkeypatch.setattr("app.api.routes.internal.recalculate_competition_state", lambda _db: fake_recalculation_summary())
+    monkeypatch.setattr(
+        "app.api.routes.internal.run_automatic_sync",
+        lambda db_session, *, trigger_source: AutomaticSyncExecution(
+            provider=SyncProvider.THE_SPORTS_DB,
+            status=SyncStatus.SUCCESS,
+            operation="automatic_sync",
+            message="Automatic sync completed with 0 success(es), 0 skip(s), and 0 failure(s)",
+            recalculation=fake_recalculation_summary(),
+        ),
+    )
 
     app = create_app()
     app.dependency_overrides[get_db_session] = build_db_override(factory)
@@ -224,11 +277,38 @@ def test_internal_auto_sync_runs_when_due(monkeypatch) -> None:
     payload = response.json()
     assert payload["provider"] == "THE_SPORTS_DB"
     assert payload["operation"] == "automatic_sync"
+    assert payload["status"] == "SUCCESS"
+
+
+def test_internal_auto_sync_skips_when_not_due() -> None:
+    configure_test_settings()
+    factory = make_session_factory()
     with factory() as db_session:
-        summary_log = db_session.scalar(
-            select(SyncLog)
-            .where(SyncLog.operation == "automatic_sync")
-            .order_by(SyncLog.created_at.desc(), SyncLog.id.desc())
+        seed_window(db_session)
+        db_session.add(IntegrationSettings(auto_sync_enabled=True, auto_sync_interval_minutes=15))
+        db_session.add(
+            SyncLog(
+                provider=SyncProvider.THE_SPORTS_DB,
+                status=SyncStatus.SUCCESS,
+                operation="automatic_sync",
+                match_id=None,
+                created_by_user_id=None,
+                result_code="automatic_sync_completed",
+                message="recent run",
+                payload={},
+            )
         )
-        assert summary_log is not None
-        assert summary_log.provider is SyncProvider.THE_SPORTS_DB
+        db_session.commit()
+
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/internal/sync/auto",
+            headers={"Authorization": "Bearer secret-token"},
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "SKIPPED"
+    assert payload["message"].startswith("Automatic sync is not due until ")

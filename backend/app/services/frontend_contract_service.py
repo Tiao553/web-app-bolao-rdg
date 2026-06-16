@@ -5,8 +5,7 @@ import os
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
-_DATA_DIR = Path(os.environ.get("DATA_DIR", str(Path(__file__).resolve().parents[2] / "data")))
+from typing import ClassVar
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -16,9 +15,9 @@ from app.api.schemas.frontend import (
     AdminIntegrationScreenDto,
     AdminMatchesScreenDto,
     AdminMatchRowDto,
+    AdminPhaseConfigDto,
     AdminPlayerRowDto,
     AdminPlayersScreenDto,
-    AdminPhaseConfigDto,
     AdminSettingsScreenDto,
     AdminUserCountsDto,
     BracketMatchDto,
@@ -43,14 +42,20 @@ from app.models.schema import (
     SyncProvider,
     User,
 )
-from app.repositories.queries import get_active_competition_window, get_active_scoring_rule, list_active_competition_phase_configs
+from app.repositories.queries import (
+    get_active_competition_window,
+    get_active_scoring_rule,
+    list_active_competition_phase_configs,
+)
 from app.services.integration_settings import load_integration_settings
 from app.services.match_status import is_terminal_match_status
 from app.services.team_metadata import get_players_by_id, get_team_metadata
 
+_DATA_DIR = Path(os.environ.get("DATA_DIR", str(Path(__file__).resolve().parents[2] / "data")))
+
 
 class FrontendContractService:
-    AUTO_SYNC_INTERVAL_OPTIONS = [1, 5, 15, 60]
+    AUTO_SYNC_INTERVAL_OPTIONS: ClassVar[list[int]] = [1, 5, 15, 60]
 
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session
@@ -205,14 +210,19 @@ class FrontendContractService:
             ac = m.away_team_fifa_code or m.away_team_name
             for code in (hc, ac):
                 team_data[grp][code]["p"] += 1
-            team_data[grp][hc]["gf"] += hg; team_data[grp][hc]["ga"] += ag
-            team_data[grp][ac]["gf"] += ag; team_data[grp][ac]["ga"] += hg
+            team_data[grp][hc]["gf"] += hg
+            team_data[grp][hc]["ga"] += ag
+            team_data[grp][ac]["gf"] += ag
+            team_data[grp][ac]["ga"] += hg
             if hg > ag:
-                team_data[grp][hc]["w"] += 1; team_data[grp][ac]["l"] += 1
+                team_data[grp][hc]["w"] += 1
+                team_data[grp][ac]["l"] += 1
             elif hg < ag:
-                team_data[grp][ac]["w"] += 1; team_data[grp][hc]["l"] += 1
+                team_data[grp][ac]["w"] += 1
+                team_data[grp][hc]["l"] += 1
             else:
-                team_data[grp][hc]["d"] += 1; team_data[grp][ac]["d"] += 1
+                team_data[grp][hc]["d"] += 1
+                team_data[grp][ac]["d"] += 1
         result: dict[str, list[dict]] = {}
         for grp, teams in team_data.items():
             sorted_teams = sorted(
@@ -275,6 +285,11 @@ class FrontendContractService:
             else:
                 next_auto_sync_at = last_auto_sync_at + timedelta(minutes=auto_sync_interval)
                 auto_sync_status = "ready" if next_auto_sync_at <= now else "waiting"
+        scheduler_mode = (
+            f"INTERNAL_RUNTIME_{settings.sync.runtime_scheduler_poll_seconds}s"
+            if settings.sync.runtime_scheduler_enabled
+            else "EXTERNAL_TRIGGER_ONLY"
+        )
         return AdminIntegrationScreenDto(
             primaryProvider=SyncProvider.THE_SPORTS_DB.value,
             fallbackProvider=SyncProvider.API_FOOTBALL.value,
@@ -285,7 +300,7 @@ class FrontendContractService:
             autoSyncEnabled=auto_sync_enabled,
             autoSyncIntervalMinutes=auto_sync_interval,
             autoSyncIntervalOptions=list(self.AUTO_SYNC_INTERVAL_OPTIONS),
-            schedulerMode="GITHUB_ACTIONS_5MIN",
+            schedulerMode=scheduler_mode,
             cronTokenConfigured=settings.sync_admin_token is not None and bool(settings.sync_admin_token.get_secret_value().strip()),
             lastAutoSyncAt=last_auto_sync_at,
             nextAutoSyncAt=next_auto_sync_at,

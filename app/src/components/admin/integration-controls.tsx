@@ -17,8 +17,15 @@ function formatDate(value: string | null): string {
 }
 
 function formatScheduler(mode: string): string {
-  if (mode === 'GITHUB_ACTIONS_5MIN') {
-    return 'GitHub Actions a cada 5 min';
+  if (mode.startsWith('INTERNAL_RUNTIME_')) {
+    const seconds = Number(mode.replace('INTERNAL_RUNTIME_', '').replace('s', ''));
+    if (Number.isFinite(seconds) && seconds > 0) {
+      return `Worker interno a cada ${seconds}s`;
+    }
+    return 'Worker interno';
+  }
+  if (mode === 'EXTERNAL_TRIGGER_ONLY') {
+    return 'Trigger externo';
   }
   return mode;
 }
@@ -120,8 +127,8 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
             <div className="eyebrow"><span className="dot" />Integrations</div>
             <h1>Resultados quase em tempo real sem depender do delay da API.</h1>
             <p>
-              O run now usa o scraper FIFA primeiro, o backend salva o último resultado e a cadência
-              automática continua controlada pelo código.
+              O run now usa o scraper FIFA primeiro, o backend salva no mesmo fluxo do ranking
+              e a automação pode rodar no worker interno sem depender só de cron externo.
             </p>
           </div>
           <div className="connection-card">
@@ -197,7 +204,7 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
               <div className="toggle-row">
                 <div>
                   <div className="toggle-title">Habilitar sync automático</div>
-                  <div className="toggle-text">O job externo bate a cada 5 minutos; o backend aplica o gate por intervalo.</div>
+                  <div className="toggle-text">O backend verifica a fila no worker interno e o endpoint interno continua disponível para trigger externo.</div>
                 </div>
                 <button
                   type="button"
@@ -269,9 +276,9 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
           <div className="card-body">
             <div className="timeline-admin">
               {[
-                { num: '01', title: 'Cron externo', text: 'Um scheduler externo chama /api/internal/sync/auto a cada minuto.' },
-                { num: '02', title: 'Gate interno', text: 'O backend valida token, intervalo configurado e lock concorrente.' },
-                { num: '03', title: 'TheSportsDB', text: 'Busca eventos da temporada e mapeia apenas partidas locais com alta confiança.' },
+                { num: '01', title: 'Worker interno', text: 'O backend acorda a cada 60 segundos e tenta rodar o sync automático.' },
+                { num: '02', title: 'Gate interno', text: 'O backend aplica intervalo configurado, lock concorrente e mantém o endpoint interno para trigger externo.' },
+                { num: '03', title: 'Scraper FIFA', text: 'Busca resultados ao vivo/encerrados e mapeia apenas partidas locais com alta confiança.' },
                 { num: '04', title: 'Recalcular', text: 'Atualiza resultados, ranking, Explore e demais derivados da competição.' },
               ].map((step) => (
                 <div key={step.num} className="step-admin">

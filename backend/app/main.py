@@ -22,6 +22,8 @@ from app.core.security import (
     is_csrf_protected_request,
     validate_csrf_request,
 )
+from app.repositories.queries import get_session_local
+from app.services.automatic_sync import AutoSyncWorker
 
 
 class ErrorDetail(BaseModel):
@@ -140,7 +142,17 @@ def register_exception_handlers(app: FastAPI) -> None:
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.settings = get_settings()
+    auto_sync_worker: AutoSyncWorker | None = None
+    if app.state.settings.sync.runtime_scheduler_enabled:
+        auto_sync_worker = AutoSyncWorker(
+            session_factory=get_session_local(),
+            poll_seconds=app.state.settings.sync.runtime_scheduler_poll_seconds,
+        )
+        app.state.auto_sync_worker = auto_sync_worker
+        await auto_sync_worker.start()
     yield
+    if auto_sync_worker is not None:
+        await auto_sync_worker.stop()
 
 
 def create_app() -> FastAPI:

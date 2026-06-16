@@ -45,6 +45,8 @@ class SyncSettings(BaseModel):
     post_match_offset_minutes: int = Field(ge=0)
     allowed_terminal_statuses: tuple[TerminalStatus, ...]
     max_runs_per_day: int = Field(ge=1)
+    runtime_scheduler_enabled: bool = False
+    runtime_scheduler_poll_seconds: int = Field(ge=15, le=3600)
 
     @model_validator(mode="after")
     def validate_allowed_terminal_statuses(self) -> SyncSettings:

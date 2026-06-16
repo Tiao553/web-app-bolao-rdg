@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Protocol
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
@@ -20,8 +20,8 @@ from app.integrations.api_football import (
     ProviderSyncBatch,
     ProviderTopScorer,
 )
-from app.integrations.google_sheets import GoogleSheetsClient
 from app.integrations.fifa_gameday import FifaGamedayClient
+from app.integrations.google_sheets import GoogleSheetsClient
 from app.integrations.the_sports_db import TheSportsDBClient
 from app.models.schema import Match, SyncLog, SyncProvider, SyncStatus
 

@@ -17,6 +17,8 @@ sync:
     - AET
     - PEN
   max_runs_per_day: 3
+  runtime_scheduler_enabled: false
+  runtime_scheduler_poll_seconds: 60
 
 competition:
   predictionCloseAt: "2026-06-11T00:00:00Z"
