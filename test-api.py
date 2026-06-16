@@ -139,7 +139,7 @@ def optional_int(value: Any) -> int | None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Print the latest finished TheSportsDB results.")
     parser.add_argument("--season", default="2026", help="Season to fetch, defaults to 2026.")
-    parser.add_argument("--limit", type=int, default=15, help="Maximum number of finished results to print.")
+    parser.add_argument("--limit", type=int, default=1, help="Maximum number of finished results to print.")
     return parser.parse_args()
 
 

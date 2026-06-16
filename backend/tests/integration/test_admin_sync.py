@@ -492,6 +492,166 @@ def test_sync_service_latest_result_sync_uses_latest_persistable_match() -> None
         db_session.close()
 
 
+def test_sync_service_matches_local_record_by_team_codes_and_date_when_kickoff_differs() -> None:
+    db_session = make_session()
+    try:
+        create_admin(db_session)
+        local_starts_at = datetime(2026, 6, 11, 21, 0, tzinfo=timezone.utc)
+        provider_starts_at = datetime(2026, 6, 11, 3, 0, tzinfo=timezone.utc)
+        match = Match(
+            external_provider=SyncProvider.THE_SPORTS_DB,
+            external_id="local-1",
+            phase=CompetitionPhase.GROUP_STAGE,
+            starts_at=local_starts_at,
+            home_team_name="México",
+            away_team_name="África do Sul",
+            home_team_fifa_code="MEX",
+            away_team_fifa_code="RSA",
+            status="SCHEDULED",
+        )
+        db_session.add(match)
+        db_session.flush()
+        batch = ProviderSyncBatch(
+            provider=SyncProvider.THE_SPORTS_DB,
+            fetched_at=datetime.now(timezone.utc),
+            matches=(
+                ProviderMatchRecord(
+                    provider=SyncProvider.THE_SPORTS_DB,
+                    external_id="remote-1",
+                    starts_at=provider_starts_at,
+                    status="FT",
+                    phase=CompetitionPhase.GROUP_STAGE,
+                    stage_round=1,
+                    group_name="A",
+                    bracket_slot=None,
+                    venue="venue",
+                    home_team_name="Mexico",
+                    away_team_name="South Africa",
+                    home_team_fifa_code="MEX",
+                    away_team_fifa_code="RSA",
+                    involves_brazil=False,
+                    official_home_goals=2,
+                    official_away_goals=0,
+                    winner_team_name="Mexico",
+                    source_payload={"page_index": 5},
+                ),
+            ),
+            top_scorers=(),
+        )
+        service = SyncService(
+            the_sports_db_client=cast(TheSportsDBClient, FakeTheSportsDBClient(batch)),
+            api_football_client=cast(APIFootballClient, FakeApiFootballClient(batch)),
+            google_sheets_client=cast(GoogleSheetsClient, FakeGoogleSheetsClient()),
+        )
+
+        result = service.run_scheduled_sync(db_session, requested_provider=SyncProvider.THE_SPORTS_DB)
+
+        assert result.success_count == 1
+        assert match.external_provider is SyncProvider.THE_SPORTS_DB
+        assert match.status == "FT"
+        assert match.official_home_goals == 2
+        assert match.official_away_goals == 0
+    finally:
+        db_session.close()
+
+
+def test_sync_service_latest_result_sync_prefers_page_index_over_kickoff_time() -> None:
+    db_session = make_session()
+    try:
+        create_admin(db_session)
+        now = datetime.now(timezone.utc)
+        later_match = Match(
+            external_provider=SyncProvider.THE_SPORTS_DB,
+            external_id="match-a",
+            phase=CompetitionPhase.GROUP_STAGE,
+            starts_at=now - timedelta(hours=1),
+            home_team_name="Mexico",
+            away_team_name="Japan",
+            home_team_fifa_code="MEX",
+            away_team_fifa_code="JPN",
+            status="SCHEDULED",
+        )
+        latest_by_page = Match(
+            external_provider=SyncProvider.THE_SPORTS_DB,
+            external_id="match-b",
+            phase=CompetitionPhase.GROUP_STAGE,
+            starts_at=now - timedelta(hours=2),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            status="SCHEDULED",
+        )
+        db_session.add_all([later_match, latest_by_page])
+        db_session.flush()
+        batch = ProviderSyncBatch(
+            provider=SyncProvider.THE_SPORTS_DB,
+            fetched_at=now,
+            matches=(
+                ProviderMatchRecord(
+                    provider=SyncProvider.THE_SPORTS_DB,
+                    external_id="match-a",
+                    starts_at=later_match.starts_at,
+                    status="FT",
+                    phase=CompetitionPhase.GROUP_STAGE,
+                    stage_round=1,
+                    group_name="A",
+                    bracket_slot=None,
+                    venue="venue",
+                    home_team_name="Mexico",
+                    away_team_name="Japan",
+                    home_team_fifa_code="MEX",
+                    away_team_fifa_code="JPN",
+                    involves_brazil=False,
+                    official_home_goals=1,
+                    official_away_goals=0,
+                    winner_team_name="Mexico",
+                    source_payload={"page_index": 3},
+                ),
+                ProviderMatchRecord(
+                    provider=SyncProvider.THE_SPORTS_DB,
+                    external_id="match-b",
+                    starts_at=latest_by_page.starts_at,
+                    status="FT",
+                    phase=CompetitionPhase.GROUP_STAGE,
+                    stage_round=1,
+                    group_name="A",
+                    bracket_slot=None,
+                    venue="venue",
+                    home_team_name="Brazil",
+                    away_team_name="Argentina",
+                    home_team_fifa_code="BRA",
+                    away_team_fifa_code="ARG",
+                    involves_brazil=True,
+                    official_home_goals=2,
+                    official_away_goals=0,
+                    winner_team_name="Brazil",
+                    source_payload={"page_index": 14},
+                ),
+            ),
+            top_scorers=(),
+        )
+        service = SyncService(
+            the_sports_db_client=cast(TheSportsDBClient, FakeTheSportsDBClient(batch)),
+            api_football_client=cast(APIFootballClient, FakeApiFootballClient(batch)),
+            google_sheets_client=cast(GoogleSheetsClient, FakeGoogleSheetsClient()),
+        )
+
+        result = service.run_latest_result_sync(db_session, requested_provider=SyncProvider.THE_SPORTS_DB)
+
+        assert result.success_count == 1
+        assert latest_by_page.status == "FT"
+        assert latest_by_page.official_home_goals == 2
+        assert later_match.status == "SCHEDULED"
+        assert later_match.official_home_goals is None
+        db_session.flush()
+        log = db_session.scalar(select(SyncLog).order_by(SyncLog.created_at.desc(), SyncLog.id.desc()))
+        assert log is not None
+        assert log.match_id == latest_by_page.id
+    finally:
+        db_session.close()
+
+
 def test_admin_sync_run_defaults_to_latest_result_mode(monkeypatch) -> None:
     configure_test_settings()
     factory = make_session_factory()

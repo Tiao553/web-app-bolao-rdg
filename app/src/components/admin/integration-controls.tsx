@@ -23,6 +23,17 @@ function formatScheduler(mode: string): string {
   return mode;
 }
 
+function formatProviderLabel(value: string): string {
+  const labels: Record<string, string> = {
+    THE_SPORTS_DB: 'FIFA live scrape',
+    API_FOOTBALL: 'API-Football',
+    GOOGLE_SHEETS: 'Google Sheets',
+    ADMIN: 'Admin',
+    SEED: 'Seed',
+  };
+  return labels[value] ?? value;
+}
+
 export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
   const [data, setData] = useState(initialData);
   const [enabled, setEnabled] = useState(initialData.autoSyncEnabled);
@@ -35,6 +46,9 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
   const syncStatusTone = data.autoSyncEnabled ? 'ok' : 'warn';
   const nextRunLabel = data.nextAutoSyncAt ? formatDate(data.nextAutoSyncAt) : 'Habilite o auto sync';
   const lastRunLabel = formatDate(data.lastAutoSyncAt);
+  const activeProviderLabel = formatProviderLabel(data.activeProvider);
+  const primaryProviderLabel = formatProviderLabel(data.primaryProvider);
+  const fallbackProviderLabel = formatProviderLabel(data.fallbackProvider);
 
   function saveSettings() {
     setMessage('');
@@ -104,18 +118,18 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
         <div className="hero-content">
           <div>
             <div className="eyebrow"><span className="dot" />Integrations</div>
-            <h1>Resultados automáticos sem depender de cron na plataforma.</h1>
+            <h1>Resultados quase em tempo real sem depender do delay da API.</h1>
             <p>
-              O agendamento sai do código: um job externo dispara a API, o backend decide pela cadência
-              salva e aplica o sync do TheSportsDB sem operação manual.
+              O run now usa o scraper FIFA primeiro, o backend salva o último resultado e a cadência
+              automática continua controlada pelo código.
             </p>
           </div>
           <div className="connection-card">
             <div className="conn-label">Provedor ativo</div>
-            <div className="conn-title">{data.activeProvider}</div>
+            <div className="conn-title">{activeProviderLabel}</div>
             <div className="conn-text">
               {data.apiConfigured
-                ? 'TheSportsDB livre ativo para resultados e Explore.'
+                ? 'Scrape FIFA ativo para resultados e Explore.'
                 : 'Provedor indisponível.'}
             </div>
             <div className="stat-grid-admin" style={{ marginTop: 16 }}>
@@ -142,7 +156,7 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
 
       <div className="grid-2">
         <div className="card">
-          <div className="card-header">
+            <div className="card-header">
             <div>
               <div className="card-title">Configuração da integração</div>
               <div className="card-subtitle">Fonte ativa, gate e intervalo salvo</div>
@@ -151,11 +165,12 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
               <span className="dot" />{data.autoSyncEnabled ? 'auto ligado' : 'auto desligado'}
             </div>
           </div>
-          <div className="card-body">
+            <div className="card-body">
             <div className="config-grid">
               {[
-                { label: 'Provider ativo', value: data.activeProvider },
-                { label: 'Fallback', value: data.fallbackProvider },
+                { label: 'Provider ativo', value: activeProviderLabel },
+                { label: 'Primário', value: primaryProviderLabel },
+                { label: 'Fallback', value: fallbackProviderLabel },
                 { label: 'Scheduler', value: schedulerLabel },
                 { label: 'Cron token', value: data.cronTokenConfigured ? 'Configurado' : 'Ausente' },
                 { label: 'Intervalo', value: `${data.autoSyncIntervalMinutes} minuto${data.autoSyncIntervalMinutes > 1 ? 's' : ''}` },
@@ -200,7 +215,7 @@ export function AdminIntegrationControls({ csrfToken, initialData }: Props) {
                   <option key={option} value={option}>{option} minuto{option > 1 ? 's' : ''}</option>
                 ))}
               </select>
-            </div>
+              </div>
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <button className="btn-ok" style={{ height: 36, padding: '0 14px' }} onClick={saveSettings} disabled={isSaving}>

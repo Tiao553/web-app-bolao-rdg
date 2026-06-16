@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from typing import Any, Protocol
 from uuid import UUID
 
@@ -20,6 +21,7 @@ from app.integrations.api_football import (
     ProviderTopScorer,
 )
 from app.integrations.google_sheets import GoogleSheetsClient
+from app.integrations.fifa_gameday import FifaGamedayClient
 from app.integrations.the_sports_db import TheSportsDBClient
 from app.models.schema import Match, SyncLog, SyncProvider, SyncStatus
 
@@ -78,19 +80,34 @@ class RecalculationHook(Protocol):
     def __call__(self, db_session: Session, request: SyncRecalculationRequest) -> None: ...
 
 
+class MatchBatchClient(Protocol):
+    provider: SyncProvider
+    configured: bool
+
+    def fetch_match_batch(
+        self,
+        *,
+        fixture_ids: Sequence[str] | None = None,
+        include_top_scorers: bool = False,
+    ) -> ProviderSyncBatch: ...
+
+
+BR_TZ = ZoneInfo("America/Sao_Paulo")
+
+
 class SyncService:
     def __init__(
         self,
         *,
         settings: Settings | None = None,
-        the_sports_db_client: TheSportsDBClient | None = None,
+        the_sports_db_client: MatchBatchClient | None = None,
         api_football_client: APIFootballClient | None = None,
         google_sheets_client: GoogleSheetsClient | None = None,
         now_provider: Callable[[], datetime] | None = None,
     ) -> None:
         self._settings = settings or get_settings()
         api_key = self._settings.api_football_key.get_secret_value() if self._settings.api_football_key is not None else None
-        self._the_sports_db_client = the_sports_db_client or TheSportsDBClient()
+        self._the_sports_db_client = the_sports_db_client or FifaGamedayClient()
         self._api_football_client = api_football_client or APIFootballClient(api_key=api_key)
         self._google_sheets_client = google_sheets_client or GoogleSheetsClient()
         self._now_provider = now_provider or self._default_now
@@ -365,13 +382,16 @@ class SyncService:
                 starts_at=self._as_utc(match.starts_at),
             ) == identity:
                 return match
-        fallback_match = self._match_by_team_codes_and_kickoff(
-            matches=matches,
-            provider_match=provider_match,
-        )
+        fallback_match = self._match_by_team_codes_and_kickoff(matches=matches, provider_match=provider_match)
         if fallback_match is not None:
             return fallback_match
-        return None
+        fallback_match = self._match_by_team_codes_and_date(matches=matches, provider_match=provider_match)
+        if fallback_match is not None:
+            return fallback_match
+        fallback_match = self._match_by_team_names_and_date(matches=matches, provider_match=provider_match)
+        if fallback_match is not None:
+            return fallback_match
+        return self._match_by_team_names_and_kickoff(matches=matches, provider_match=provider_match)
 
     def _match_by_team_codes_and_kickoff(
         self,
@@ -388,6 +408,61 @@ class SyncService:
             if match.home_team_fifa_code != provider_home_code:
                 continue
             if match.away_team_fifa_code != provider_away_code:
+                continue
+            if self._as_utc(match.starts_at).replace(second=0, microsecond=0) != normalized_starts_at:
+                continue
+            return match
+        return None
+
+    def _match_by_team_codes_and_date(
+        self,
+        *,
+        matches: Sequence[Match],
+        provider_match: ProviderMatchRecord,
+    ) -> Match | None:
+        provider_home_code = provider_match.home_team_fifa_code
+        provider_away_code = provider_match.away_team_fifa_code
+        if provider_home_code is None or provider_away_code is None:
+            return None
+        provider_date = self._local_date(provider_match.starts_at)
+        for match in matches:
+            if match.home_team_fifa_code != provider_home_code:
+                continue
+            if match.away_team_fifa_code != provider_away_code:
+                continue
+            if self._local_date(self._as_utc(match.starts_at)) != provider_date:
+                continue
+            return match
+        return None
+
+    def _match_by_team_names_and_date(
+        self,
+        *,
+        matches: Sequence[Match],
+        provider_match: ProviderMatchRecord,
+    ) -> Match | None:
+        provider_date = self._local_date(provider_match.starts_at)
+        for match in matches:
+            if match.home_team_name.casefold() != provider_match.home_team_name.casefold():
+                continue
+            if match.away_team_name.casefold() != provider_match.away_team_name.casefold():
+                continue
+            if self._local_date(self._as_utc(match.starts_at)) != provider_date:
+                continue
+            return match
+        return None
+
+    def _match_by_team_names_and_kickoff(
+        self,
+        *,
+        matches: Sequence[Match],
+        provider_match: ProviderMatchRecord,
+    ) -> Match | None:
+        normalized_starts_at = self._as_utc(provider_match.starts_at).replace(second=0, microsecond=0)
+        for match in matches:
+            if match.home_team_name.casefold() != provider_match.home_team_name.casefold():
+                continue
+            if match.away_team_name.casefold() != provider_match.away_team_name.casefold():
                 continue
             if self._as_utc(match.starts_at).replace(second=0, microsecond=0) != normalized_starts_at:
                 continue
@@ -516,10 +591,7 @@ class SyncService:
     ) -> tuple[ProviderMatchRecord, Match] | None:
         ordered_provider_matches = sorted(
             provider_matches,
-            key=lambda item: (
-                self._as_utc(item.starts_at),
-                item.external_id,
-            ),
+            key=self._provider_match_sort_key,
         )
         for provider_match in reversed(ordered_provider_matches):
             if provider_match.status not in self._settings.sync.allowed_terminal_statuses:
@@ -576,6 +648,20 @@ class SyncService:
     def _identity_key(self, *, home_team_name: str, away_team_name: str, starts_at: datetime) -> tuple[str, str, datetime]:
         normalized_starts_at = starts_at.astimezone(timezone.utc).replace(second=0, microsecond=0)
         return (home_team_name.strip().casefold(), away_team_name.strip().casefold(), normalized_starts_at)
+
+    def _provider_match_sort_key(self, item: ProviderMatchRecord) -> tuple[int, datetime, str]:
+        page_index_raw = item.source_payload.get("page_index") if isinstance(item.source_payload, dict) else None
+        page_index = page_index_raw if isinstance(page_index_raw, int) else None
+        if page_index is None and isinstance(page_index_raw, str) and page_index_raw.isdigit():
+            page_index = int(page_index_raw)
+        return (
+            page_index if page_index is not None else -1,
+            self._as_utc(item.starts_at),
+            item.external_id,
+        )
+
+    def _local_date(self, value: datetime) -> date:
+        return self._as_utc(value).astimezone(BR_TZ).date()
 
     def _as_utc(self, value: datetime) -> datetime:
         return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)

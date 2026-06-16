@@ -87,13 +87,14 @@ export default async function RankingPage() {
             </div>
 
             {/* Tabela */}
-            <div className="ranking-table">
+            <div className="ranking-table ranking-desktop">
               <div className="rank-row header">
                 <div className="th">Pos</div><div />
                 <div className="th">Participante</div>
                 <div className="th">Exatos</div>
                 <div className="th">Resultado</div>
                 <div className="th hide-sm">Brasil</div>
+                <div className="th hide-sm">Bônus</div>
                 <div className="th">Total</div>
               </div>
               {rows.map(row => (
@@ -110,8 +111,49 @@ export default async function RankingPage() {
                   <div className="metric">{row.exactPoints}</div>
                   <div className="metric good">{row.resultPoints}</div>
                   <div className="metric hide-sm gold">{row.brazilPoints}</div>
+                  <div className="metric hide-sm gold">{row.bonusPoints}</div>
                   <div className="metric total">{row.totalPoints}</div>
                 </div>
+              ))}
+            </div>
+
+            <div className="ranking-mobile-list">
+              {rows.map(row => (
+                <article key={`mobile-${row.userId}`} className={`rank-mobile-card${row.rank === 1 ? ' top1' : ''}${row.rank === myRank ? ' me' : ''}`}>
+                  <div className="rank-mobile-head">
+                    <div className="rank-pos">{row.rank}</div>
+                    <div className="mini-avatar">{row.fullName.split(' ').map((p: string) => p[0]).slice(0,2).join('')}</div>
+                    <div className="rank-mobile-name-wrap">
+                      <div className="rank-name">
+                        {row.rank === myRank && !row.fullName.includes('(você)')
+                          ? `${row.fullName} (você)`
+                          : row.fullName}
+                      </div>
+                      <div className="rank-detail">
+                        {row.matchPoints} pontos em jogos · {row.bonusPoints} de bônus
+                      </div>
+                    </div>
+                    <div className="metric total">{row.totalPoints}</div>
+                  </div>
+                  <div className="rank-mobile-metrics">
+                    <div className="rank-metric-chip">
+                      <span>Exatos</span>
+                      <strong>{row.exactPoints}</strong>
+                    </div>
+                    <div className="rank-metric-chip">
+                      <span>Resultado</span>
+                      <strong>{row.resultPoints}</strong>
+                    </div>
+                    <div className="rank-metric-chip">
+                      <span>Brasil</span>
+                      <strong>{row.brazilPoints}</strong>
+                    </div>
+                    <div className="rank-metric-chip">
+                      <span>Bônus</span>
+                      <strong>{row.bonusPoints}</strong>
+                    </div>
+                  </div>
+                </article>
               ))}
             </div>
           </div>
