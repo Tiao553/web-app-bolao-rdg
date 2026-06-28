@@ -23,7 +23,10 @@ def normalize_database_url(database_url: str) -> str:
 def build_connect_args(database_url: str) -> dict[str, object]:
     if database_url.startswith("sqlite"):
         return {"check_same_thread": False}
-    return {"connect_timeout": 10}
+    return {
+        "connect_timeout": 10,
+        "prepare_threshold": None,
+    }
 
 
 def run_migrations() -> None:

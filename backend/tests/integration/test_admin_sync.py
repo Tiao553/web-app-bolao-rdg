@@ -790,3 +790,103 @@ def test_recalculation_processes_finished_status_matches() -> None:
         assert prediction.points_awarded > 0
     finally:
         db_session.close()
+
+
+def test_manual_override_recalculates_bracket_when_multiple_matches_change() -> None:
+    db_session = make_session()
+    try:
+        admin = create_admin(db_session)
+        now = datetime.now(timezone.utc)
+        edited_match = Match(
+            external_provider=SyncProvider.API_FOOTBALL,
+            external_id="fixture-bracket-a",
+            phase=CompetitionPhase.GROUP_STAGE,
+            group_name="A",
+            starts_at=now - timedelta(hours=3),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            status="SCHEDULED",
+        )
+        other_group_match = Match(
+            external_provider=SyncProvider.API_FOOTBALL,
+            external_id="fixture-bracket-b",
+            phase=CompetitionPhase.GROUP_STAGE,
+            group_name="B",
+            starts_at=now - timedelta(hours=2),
+            home_team_name="Japan",
+            away_team_name="USA",
+            home_team_fifa_code="JPN",
+            away_team_fifa_code="USA",
+            status="FT",
+            official_home_goals=1,
+            official_away_goals=0,
+        )
+        round_of_16_a = Match(
+            phase=CompetitionPhase.ROUND_OF_16,
+            bracket_slot="M101",
+            feeder_home_key="WINNER:A",
+            feeder_away_key="RUNNER_UP:B",
+            starts_at=now + timedelta(days=1),
+            home_team_name="Winner A",
+            away_team_name="Runner-up B",
+            status="SCHEDULED",
+            winner_team_name="BRA",
+        )
+        round_of_16_b = Match(
+            phase=CompetitionPhase.ROUND_OF_16,
+            bracket_slot="M102",
+            feeder_home_key="WINNER:B",
+            feeder_away_key="RUNNER_UP:A",
+            starts_at=now + timedelta(days=1, hours=2),
+            home_team_name="Winner B",
+            away_team_name="Runner-up A",
+            status="SCHEDULED",
+            winner_team_name="JPN",
+        )
+        semifinal = Match(
+            phase=CompetitionPhase.SEMI_FINAL,
+            bracket_slot="M104",
+            feeder_home_key="W101",
+            feeder_away_key="W102",
+            starts_at=now + timedelta(days=2),
+            home_team_name="Winner M101",
+            away_team_name="Winner M102",
+            status="SCHEDULED",
+        )
+        db_session.add_all(
+            [edited_match, other_group_match, round_of_16_a, round_of_16_b, semifinal]
+        )
+        db_session.flush()
+
+        response = update_match_manual_override(
+            edited_match.id,
+            MatchManualOverrideRequest(
+                status="FINISHED",
+                official_home_goals=2,
+                official_away_goals=0,
+                has_manual_override=True,
+            ),
+            admin_user=admin,
+            db_session=db_session,
+        )
+
+        assert response.status == "FT"
+        assert round_of_16_a.home_team_fifa_code == "BRA"
+        assert round_of_16_a.away_team_fifa_code == "USA"
+        assert round_of_16_b.home_team_fifa_code == "JPN"
+        assert round_of_16_b.away_team_fifa_code == "ARG"
+        assert semifinal.home_team_fifa_code == "BRA"
+        assert semifinal.away_team_fifa_code == "JPN"
+
+        log = db_session.scalar(
+            select(SyncLog).order_by(SyncLog.created_at.desc(), SyncLog.id.desc())
+        )
+        assert log is not None
+        assert log.operation == "manual_match_override"
+        assert log.result_code == "manual_override_applied"
+        assert log.payload is not None
+        assert log.payload["bracket"]["updated_count"] >= 6
+    finally:
+        db_session.close()
