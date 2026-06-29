@@ -890,3 +890,75 @@ def test_manual_override_recalculates_bracket_when_multiple_matches_change() -> 
         assert log.payload["bracket"]["updated_count"] >= 6
     finally:
         db_session.close()
+
+
+def test_manual_override_preserves_repaired_round_of_32_pairings() -> None:
+    db_session = make_session()
+    try:
+        admin = create_admin(db_session)
+        now = datetime.now(timezone.utc)
+        edited_match = Match(
+            external_provider=SyncProvider.API_FOOTBALL,
+            external_id="fixture-repaired-bracket-a",
+            phase=CompetitionPhase.GROUP_STAGE,
+            group_name="A",
+            starts_at=now - timedelta(hours=3),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            status="SCHEDULED",
+        )
+        other_group_match = Match(
+            external_provider=SyncProvider.API_FOOTBALL,
+            external_id="fixture-repaired-bracket-b",
+            phase=CompetitionPhase.GROUP_STAGE,
+            group_name="B",
+            starts_at=now - timedelta(hours=2),
+            home_team_name="Japan",
+            away_team_name="USA",
+            home_team_fifa_code="JPN",
+            away_team_fifa_code="USA",
+            status="FT",
+            official_home_goals=1,
+            official_away_goals=0,
+        )
+        repaired_round_of_32 = Match(
+            phase=CompetitionPhase.ROUND_OF_32,
+            bracket_slot="M73",
+            feeder_home_key="WINNER:A",
+            feeder_away_key="RUNNER_UP:B",
+            starts_at=now + timedelta(days=1),
+            home_team_name="África do Sul",
+            away_team_name="Canadá",
+            home_team_fifa_code="RSA",
+            away_team_fifa_code="CAN",
+            status="SCHEDULED",
+            source_payload={
+                "manualRoundOf32Repair": {
+                    "operation": "manual_round_of_32_repair_after_recalculation_regression"
+                }
+            },
+        )
+        db_session.add_all([edited_match, other_group_match, repaired_round_of_32])
+        db_session.flush()
+
+        response = update_match_manual_override(
+            edited_match.id,
+            MatchManualOverrideRequest(
+                status="FINISHED",
+                official_home_goals=2,
+                official_away_goals=0,
+                has_manual_override=True,
+            ),
+            admin_user=admin,
+            db_session=db_session,
+        )
+
+        assert response.status == "FT"
+        assert repaired_round_of_32.home_team_fifa_code == "RSA"
+        assert repaired_round_of_32.away_team_fifa_code == "CAN"
+        assert repaired_round_of_32.home_team_name == "África do Sul"
+        assert repaired_round_of_32.away_team_name == "Canadá"
+    finally:
+        db_session.close()

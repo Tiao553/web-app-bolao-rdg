@@ -204,6 +204,13 @@ def _resolve_group_slot_team(
     return None
 
 
+def _has_manual_round_of_32_repair(match: Match) -> bool:
+    if match.phase != CompetitionPhase.ROUND_OF_32:
+        return False
+    payload = match.source_payload
+    return isinstance(payload, dict) and isinstance(payload.get("manualRoundOf32Repair"), dict)
+
+
 def recalculate_bracket(
     db_session: Session,
     standings_by_group: Mapping[str, tuple[TeamStanding, ...]],
@@ -226,11 +233,15 @@ def recalculate_bracket(
             match = by_slot.get(allocation.slot)
             if match is None:
                 continue
+            if _has_manual_round_of_32_repair(match):
+                continue
             if match.away_team_fifa_code != allocation.team_key:
                 match.away_team_fifa_code = allocation.team_key
                 updated_count += 1
                 db_session.add(match)
     for match in all_matches:
+        if _has_manual_round_of_32_repair(match):
+            continue
         home_group_team = _resolve_group_slot_team(match.feeder_home_key, standings_by_group)
         away_group_team = _resolve_group_slot_team(match.feeder_away_key, standings_by_group)
         if home_group_team is not None and match.home_team_fifa_code != home_group_team:
@@ -246,6 +257,8 @@ def recalculate_bracket(
     propagated_by_slot = {match.slot: match for match in propagated}
     for match in all_matches:
         if match.bracket_slot is None:
+            continue
+        if _has_manual_round_of_32_repair(match):
             continue
         propagated_match = propagated_by_slot.get(match.bracket_slot)
         if propagated_match is None:
