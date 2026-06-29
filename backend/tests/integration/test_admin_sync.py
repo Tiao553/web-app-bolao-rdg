@@ -792,6 +792,53 @@ def test_recalculation_processes_finished_status_matches() -> None:
         db_session.close()
 
 
+def test_manual_override_applies_brazil_multiplier_for_bracket_match() -> None:
+    db_session = make_session()
+    try:
+        admin = create_admin(db_session)
+        match = Match(
+            external_provider=SyncProvider.API_FOOTBALL,
+            external_id="fixture-bracket-brazil",
+            phase=CompetitionPhase.ROUND_OF_16,
+            bracket_slot="M101",
+            starts_at=datetime.now(timezone.utc) - timedelta(hours=3),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            involves_brazil=False,
+            status="SCHEDULED",
+        )
+        db_session.add(match)
+        db_session.flush()
+        prediction = MatchPrediction(
+            user_id=admin.id,
+            match_id=match.id,
+            home_goals=1,
+            away_goals=0,
+        )
+        db_session.add(prediction)
+        db_session.flush()
+
+        response = update_match_manual_override(
+            match.id,
+            MatchManualOverrideRequest(
+                status="FINISHED",
+                official_home_goals=1,
+                official_away_goals=0,
+                has_manual_override=True,
+            ),
+            admin_user=admin,
+            db_session=db_session,
+        )
+
+        assert response.status == "FT"
+        assert match.involves_brazil is True
+        assert prediction.points_awarded == 6
+    finally:
+        db_session.close()
+
+
 def test_manual_override_recalculates_bracket_when_multiple_matches_change() -> None:
     db_session = make_session()
     try:

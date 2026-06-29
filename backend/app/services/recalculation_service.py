@@ -75,6 +75,10 @@ class RecalculationSummary(BaseModel):
     ranking_rows: list[RankingSnapshotRow]
 
 
+BRAZIL_TEAM_CODES = {"BRA"}
+BRAZIL_TEAM_NAMES = {"brasil", "brazil"}
+
+
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -211,6 +215,31 @@ def _has_manual_round_of_32_repair(match: Match) -> bool:
     return isinstance(payload, dict) and isinstance(payload.get("manualRoundOf32Repair"), dict)
 
 
+def _match_involves_brazil(match: Match) -> bool:
+    codes = {
+        value.strip().upper()
+        for value in (match.home_team_fifa_code, match.away_team_fifa_code)
+        if value
+    }
+    if codes.intersection(BRAZIL_TEAM_CODES):
+        return True
+
+    names = {
+        value.strip().lower()
+        for value in (match.home_team_name, match.away_team_name)
+        if value
+    }
+    return bool(names.intersection(BRAZIL_TEAM_NAMES))
+
+
+def _sync_match_brazil_flag(match: Match) -> bool:
+    next_value = _match_involves_brazil(match)
+    if match.involves_brazil == next_value:
+        return False
+    match.involves_brazil = next_value
+    return True
+
+
 def recalculate_bracket(
     db_session: Session,
     standings_by_group: Mapping[str, tuple[TeamStanding, ...]],
@@ -269,6 +298,10 @@ def recalculate_bracket(
             db_session.add(match)
         if propagated_match.away_team_key is not None and match.away_team_fifa_code != propagated_match.away_team_key:
             match.away_team_fifa_code = propagated_match.away_team_key
+            updated_count += 1
+            db_session.add(match)
+    for match in all_matches:
+        if _sync_match_brazil_flag(match):
             updated_count += 1
             db_session.add(match)
     db_session.flush()
