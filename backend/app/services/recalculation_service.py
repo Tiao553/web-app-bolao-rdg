@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import unicodedata
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timezone
 from typing import Any
@@ -41,6 +42,7 @@ from app.models.schema import (
 )
 from app.repositories.queries import get_active_scoring_rule
 from app.services.match_status import is_terminal_match_status
+from app.services.team_metadata import get_team_metadata
 
 
 class RecalculationStageSummary(BaseModel):
@@ -98,6 +100,63 @@ def get_score_rules(db_session: Session) -> ScoreRules:
 
 def _match_status_is_terminal(match: Match) -> bool:
     return is_terminal_match_status(match.status)
+
+
+def _normalize_team_label(value: str | None) -> str | None:
+    if value is None:
+        return None
+    normalized = unicodedata.normalize("NFKD", value.strip()).casefold()
+    normalized = "".join(char for char in normalized if not unicodedata.combining(char))
+    normalized = "".join(char for char in normalized if char.isalnum())
+    return normalized or None
+
+
+def _team_match_tokens(team_code: str | None, team_name: str | None) -> set[str]:
+    tokens = {
+        token
+        for token in (
+            _normalize_team_label(team_code),
+            _normalize_team_label(team_name),
+        )
+        if token is not None
+    }
+    metadata = get_team_metadata(team_code, team_name)
+    tokens.update(
+        token
+        for token in (
+            _normalize_team_label(metadata.code),
+            _normalize_team_label(metadata.name),
+        )
+        if token is not None
+    )
+    if team_code is not None and team_code.strip().upper() in BRAZIL_TEAM_CODES:
+        tokens.update(
+            token
+            for token in (_normalize_team_label(name) for name in BRAZIL_TEAM_NAMES)
+            if token is not None
+        )
+    return tokens
+
+
+def _resolve_winner_team_key(match: Match) -> str | None:
+    home_code = match.home_team_fifa_code
+    away_code = match.away_team_fifa_code
+    if (
+        _match_status_is_terminal(match)
+        and match.official_home_goals is not None
+        and match.official_away_goals is not None
+        and match.official_home_goals != match.official_away_goals
+    ):
+        return home_code if match.official_home_goals > match.official_away_goals else away_code
+
+    winner_token = _normalize_team_label(match.winner_team_name)
+    if winner_token is None:
+        return None
+    if winner_token in _team_match_tokens(home_code, match.home_team_name):
+        return home_code
+    if winner_token in _team_match_tokens(away_code, match.away_team_name):
+        return away_code
+    return None
 
 
 def _build_group_seeds(matches: Iterable[Match]) -> tuple[GroupTeamSeed, ...]:
@@ -185,7 +244,7 @@ def _build_knockout_matches(matches: Iterable[Match]) -> tuple[KnockoutMatch, ..
                 away_team_key=match.away_team_fifa_code,
                 feeder_home_key=match.feeder_home_key,
                 feeder_away_key=match.feeder_away_key,
-                winner_team_key=match.winner_team_name,
+                winner_team_key=_resolve_winner_team_key(match),
             )
         )
     return tuple(knockout)

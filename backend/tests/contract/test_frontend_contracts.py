@@ -98,6 +98,23 @@ def test_member_contracts_expose_mock_driven_shapes() -> None:
             )
         )
         db_session.add(
+            Match(
+                external_provider=None,
+                external_id="seed-knockout-1",
+                phase=CompetitionPhase.ROUND_OF_32,
+                bracket_slot="M73",
+                starts_at=datetime.now(timezone.utc),
+                home_team_name="Brazil",
+                away_team_name="Canada",
+                home_team_fifa_code="BRA",
+                away_team_fifa_code="CAN",
+                status="FT",
+                official_home_goals=2,
+                official_away_goals=1,
+                winner_team_name="BRA",
+            )
+        )
+        db_session.add(
             MatchPrediction(
                 user_id=user.id,
                 match_id=match.id,
@@ -124,6 +141,9 @@ def test_member_contracts_expose_mock_driven_shapes() -> None:
         assert results.matches[0].homeFlag == "🇧🇷"
         assert bracket.championPrediction == "Brazil"
         assert len(bracket.thirdPlaceSlots) == 8
+        assert bracket.matches[0].status == "FT"
+        assert bracket.matches[0].officialHomeGoals == 2
+        assert bracket.matches[0].officialAwayGoals == 1
     finally:
         db_session.close()
 

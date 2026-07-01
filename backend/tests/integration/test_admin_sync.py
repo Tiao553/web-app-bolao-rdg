@@ -33,7 +33,7 @@ from app.models.schema import (
 )
 from app.api.routes.admin import MatchManualOverrideRequest, update_match_manual_override
 from app.repositories.queries import get_db_session
-from app.services.recalculation_service import recalculate_match_prediction_points
+from app.services.recalculation_service import recalculate_competition_state, recalculate_match_prediction_points
 from app.services.sync_service import SyncRunResult, SyncService
 
 
@@ -980,14 +980,27 @@ def test_manual_override_preserves_repaired_round_of_32_pairings() -> None:
             away_team_name="Canadá",
             home_team_fifa_code="RSA",
             away_team_fifa_code="CAN",
-            status="SCHEDULED",
+            status="FT",
+            official_home_goals=1,
+            official_away_goals=0,
+            winner_team_name="África do Sul",
             source_payload={
                 "manualRoundOf32Repair": {
                     "operation": "manual_round_of_32_repair_after_recalculation_regression"
                 }
             },
         )
-        db_session.add_all([edited_match, other_group_match, repaired_round_of_32])
+        round_of_16 = Match(
+            phase=CompetitionPhase.ROUND_OF_16,
+            bracket_slot="M89",
+            feeder_home_key="W73",
+            feeder_away_key="W74",
+            starts_at=now + timedelta(days=3),
+            home_team_name="Winner M73",
+            away_team_name="Winner M74",
+            status="SCHEDULED",
+        )
+        db_session.add_all([edited_match, other_group_match, repaired_round_of_32, round_of_16])
         db_session.flush()
 
         response = update_match_manual_override(
@@ -1007,5 +1020,132 @@ def test_manual_override_preserves_repaired_round_of_32_pairings() -> None:
         assert repaired_round_of_32.away_team_fifa_code == "CAN"
         assert repaired_round_of_32.home_team_name == "África do Sul"
         assert repaired_round_of_32.away_team_name == "Canadá"
+        assert round_of_16.home_team_fifa_code == "RSA"
+    finally:
+        db_session.close()
+
+
+def test_recalculation_advances_knockout_winners_sequentially_to_final() -> None:
+    db_session = make_session()
+    try:
+        create_admin(db_session)
+        now = datetime.now(timezone.utc)
+        round_of_32_a = Match(
+            phase=CompetitionPhase.ROUND_OF_32,
+            bracket_slot="M73",
+            starts_at=now - timedelta(hours=4),
+            home_team_name="África do Sul",
+            away_team_name="Canadá",
+            home_team_fifa_code="RSA",
+            away_team_fifa_code="CAN",
+            status="FT",
+            official_home_goals=1,
+            official_away_goals=0,
+        )
+        round_of_32_b = Match(
+            phase=CompetitionPhase.ROUND_OF_32,
+            bracket_slot="M74",
+            starts_at=now - timedelta(hours=3),
+            home_team_name="Alemanha",
+            away_team_name="Bósnia e Herzegovina",
+            home_team_fifa_code="GER",
+            away_team_fifa_code="BIH",
+            status="FT",
+            official_home_goals=0,
+            official_away_goals=1,
+        )
+        round_of_16 = Match(
+            phase=CompetitionPhase.ROUND_OF_16,
+            bracket_slot="M89",
+            feeder_home_key="W73",
+            feeder_away_key="W74",
+            starts_at=now + timedelta(days=1),
+            home_team_name="Winner M73",
+            away_team_name="Winner M74",
+            status="SCHEDULED",
+        )
+        quarter_final = Match(
+            phase=CompetitionPhase.QUARTER_FINAL,
+            bracket_slot="M97",
+            feeder_home_key="W89",
+            feeder_away_key="W90",
+            starts_at=now + timedelta(days=3),
+            home_team_name="Winner M89",
+            away_team_name="Winner M90",
+            status="SCHEDULED",
+        )
+        semi_final = Match(
+            phase=CompetitionPhase.SEMI_FINAL,
+            bracket_slot="M101",
+            feeder_home_key="W97",
+            feeder_away_key="W98",
+            starts_at=now + timedelta(days=5),
+            home_team_name="Winner M97",
+            away_team_name="Winner M98",
+            status="SCHEDULED",
+        )
+        other_semi_final = Match(
+            phase=CompetitionPhase.SEMI_FINAL,
+            bracket_slot="M102",
+            starts_at=now + timedelta(days=5, hours=2),
+            home_team_name="Brasil",
+            away_team_name="Japão",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="JPN",
+            status="FT",
+            official_home_goals=0,
+            official_away_goals=1,
+        )
+        final = Match(
+            phase=CompetitionPhase.FINAL,
+            bracket_slot="M104",
+            feeder_home_key="W101",
+            feeder_away_key="W102",
+            starts_at=now + timedelta(days=7),
+            home_team_name="Winner M101",
+            away_team_name="Winner M102",
+            status="SCHEDULED",
+        )
+        db_session.add_all(
+            [
+                round_of_32_a,
+                round_of_32_b,
+                round_of_16,
+                quarter_final,
+                semi_final,
+                other_semi_final,
+                final,
+            ]
+        )
+        db_session.flush()
+
+        recalculate_competition_state(db_session)
+        assert round_of_16.home_team_fifa_code == "RSA"
+        assert round_of_16.away_team_fifa_code == "BIH"
+
+        round_of_16.status = "FT"
+        round_of_16.official_home_goals = 2
+        round_of_16.official_away_goals = 0
+        db_session.add(round_of_16)
+        db_session.flush()
+        recalculate_competition_state(db_session)
+        assert quarter_final.home_team_fifa_code == "RSA"
+
+        quarter_final.status = "FT"
+        quarter_final.official_home_goals = 1
+        quarter_final.official_away_goals = 0
+        db_session.add(quarter_final)
+        db_session.flush()
+        recalculate_competition_state(db_session)
+        assert semi_final.home_team_fifa_code == "RSA"
+
+        semi_final.status = "FT"
+        semi_final.official_home_goals = 1
+        semi_final.official_away_goals = 0
+        db_session.add(semi_final)
+        db_session.flush()
+        recalculate_competition_state(db_session)
+        assert final.home_team_fifa_code == "RSA"
+        assert final.away_team_fifa_code == "JPN"
     finally:
         db_session.close()

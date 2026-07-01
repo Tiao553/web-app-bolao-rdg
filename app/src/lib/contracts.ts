@@ -301,6 +301,7 @@ export type BracketMatchContract = {
   matchId: string | null;
   phase: string;
   slot: string;
+  status: string;
   startsAt: string | null;
   homeTeam: string | null;
   homeCode: string | null;
@@ -310,6 +311,8 @@ export type BracketMatchContract = {
   awayCode: string | null;
   awayIso2: string | null;
   awayFlag: string | null;
+  officialHomeGoals: number | null;
+  officialAwayGoals: number | null;
   winnerTeam: string | null;
   feederHomeKey: string | null;
   feederAwayKey: string | null;

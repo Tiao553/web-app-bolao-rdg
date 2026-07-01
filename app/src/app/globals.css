@@ -1328,7 +1328,150 @@ body > * { position: relative; z-index: 1; }
 .explore-sheet-score { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--or); margin-top: 2px; }
 
 /* ── Bracket ─────────────────────────────────────── */
-.bracket-wrapper { overflow-x: auto; padding-bottom: 12px; }
+.bracket-card-body { padding: 18px 22px 22px; }
+.bracket-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 2px 14px;
+  scrollbar-color: var(--bd2) transparent;
+}
+.bracket-board {
+  position: relative;
+  min-width: 100%;
+}
+.bracket-round-labels {
+  display: grid;
+  grid-template-columns: repeat(var(--bracket-columns), var(--bracket-column-width));
+  column-gap: var(--bracket-column-gap);
+  margin-bottom: 12px;
+}
+.bracket-round-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  color: var(--tx2);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  text-align: center;
+}
+.bracket-canvas {
+  position: relative;
+}
+.bracket-connectors {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.bracket-connectors path {
+  fill: none;
+  stroke: rgba(126, 132, 150, .32);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.bracket-rounds {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--bracket-columns), var(--bracket-column-width));
+  column-gap: var(--bracket-column-gap);
+  height: 100%;
+}
+.bracket-round-column {
+  display: grid;
+  grid-template-rows: repeat(var(--bracket-rows), var(--bracket-row-height));
+  min-width: 0;
+}
+.bracket-match-slot {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.bracket-match-card {
+  width: 100%;
+  min-height: 98px;
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(32,32,38,.96), rgba(20,20,25,.98));
+  box-shadow: 0 10px 26px rgba(0,0,0,.22);
+  overflow: hidden;
+}
+.bracket-match-card.finished {
+  border-color: rgba(249,115,22,.34);
+}
+.bracket-match-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--bd);
+  background: rgba(255,255,255,.035);
+  color: var(--tx3);
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.bracket-status {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  color: var(--tx2);
+  font-size: 9px;
+  font-weight: 800;
+}
+.bracket-match-teams {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 10px 7px;
+}
+.bracket-team-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 8px;
+  min-height: 31px;
+  color: var(--tx2);
+  font-size: 13px;
+  font-weight: 700;
+}
+.bracket-team-row + .bracket-team-row {
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+.bracket-team-row.winner {
+  color: var(--or);
+  font-weight: 900;
+}
+.bracket-team-row.empty {
+  color: var(--tx3);
+}
+.bracket-score {
+  justify-self: end;
+  min-width: 24px;
+  color: inherit;
+  font-family: 'Fira Code', monospace;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: right;
+}
+.bracket-empty {
+  padding: 44px 20px;
+  color: var(--tx3);
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .bracket-card-body { padding: 14px 12px 18px; }
+  .bracket-wrapper { margin-inline: -2px; }
+  .bracket-connectors { opacity: .45; }
+  .bracket-match-card { border-radius: 12px; }
+  .bracket-team-row { font-size: 12px; grid-template-columns: minmax(0, 1fr) 24px; }
+  .bracket-score { font-size: 16px; }
+}
 
 /* ── Step cards (waiting) ───────────────────────── */
 .steps { display: flex; flex-direction: column; gap: 14px; }

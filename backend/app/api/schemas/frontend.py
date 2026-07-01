@@ -56,6 +56,7 @@ class BracketMatchDto(BaseModel):
     matchId: UUID | None
     phase: str
     slot: str
+    status: str
     startsAt: datetime | None
     homeTeam: str | None
     homeCode: str | None
@@ -65,6 +66,8 @@ class BracketMatchDto(BaseModel):
     awayCode: str | None
     awayIso2: str | None
     awayFlag: str | None
+    officialHomeGoals: int | None
+    officialAwayGoals: int | None
     winnerTeam: str | None
     feederHomeKey: str | None
     feederAwayKey: str | None
