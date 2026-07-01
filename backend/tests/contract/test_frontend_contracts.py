@@ -115,6 +115,20 @@ def test_member_contracts_expose_mock_driven_shapes() -> None:
             )
         )
         db_session.add(
+            Match(
+                external_provider=None,
+                external_id="seed-knockout-stale-name",
+                phase=CompetitionPhase.ROUND_OF_16,
+                bracket_slot="M92",
+                starts_at=datetime.now(timezone.utc),
+                home_team_name="México",
+                away_team_name="TBD",
+                home_team_fifa_code="MEX",
+                away_team_fifa_code="ENG",
+                status="SCHEDULED",
+            )
+        )
+        db_session.add(
             MatchPrediction(
                 user_id=user.id,
                 match_id=match.id,
@@ -144,6 +158,9 @@ def test_member_contracts_expose_mock_driven_shapes() -> None:
         assert bracket.matches[0].status == "FT"
         assert bracket.matches[0].officialHomeGoals == 2
         assert bracket.matches[0].officialAwayGoals == 1
+        stale_name_match = next(match for match in bracket.matches if match.slot == "M92")
+        assert stale_name_match.awayTeam == "Inglaterra"
+        assert stale_name_match.awayCode == "ENG"
     finally:
         db_session.close()
 

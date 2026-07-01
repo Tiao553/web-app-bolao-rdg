@@ -10,11 +10,21 @@ interface Props {
   csrfToken: string;
 }
 
+const KNOCKOUT_PHASES = new Set([
+  'ROUND_OF_32',
+  'ROUND_OF_16',
+  'QUARTER_FINAL',
+  'SEMI_FINAL',
+  'THIRD_PLACE',
+  'FINAL',
+]);
+
 export function ManualResultModal({ matches, csrfToken }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState('');
   const [homeGoals, setHomeGoals] = useState('0');
   const [awayGoals, setAwayGoals] = useState('0');
+  const [advancedTeam, setAdvancedTeam] = useState('');
   const [scorers, setScorers] = useState<GoalEntry[]>([]);
   const [scorerSearch, setScorerSearch] = useState('');
   const [scorerTeam, setScorerTeam] = useState('');
@@ -28,6 +38,15 @@ export function ManualResultModal({ matches, csrfToken }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const selected = matches.find(m => m.id === selectedId);
+  const parsedHomeGoals = parseInt(homeGoals, 10);
+  const parsedAwayGoals = parseInt(awayGoals, 10);
+  const needsAdvancedTeam = Boolean(
+    selected
+      && KNOCKOUT_PHASES.has(selected.phase)
+      && !Number.isNaN(parsedHomeGoals)
+      && !Number.isNaN(parsedAwayGoals)
+      && parsedHomeGoals === parsedAwayGoals,
+  );
 
   // Load players once when modal opens
   useEffect(() => {
@@ -46,6 +65,10 @@ export function ManualResultModal({ matches, csrfToken }: Props) {
     setSuggestions(hits);
     setShowSugg(hits.length > 0);
   }, [scorerSearch, allPlayers]);
+
+  useEffect(() => {
+    setAdvancedTeam('');
+  }, [selectedId]);
 
   function selectSuggestion(p: PlayerOption) {
     setScorerSearch(p.name);
@@ -94,6 +117,7 @@ export function ManualResultModal({ matches, csrfToken }: Props) {
     setSelectedId('');
     setHomeGoals('0');
     setAwayGoals('0');
+    setAdvancedTeam('');
     setScorers([]);
     setScorerSearch('');
     setScorerTeam('');
@@ -110,16 +134,21 @@ export function ManualResultModal({ matches, csrfToken }: Props) {
     if (isNaN(home) || isNaN(away) || home < 0 || away < 0) {
       setError('Placar inválido.'); return;
     }
+    if (needsAdvancedTeam && !advancedTeam) {
+      setError('Selecione quem avançou no mata-mata.'); return;
+    }
     setError('');
     startTransition(async () => {
       try {
+        const status = needsAdvancedTeam ? 'PEN' : 'FT';
         const res = await fetch(`/api/admin/matches/${selectedId}/manual-override`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
           body: JSON.stringify({
-            status: 'FT',
+            status,
             official_home_goals: home,
             official_away_goals: away,
+            winner_team_name: needsAdvancedTeam ? advancedTeam : null,
             has_manual_override: true,
             goal_scorers: scorers.map(s => ({ name: s.name, team: s.team || null, goals: s.goals })),
           }),
@@ -192,6 +221,25 @@ export function ManualResultModal({ matches, csrfToken }: Props) {
                   </div>
                 </div>
               </div>
+
+              {needsAdvancedTeam && selected && (
+                <div className="field-admin">
+                  <div className="field-label-admin">Classificado</div>
+                  <select
+                    className="admin-select"
+                    style={{ width: '100%' }}
+                    value={advancedTeam}
+                    onChange={e => setAdvancedTeam(e.target.value)}
+                  >
+                    <option value="">Selecione quem passou…</option>
+                    <option value={selected.homeTeam}>{selected.homeTeam}</option>
+                    <option value={selected.awayTeam}>{selected.awayTeam}</option>
+                  </select>
+                  <div style={{ marginTop: 6, color: 'var(--tx3)', fontSize: 11, lineHeight: 1.5 }}>
+                    O placar continua valendo para os pontos dos 90 minutos. Esta seleção só atualiza o chaveamento.
+                  </div>
+                </div>
+              )}
 
               {/* Goalscorers with autocomplete */}
               <div className="field-admin">

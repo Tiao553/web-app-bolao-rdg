@@ -8,6 +8,17 @@ const phaseLabel: Record<string, string> = {
   QUARTER_FINAL: 'Quartas', SEMI_FINAL: 'Semi', THIRD_PLACE: '3º lugar', FINAL: 'Final',
 };
 
+const KNOCKOUT_PHASES = new Set([
+  'ROUND_OF_32',
+  'ROUND_OF_16',
+  'QUARTER_FINAL',
+  'SEMI_FINAL',
+  'THIRD_PLACE',
+  'FINAL',
+]);
+
+const TERMINAL_STATUSES = new Set(['FT', 'AET', 'PEN', 'FINISHED']);
+
 interface Props {
   matches: AdminMatchRowContract[];
   csrfToken: string;
@@ -25,6 +36,7 @@ export function AdminMatchList({ matches, csrfToken }: Props) {
   const [homeGoals, setHomeGoals] = useState('');
   const [awayGoals, setAwayGoals] = useState('');
   const [editStatus, setEditStatus] = useState('');
+  const [advancedTeam, setAdvancedTeam] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -49,12 +61,14 @@ export function AdminMatchList({ matches, csrfToken }: Props) {
     setHomeGoals(m.officialHomeGoals !== null ? String(m.officialHomeGoals) : '');
     setAwayGoals(m.officialAwayGoals !== null ? String(m.officialAwayGoals) : '');
     setEditStatus(m.status);
+    setAdvancedTeam(m.winnerTeam ?? '');
     setError('');
     setSuccess('');
   }
 
   function closeEdit() {
     setEditMatch(null);
+    setAdvancedTeam('');
     setError('');
     setSuccess('');
   }
@@ -66,10 +80,25 @@ export function AdminMatchList({ matches, csrfToken }: Props) {
     if ((home !== null && isNaN(home)) || (away !== null && isNaN(away))) {
       setError('Placar inválido.'); return;
     }
+    const needsAdvancedTeam = Boolean(
+      editMatch
+        && KNOCKOUT_PHASES.has(editMatch.phase)
+        && TERMINAL_STATUSES.has(editStatus)
+        && home !== null
+        && away !== null
+        && home === away,
+    );
+    if (needsAdvancedTeam && !advancedTeam) {
+      setError('Selecione quem avançou no mata-mata.'); return;
+    }
     setError('');
     startTransition(async () => {
       try {
-        const body: Record<string, unknown> = { status: editStatus, has_manual_override: true };
+        const body: Record<string, unknown> = {
+          status: needsAdvancedTeam ? 'PEN' : editStatus,
+          has_manual_override: true,
+          winner_team_name: needsAdvancedTeam ? advancedTeam : null,
+        };
         if (home !== null) body.official_home_goals = home;
         if (away !== null) body.official_away_goals = away;
         const res = await fetch(`/api/admin/matches/${editMatch.id}/manual-override`, {
@@ -111,6 +140,18 @@ export function AdminMatchList({ matches, csrfToken }: Props) {
   }
 
   const phases = Array.from(new Set(matches.map(m => m.phase)));
+  const editHome = homeGoals !== '' ? parseInt(homeGoals, 10) : null;
+  const editAway = awayGoals !== '' ? parseInt(awayGoals, 10) : null;
+  const editNeedsAdvancedTeam = Boolean(
+    editMatch
+      && KNOCKOUT_PHASES.has(editMatch.phase)
+      && TERMINAL_STATUSES.has(editStatus)
+      && editHome !== null
+      && editAway !== null
+      && !Number.isNaN(editHome)
+      && !Number.isNaN(editAway)
+      && editHome === editAway,
+  );
 
   return (
     <>
@@ -130,6 +171,9 @@ export function AdminMatchList({ matches, csrfToken }: Props) {
           <option value="">Status: todos</option>
           <option value="SCHEDULED">Agendado</option>
           <option value="FINISHED">Finalizado</option>
+          <option value="FT">FT</option>
+          <option value="AET">AET</option>
+          <option value="PEN">PEN</option>
           <option value="IN_PLAY">Ao vivo</option>
           <option value="CANCELLED">Cancelado</option>
         </select>
@@ -215,6 +259,8 @@ export function AdminMatchList({ matches, csrfToken }: Props) {
                   <option value="SCHEDULED">SCHEDULED</option>
                   <option value="IN_PLAY">IN_PLAY</option>
                   <option value="FT">FT</option>
+                  <option value="AET">AET</option>
+                  <option value="PEN">PEN</option>
                   <option value="CANCELLED">CANCELLED</option>
                   <option value="POSTPONED">POSTPONED</option>
                 </select>
@@ -234,6 +280,25 @@ export function AdminMatchList({ matches, csrfToken }: Props) {
                   </div>
                 </div>
               </div>
+
+              {editNeedsAdvancedTeam && (
+                <div className="field-admin">
+                  <div className="field-label-admin">Classificado</div>
+                  <select
+                    className="admin-select"
+                    style={{ width: '100%' }}
+                    value={advancedTeam}
+                    onChange={e => setAdvancedTeam(e.target.value)}
+                  >
+                    <option value="">Selecione quem passou…</option>
+                    <option value={editMatch.homeTeam}>{editMatch.homeTeam}</option>
+                    <option value={editMatch.awayTeam}>{editMatch.awayTeam}</option>
+                  </select>
+                  <div style={{ marginTop: 6, color: 'var(--tx3)', fontSize: 11, lineHeight: 1.5 }}>
+                    Use quando o placar dos 90 minutos empatou, mas uma seleção avançou nos pênaltis.
+                  </div>
+                </div>
+              )}
 
               {error && <div className="modal-error">{error}</div>}
               {success && <div className="modal-success">{success}</div>}

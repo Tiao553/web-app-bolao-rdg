@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import secrets
 import string
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
@@ -46,9 +47,20 @@ from app.services.recalculation_service import (
     recalculate_for_match,
     recalculate_from_sync_request,
 )
+from app.services.match_status import is_terminal_match_status
+from app.services.team_metadata import get_team_metadata
 from app.services.sync_service import SyncService
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+KNOCKOUT_PHASES = {
+    CompetitionPhase.ROUND_OF_32,
+    CompetitionPhase.ROUND_OF_16,
+    CompetitionPhase.QUARTER_FINAL,
+    CompetitionPhase.SEMI_FINAL,
+    CompetitionPhase.THIRD_PLACE,
+    CompetitionPhase.FINAL,
+}
 
 
 @router.get("/dashboard", response_model=AdminDashboardScreenDto, status_code=status.HTTP_200_OK)
@@ -340,6 +352,67 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _normalize_team_label(value: str | None) -> str | None:
+    if value is None:
+        return None
+    normalized = unicodedata.normalize("NFKD", value.strip()).casefold()
+    normalized = "".join(char for char in normalized if not unicodedata.combining(char))
+    normalized = "".join(char for char in normalized if char.isalnum())
+    return normalized or None
+
+
+def _match_team_tokens(team_code: str | None, team_name: str | None) -> set[str]:
+    metadata = get_team_metadata(team_code, team_name)
+    return {
+        token
+        for token in (
+            _normalize_team_label(team_code),
+            _normalize_team_label(team_name),
+            _normalize_team_label(metadata.code),
+            _normalize_team_label(metadata.name),
+        )
+        if token is not None
+    }
+
+
+def _resolve_submitted_winner_name(match: Match, winner_team_name: str | None) -> str | None:
+    winner_token = _normalize_team_label(winner_team_name)
+    if winner_token is None:
+        return None
+    if winner_token in _match_team_tokens(match.home_team_fifa_code, match.home_team_name):
+        return get_team_metadata(match.home_team_fifa_code, match.home_team_name).name
+    if winner_token in _match_team_tokens(match.away_team_fifa_code, match.away_team_name):
+        return get_team_metadata(match.away_team_fifa_code, match.away_team_name).name
+    return None
+
+
+def _apply_manual_knockout_winner_rules(match: Match, payload: MatchManualOverrideRequest) -> None:
+    if match.phase not in KNOCKOUT_PHASES:
+        if payload.winner_team_name is not None:
+            match.winner_team_name = payload.winner_team_name.strip()
+        return
+    if (
+        not is_terminal_match_status(match.status)
+        or match.official_home_goals is None
+        or match.official_away_goals is None
+    ):
+        if payload.winner_team_name is not None:
+            match.winner_team_name = payload.winner_team_name.strip()
+        return
+    if match.official_home_goals != match.official_away_goals:
+        match.winner_team_name = None
+        return
+
+    winner_name = _resolve_submitted_winner_name(match, payload.winner_team_name)
+    if winner_name is None:
+        raise build_auth_error(
+            status_code=422,
+            code="knockout_winner_required",
+            message="Tied knockout matches require a classified team matching one of the two teams",
+        )
+    match.winner_team_name = winner_name
+
+
 def build_user_response(user: User) -> AdminUserResponse:
     return AdminUserResponse(
         id=user.id,
@@ -622,8 +695,7 @@ def update_match_manual_override(
         match.official_home_goals = payload.official_home_goals
     if payload.official_away_goals is not None:
         match.official_away_goals = payload.official_away_goals
-    if payload.winner_team_name is not None:
-        match.winner_team_name = payload.winner_team_name.strip()
+    _apply_manual_knockout_winner_rules(match, payload)
     merged_payload = dict(payload.source_payload or {})
     if payload.goal_scorers:
         merged_payload["goal_scorers"] = [gs.model_dump() for gs in payload.goal_scorers]

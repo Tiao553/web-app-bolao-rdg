@@ -491,8 +491,16 @@ class FrontendContractService:
         if isinstance(match, Match):
             home_team = get_team_metadata(match.home_team_fifa_code, match.home_team_name)
             away_team = get_team_metadata(match.away_team_fifa_code, match.away_team_name)
-            home_name = None if match.home_team_name == "TBD" else home_team.name
-            away_name = None if match.away_team_name == "TBD" else away_team.name
+            home_name = (
+                home_team.name
+                if match.home_team_fifa_code or match.home_team_name != "TBD"
+                else None
+            )
+            away_name = (
+                away_team.name
+                if match.away_team_fifa_code or match.away_team_name != "TBD"
+                else None
+            )
             return BracketMatchDto(
                 matchId=match.id,
                 phase=match.phase.value,

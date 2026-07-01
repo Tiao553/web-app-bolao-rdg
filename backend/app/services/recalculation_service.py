@@ -267,6 +267,20 @@ def _resolve_group_slot_team(
     return None
 
 
+def _set_match_team(match: Match, side: str, team_key: str) -> int:
+    metadata = get_team_metadata(team_key)
+    code_attr = f"{side}_team_fifa_code"
+    name_attr = f"{side}_team_name"
+    updated = 0
+    if getattr(match, code_attr) != metadata.code:
+        setattr(match, code_attr, metadata.code)
+        updated += 1
+    if getattr(match, name_attr) != metadata.name:
+        setattr(match, name_attr, metadata.name)
+        updated += 1
+    return updated
+
+
 def _has_manual_round_of_32_repair(match: Match) -> bool:
     if match.phase != CompetitionPhase.ROUND_OF_32:
         return False
@@ -323,8 +337,8 @@ def recalculate_bracket(
                 continue
             if _has_manual_round_of_32_repair(match):
                 continue
-            if match.away_team_fifa_code != allocation.team_key:
-                match.away_team_fifa_code = allocation.team_key
+            updates = _set_match_team(match, "away", allocation.team_key)
+            if updates:
                 updated_count += 1
                 db_session.add(match)
     for match in all_matches:
@@ -332,12 +346,10 @@ def recalculate_bracket(
             continue
         home_group_team = _resolve_group_slot_team(match.feeder_home_key, standings_by_group)
         away_group_team = _resolve_group_slot_team(match.feeder_away_key, standings_by_group)
-        if home_group_team is not None and match.home_team_fifa_code != home_group_team:
-            match.home_team_fifa_code = home_group_team
+        if home_group_team is not None and _set_match_team(match, "home", home_group_team):
             updated_count += 1
             db_session.add(match)
-        if away_group_team is not None and match.away_team_fifa_code != away_group_team:
-            match.away_team_fifa_code = away_group_team
+        if away_group_team is not None and _set_match_team(match, "away", away_group_team):
             updated_count += 1
             db_session.add(match)
     knockout_matches = _build_knockout_matches(all_matches)
@@ -351,12 +363,10 @@ def recalculate_bracket(
         propagated_match = propagated_by_slot.get(match.bracket_slot)
         if propagated_match is None:
             continue
-        if propagated_match.home_team_key is not None and match.home_team_fifa_code != propagated_match.home_team_key:
-            match.home_team_fifa_code = propagated_match.home_team_key
+        if propagated_match.home_team_key is not None and _set_match_team(match, "home", propagated_match.home_team_key):
             updated_count += 1
             db_session.add(match)
-        if propagated_match.away_team_key is not None and match.away_team_fifa_code != propagated_match.away_team_key:
-            match.away_team_fifa_code = propagated_match.away_team_key
+        if propagated_match.away_team_key is not None and _set_match_team(match, "away", propagated_match.away_team_key):
             updated_count += 1
             db_session.add(match)
     for match in all_matches:

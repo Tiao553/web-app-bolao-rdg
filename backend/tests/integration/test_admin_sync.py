@@ -5,6 +5,7 @@ import os
 from typing import cast
 from uuid import uuid4
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
@@ -1147,5 +1148,144 @@ def test_recalculation_advances_knockout_winners_sequentially_to_final() -> None
         recalculate_competition_state(db_session)
         assert final.home_team_fifa_code == "PAR"
         assert final.away_team_fifa_code == "JPN"
+    finally:
+        db_session.close()
+
+
+def test_manual_override_tied_knockout_requires_classified_team() -> None:
+    db_session = make_session()
+    try:
+        admin = create_admin(db_session)
+        match = Match(
+            phase=CompetitionPhase.ROUND_OF_32,
+            bracket_slot="M80",
+            starts_at=datetime.now(timezone.utc) - timedelta(hours=3),
+            home_team_name="Inglaterra",
+            away_team_name="RD Congo",
+            home_team_fifa_code="ENG",
+            away_team_fifa_code="COD",
+            status="SCHEDULED",
+        )
+        db_session.add(match)
+        db_session.flush()
+
+        with pytest.raises(Exception) as exc_info:
+            update_match_manual_override(
+                match.id,
+                MatchManualOverrideRequest(
+                    status="FT",
+                    official_home_goals=1,
+                    official_away_goals=1,
+                    has_manual_override=True,
+                ),
+                admin_user=admin,
+                db_session=db_session,
+            )
+
+        assert getattr(exc_info.value, "status_code", None) == 422
+        assert match.winner_team_name is None
+    finally:
+        db_session.close()
+
+
+def test_manual_override_tied_knockout_winner_populates_next_match_name() -> None:
+    db_session = make_session()
+    try:
+        admin = create_admin(db_session)
+        now = datetime.now(timezone.utc)
+        round_of_32_a = Match(
+            phase=CompetitionPhase.ROUND_OF_32,
+            bracket_slot="M79",
+            starts_at=now - timedelta(hours=4),
+            home_team_name="México",
+            away_team_name="Equador",
+            home_team_fifa_code="MEX",
+            away_team_fifa_code="ECU",
+            status="FT",
+            official_home_goals=2,
+            official_away_goals=0,
+        )
+        round_of_32_b = Match(
+            phase=CompetitionPhase.ROUND_OF_32,
+            bracket_slot="M80",
+            starts_at=now - timedelta(hours=3),
+            home_team_name="Inglaterra",
+            away_team_name="RD Congo",
+            home_team_fifa_code="ENG",
+            away_team_fifa_code="COD",
+            status="SCHEDULED",
+        )
+        round_of_16 = Match(
+            phase=CompetitionPhase.ROUND_OF_16,
+            bracket_slot="M92",
+            feeder_home_key="W79",
+            feeder_away_key="W80",
+            starts_at=now + timedelta(days=3),
+            home_team_name="México",
+            away_team_name="TBD",
+            home_team_fifa_code="MEX",
+            away_team_fifa_code=None,
+            status="SCHEDULED",
+        )
+        db_session.add_all([round_of_32_a, round_of_32_b, round_of_16])
+        db_session.flush()
+
+        response = update_match_manual_override(
+            round_of_32_b.id,
+            MatchManualOverrideRequest(
+                status="PEN",
+                official_home_goals=1,
+                official_away_goals=1,
+                winner_team_name="ENG",
+                has_manual_override=True,
+            ),
+            admin_user=admin,
+            db_session=db_session,
+        )
+
+        assert response.status == "PEN"
+        assert response.winner_team_name == "Inglaterra"
+        assert round_of_16.home_team_fifa_code == "MEX"
+        assert round_of_16.home_team_name == "México"
+        assert round_of_16.away_team_fifa_code == "ENG"
+        assert round_of_16.away_team_name == "Inglaterra"
+    finally:
+        db_session.close()
+
+
+def test_manual_override_decisive_knockout_clears_stale_penalty_winner() -> None:
+    db_session = make_session()
+    try:
+        admin = create_admin(db_session)
+        match = Match(
+            phase=CompetitionPhase.ROUND_OF_32,
+            bracket_slot="M80",
+            starts_at=datetime.now(timezone.utc) - timedelta(hours=3),
+            home_team_name="Inglaterra",
+            away_team_name="RD Congo",
+            home_team_fifa_code="ENG",
+            away_team_fifa_code="COD",
+            status="PEN",
+            official_home_goals=1,
+            official_away_goals=1,
+            winner_team_name="Inglaterra",
+        )
+        db_session.add(match)
+        db_session.flush()
+
+        update_match_manual_override(
+            match.id,
+            MatchManualOverrideRequest(
+                status="FT",
+                official_home_goals=2,
+                official_away_goals=1,
+                has_manual_override=True,
+            ),
+            admin_user=admin,
+            db_session=db_session,
+        )
+
+        assert match.status == "FT"
+        assert match.winner_team_name is None
     finally:
         db_session.close()
