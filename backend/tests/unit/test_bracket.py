@@ -101,20 +101,39 @@ def test_resolve_winner_team_key_handles_tied_penalty_winner_name_safely() -> No
 
 def test_propagate_knockout_results_uses_real_world_cup_slot_chain() -> None:
     matches = (
-        KnockoutMatch(slot="M73", home_team_key="RSA", away_team_key="CAN", winner_team_key="RSA"),
-        KnockoutMatch(slot="M74", home_team_key="GER", away_team_key="BIH", winner_team_key="BIH"),
-        KnockoutMatch(slot="M89", feeder_home_key="W73", feeder_away_key="W74", winner_team_key="RSA"),
-        KnockoutMatch(slot="M97", feeder_home_key="W89", feeder_away_key="W90", winner_team_key="RSA"),
-        KnockoutMatch(slot="M101", feeder_home_key="W97", feeder_away_key="W98", winner_team_key="RSA"),
-        KnockoutMatch(slot="M102", home_team_key="BRA", away_team_key="JPN", winner_team_key="JPN"),
+        KnockoutMatch(slot="M73", home_team_key="RSA", away_team_key="CAN", winner_team_key="CAN"),
+        KnockoutMatch(slot="M74", home_team_key="GER", away_team_key="PAR", winner_team_key="PAR"),
+        KnockoutMatch(slot="M75", home_team_key="NED", away_team_key="MAR", winner_team_key="MAR"),
+        KnockoutMatch(slot="M76", home_team_key="BRA", away_team_key="JPN", winner_team_key="BRA"),
+        KnockoutMatch(slot="M77", home_team_key="FRA", away_team_key="SWE", winner_team_key="FRA"),
+        KnockoutMatch(slot="M78", home_team_key="CIV", away_team_key="NOR", winner_team_key="NOR"),
+        KnockoutMatch(slot="M79", home_team_key="MEX", away_team_key="ECU", winner_team_key="MEX"),
+        KnockoutMatch(slot="M80", home_team_key="ENG", away_team_key="COD", winner_team_key="ENG"),
+        KnockoutMatch(slot="M89", feeder_home_key="W74", feeder_away_key="W77", winner_team_key="FRA"),
+        KnockoutMatch(slot="M90", feeder_home_key="W73", feeder_away_key="W75", winner_team_key="CAN"),
+        KnockoutMatch(slot="M91", feeder_home_key="W76", feeder_away_key="W78", winner_team_key="BRA"),
+        KnockoutMatch(slot="M92", feeder_home_key="W79", feeder_away_key="W80", winner_team_key="MEX"),
+        KnockoutMatch(slot="M97", feeder_home_key="W89", feeder_away_key="W90", winner_team_key="FRA"),
+        KnockoutMatch(slot="M99", feeder_home_key="W91", feeder_away_key="W92", winner_team_key="BRA"),
+        KnockoutMatch(slot="M101", feeder_home_key="W97", feeder_away_key="W98", winner_team_key="FRA"),
+        KnockoutMatch(slot="M102", feeder_home_key="W99", feeder_away_key="W100", winner_team_key="BRA"),
         KnockoutMatch(slot="M104", feeder_home_key="W101", feeder_away_key="W102"),
     )
 
     propagated = {match.slot: match for match in propagate_knockout_results(matches)}
 
-    assert propagated["M89"].home_team_key == "RSA"
-    assert propagated["M89"].away_team_key == "BIH"
-    assert propagated["M97"].home_team_key == "RSA"
-    assert propagated["M101"].home_team_key == "RSA"
-    assert propagated["M104"].home_team_key == "RSA"
-    assert propagated["M104"].away_team_key == "JPN"
+    assert propagated["M89"].home_team_key == "PAR"
+    assert propagated["M89"].away_team_key == "FRA"
+    assert propagated["M90"].home_team_key == "CAN"
+    assert propagated["M90"].away_team_key == "MAR"
+    assert propagated["M91"].home_team_key == "BRA"
+    assert propagated["M91"].away_team_key == "NOR"
+    assert propagated["M92"].home_team_key == "MEX"
+    assert propagated["M92"].away_team_key == "ENG"
+    assert propagated["M97"].home_team_key == "FRA"
+    assert propagated["M97"].away_team_key == "CAN"
+    assert propagated["M99"].home_team_key == "BRA"
+    assert propagated["M99"].away_team_key == "MEX"
+    assert propagated["M101"].home_team_key == "FRA"
+    assert propagated["M104"].home_team_key == "FRA"
+    assert propagated["M104"].away_team_key == "BRA"
