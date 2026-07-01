@@ -1328,11 +1328,11 @@ body > * { position: relative; z-index: 1; }
 .explore-sheet-score { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--or); margin-top: 2px; }
 
 /* ── Bracket ─────────────────────────────────────── */
-.bracket-card-body { padding: 18px 22px 22px; }
+.bracket-card-body { padding: 16px 22px 22px; }
 .bracket-wrapper {
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 6px 2px 14px;
+  padding: 6px 0 14px;
   scrollbar-color: var(--bd2) transparent;
 }
 .bracket-board {
@@ -1343,15 +1343,16 @@ body > * { position: relative; z-index: 1; }
   display: grid;
   grid-template-columns: repeat(var(--bracket-columns), var(--bracket-column-width));
   column-gap: var(--bracket-column-gap);
-  margin-bottom: 12px;
+  margin-bottom: 11px;
 }
 .bracket-round-label {
   font-family: 'Fira Code', monospace;
-  font-size: 10px;
-  color: var(--tx2);
+  font-size: 9px;
+  color: rgba(169, 169, 180, .78);
   text-transform: uppercase;
-  letter-spacing: .12em;
+  letter-spacing: .18em;
   text-align: center;
+  font-weight: 800;
 }
 .bracket-canvas {
   position: relative;
@@ -1365,7 +1366,7 @@ body > * { position: relative; z-index: 1; }
 }
 .bracket-connectors path {
   fill: none;
-  stroke: rgba(126, 132, 150, .32);
+  stroke: rgba(99, 104, 121, .36);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
@@ -1389,56 +1390,56 @@ body > * { position: relative; z-index: 1; }
 }
 .bracket-match-card {
   width: 100%;
-  min-height: 98px;
-  border: 1px solid var(--bd);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(32,32,38,.96), rgba(20,20,25,.98));
-  box-shadow: 0 10px 26px rgba(0,0,0,.22);
+  min-height: 96px;
+  border: 1px solid rgba(47, 48, 57, .9);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(26, 26, 32, .98), rgba(18, 18, 23, .99));
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
   overflow: hidden;
 }
 .bracket-match-card.finished {
-  border-color: rgba(249,115,22,.34);
+  border-color: rgba(249,115,22,.56);
 }
 .bracket-match-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 8px 11px;
-  border-bottom: 1px solid var(--bd);
-  background: rgba(255,255,255,.035);
-  color: var(--tx3);
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.055);
+  background: rgba(255,255,255,.045);
+  color: rgba(160, 160, 171, .8);
   font-family: 'Fira Code', monospace;
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
 .bracket-status {
-  padding: 2px 7px;
+  padding: 2px 7px 1px;
   border-radius: 999px;
-  background: rgba(255,255,255,.08);
-  color: var(--tx2);
-  font-size: 9px;
+  background: rgba(255,255,255,.09);
+  color: rgba(210, 210, 218, .82);
+  font-size: 8px;
   font-weight: 800;
 }
 .bracket-match-teams {
   display: flex;
   flex-direction: column;
-  padding: 5px 10px 7px;
+  padding: 4px 10px 7px;
 }
 .bracket-team-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 28px;
   align-items: center;
   gap: 8px;
-  min-height: 31px;
-  color: var(--tx2);
-  font-size: 13px;
-  font-weight: 700;
+  min-height: 30px;
+  color: rgba(196, 196, 205, .88);
+  font-size: 12px;
+  font-weight: 800;
 }
 .bracket-team-row + .bracket-team-row {
-  border-top: 1px solid rgba(255,255,255,.07);
+  border-top: 1px solid rgba(255,255,255,.065);
 }
 .bracket-team-row.winner {
   color: var(--or);
@@ -1452,7 +1453,7 @@ body > * { position: relative; z-index: 1; }
   min-width: 24px;
   color: inherit;
   font-family: 'Fira Code', monospace;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
   line-height: 1;
   text-align: right;

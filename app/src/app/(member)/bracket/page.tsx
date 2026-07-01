@@ -13,9 +13,9 @@ const ROUND_CONFIG = [
 ] as const;
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'FINISHED']);
-const COLUMN_WIDTH = 244;
-const COLUMN_GAP = 58;
-const ROW_HEIGHT = 54;
+const COLUMN_WIDTH = 220;
+const COLUMN_GAP = 72;
+const ROW_HEIGHT = 53;
 
 type BracketRound = {
   phase: string;
@@ -40,11 +40,97 @@ function sortBySlot(left: BracketMatchContract, right: BracketMatchContract): nu
   return slotNumber(left.slot) - slotNumber(right.slot) || left.slot.localeCompare(right.slot);
 }
 
+function buildMatchLookup(matches: BracketMatchContract[]): Map<string, BracketMatchContract> {
+  return new Map(matches.map((match) => [match.slot, match]));
+}
+
+function feederToSlot(feederKey: string | null): string | null {
+  if (!feederKey?.startsWith('W')) {
+    return null;
+  }
+  return `M${feederKey.slice(1)}`;
+}
+
+function collectLeafSlots(
+  slot: string,
+  lookup: Map<string, BracketMatchContract>,
+  visited = new Set<string>()
+): string[] {
+  if (visited.has(slot)) {
+    return [];
+  }
+  visited.add(slot);
+
+  const match = lookup.get(slot);
+  if (!match) {
+    return [slot];
+  }
+
+  const sourceSlots = [match.feederHomeKey, match.feederAwayKey]
+    .map(feederToSlot)
+    .filter((sourceSlot): sourceSlot is string => Boolean(sourceSlot));
+
+  if (sourceSlots.length === 0) {
+    return [slot];
+  }
+
+  const leaves = sourceSlots.flatMap((sourceSlot) => collectLeafSlots(sourceSlot, lookup, new Set(visited)));
+  return leaves.length > 0 ? leaves : [slot];
+}
+
+function buildLeafOrder(matches: BracketMatchContract[], lookup: Map<string, BracketMatchContract>): Map<string, number> {
+  const final = matches.find((match) => match.phase === 'FINAL') ?? matches.find((match) => match.slot === 'M104');
+  const fallbackLeaves = matches
+    .filter((match) => match.phase === 'ROUND_OF_32')
+    .sort(sortBySlot)
+    .map((match) => match.slot);
+  const leaves = final ? collectLeafSlots(final.slot, lookup) : fallbackLeaves;
+  const orderedLeaves = leaves.length > 0 ? leaves : fallbackLeaves;
+  const order = new Map<string, number>();
+
+  orderedLeaves.forEach((slot) => {
+    if (!order.has(slot)) {
+      order.set(slot, order.size);
+    }
+  });
+
+  return order;
+}
+
+function visualRank(
+  match: BracketMatchContract,
+  lookup: Map<string, BracketMatchContract>,
+  leafOrder: Map<string, number>
+): number {
+  const ownRank = leafOrder.get(match.slot);
+  if (ownRank !== undefined) {
+    return ownRank;
+  }
+
+  const sourceRanks = collectLeafSlots(match.slot, lookup)
+    .map((slot) => leafOrder.get(slot))
+    .filter((rank): rank is number => rank !== undefined);
+
+  if (sourceRanks.length === 0) {
+    return slotNumber(match.slot);
+  }
+
+  return sourceRanks.reduce((total, rank) => total + rank, 0) / sourceRanks.length;
+}
+
 function buildRounds(matches: BracketMatchContract[]): BracketRound[] {
+  const lookup = buildMatchLookup(matches);
+  const leafOrder = buildLeafOrder(matches, lookup);
+
   return ROUND_CONFIG.map(({ phase, label }) => ({
     phase,
     label,
-    matches: matches.filter((match) => match.phase === phase).sort(sortBySlot),
+    matches: matches
+      .filter((match) => match.phase === phase)
+      .sort((left, right) => {
+        const visualDiff = visualRank(left, lookup, leafOrder) - visualRank(right, lookup, leafOrder);
+        return visualDiff || sortBySlot(left, right);
+      }),
   })).filter((round) => round.matches.length > 0);
 }
 
@@ -64,13 +150,6 @@ function buildPositionMap(rounds: BracketRound[], baseRows: number): Map<string,
     });
   });
   return positions;
-}
-
-function feederToSlot(feederKey: string | null): string | null {
-  if (!feederKey?.startsWith('W')) {
-    return null;
-  }
-  return `M${feederKey.slice(1)}`;
 }
 
 function formatKickoff(startsAt: string | null): string {
