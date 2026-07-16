@@ -788,7 +788,7 @@ def trigger_sync(
 
 # ── Force phase lock / unlock ──────────────────────────────────────────────────
 
-_ROUND_KEYS = ["initial_predictions", "round1", "round2", "round3", "roundOf32", "roundOf16", "quarterFinal", "semiFinal", "final"]
+_ROUND_KEYS = ["initial_predictions", "round1", "round2", "round3", "roundOf32", "roundOf16", "quarterFinal", "semiFinal", "final", "thirdPlace"]
 
 
 class PhaseLockRequest(BaseModel):

@@ -28,6 +28,9 @@ export type PhaseMatchContract = {
   predictedHomeGoals: number | null;
   predictedAwayGoals: number | null;
   pointsAwarded: number | null;
+  locked: boolean;
+  exploreOpen: boolean;
+  phaseLabel: string;
 };
 
 export type PhaseRoundContract = {

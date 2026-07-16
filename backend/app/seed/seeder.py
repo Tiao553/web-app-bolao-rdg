@@ -14,7 +14,13 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.schema import CompetitionPhase, CompetitionPhaseConfig, Match, ScoringRule, SyncProvider
+from app.models.schema import (
+    CompetitionPhase,
+    CompetitionPhaseConfig,
+    Match,
+    ScoringRule,
+    SyncProvider,
+)
 from app.repositories.queries import get_session_local
 
 logger = logging.getLogger(__name__)
@@ -47,7 +53,8 @@ _PHASE_SCHEDULES: list[tuple[str, str, CompetitionPhase | None, int | None, int,
     ("roundOf16", "Oitavas", CompetitionPhase.ROUND_OF_16, None, 5, "2026-07-04T14:00:00-03:00"),
     ("quarterFinal", "Quartas", CompetitionPhase.QUARTER_FINAL, None, 6, "2026-07-09T17:00:00-03:00"),
     ("semiFinal", "Semifinal", CompetitionPhase.SEMI_FINAL, None, 7, "2026-07-14T16:00:00-03:00"),
-    ("final", "Final", CompetitionPhase.FINAL, None, 8, "2026-07-19T16:00:00-03:00"),
+    ("thirdPlace", "3º lugar", CompetitionPhase.THIRD_PLACE, None, 8, "2026-07-18T19:00:00Z"),
+    ("final", "Final", CompetitionPhase.FINAL, None, 9, "2026-07-19T16:00:00-03:00"),
 ]
 
 

@@ -413,6 +413,106 @@ def test_force_locked_round_is_public_in_explore_but_locked_for_editing() -> Non
     assert round1["exploreOpen"] is True
 
 
+def test_final_screen_groups_third_place_with_independent_lock_and_explore_state() -> None:
+    configure_test_settings()
+    factory = make_session_factory()
+    now = datetime.now(timezone.utc)
+    with factory() as db_session:
+        viewer = create_user(db_session, email="viewer@example.com", status=AccessStatus.APPROVED)
+        seed_window(db_session, released=False)
+        db_session.add_all(
+            [
+                CompetitionPhaseConfig(
+                    phase_key="thirdPlace",
+                    label="3º lugar",
+                    phase=CompetitionPhase.THIRD_PLACE,
+                    stage_round=None,
+                    sort_order=8,
+                    first_match_starts_at=now - timedelta(hours=1),
+                    lock_at=now - timedelta(minutes=30),
+                    explore_at=now - timedelta(minutes=30),
+                    is_active=True,
+                ),
+                CompetitionPhaseConfig(
+                    phase_key="final",
+                    label="Final",
+                    phase=CompetitionPhase.FINAL,
+                    stage_round=None,
+                    sort_order=9,
+                    first_match_starts_at=now + timedelta(days=1),
+                    lock_at=now + timedelta(hours=12),
+                    explore_at=now + timedelta(hours=12),
+                    is_active=True,
+                ),
+            ]
+        )
+        third_place = Match(
+            external_provider=None,
+            external_id="third-place-match",
+            phase=CompetitionPhase.THIRD_PLACE,
+            starts_at=now - timedelta(hours=1),
+            home_team_name="Brazil",
+            away_team_name="Argentina",
+            home_team_fifa_code="BRA",
+            away_team_fifa_code="ARG",
+            status="SCHEDULED",
+        )
+        final = Match(
+            external_provider=None,
+            external_id="final-match",
+            phase=CompetitionPhase.FINAL,
+            starts_at=now + timedelta(days=1),
+            home_team_name="France",
+            away_team_name="Spain",
+            home_team_fifa_code="FRA",
+            away_team_fifa_code="ESP",
+            status="SCHEDULED",
+        )
+        db_session.add_all([third_place, final])
+        db_session.flush()
+        db_session.add(
+            MatchPrediction(
+                user_id=viewer.id,
+                match_id=final.id,
+                home_goals=2,
+                away_goals=1,
+            )
+        )
+        db_session.commit()
+
+    app = create_app()
+    app.dependency_overrides[get_db_session] = build_db_override(factory)
+    with TestClient(app) as client:
+        login_approved_user(client, "viewer@example.com")
+        response = client.get("/api/member/phase-screen")
+        assert response.status_code == 200
+        final_round = next(item for item in response.json()["rounds"] if item["key"] == "final")
+        assert [match["phaseLabel"] for match in final_round["matches"]] == [
+            "Disputa de 3º lugar",
+            "Final",
+        ]
+        assert [match["locked"] for match in final_round["matches"]] == [True, False]
+        assert [match["exploreOpen"] for match in final_round["matches"]] == [True, False]
+        assert final_round["locked"] is False
+        assert final_round["exploreOpen"] is False
+        assert final_round["matches"][1]["predictedHomeGoals"] == 2
+
+        headers = issue_csrf_headers(client)
+        final_save = client.put(
+            f"/api/member/predictions/matches/{final.id}",
+            json={"home_goals": 1, "away_goals": 0},
+            headers=headers,
+        )
+        assert final_save.status_code == 200
+        third_place_save = client.put(
+            f"/api/member/predictions/matches/{third_place.id}",
+            json={"home_goals": 1, "away_goals": 0},
+            headers=headers,
+        )
+        assert third_place_save.status_code == 403
+        assert "prediction_window_closed" in third_place_save.text
+
+
 def test_ranking_excludes_non_approved_users() -> None:
     configure_test_settings()
     factory = make_session_factory()

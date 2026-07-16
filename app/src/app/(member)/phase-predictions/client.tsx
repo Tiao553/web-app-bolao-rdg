@@ -25,7 +25,7 @@ function filled(m: PhaseMatchContract) {
   return m.predictedHomeGoals !== null && m.predictedAwayGoals !== null;
 }
 
-function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
+function MatchCard({ m }: { m: PhaseMatchContract }) {
   const tbd = m.homeTeam === 'TBD' || m.awayTeam === 'TBD';
   const isFilled = filled(m);
   const result = predictedResult(m);
@@ -35,12 +35,10 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
       {/* Card top */}
       <div className="pp-card-top">
         <span className="pp-match-date">{fmtMatchDate(m.startsAt)}</span>
-        {m.involvesBrazil
-          ? <span className="pp-badge-brazil">BRASIL ×2</span>
-          : m.groupName
-            ? <span className="pp-badge-group">GRUPO {m.groupName}</span>
-            : null
-        }
+        {m.groupName
+          ? <span className="pp-badge-group">GRUPO {m.groupName}</span>
+          : <span className="pp-badge-group">{m.phaseLabel}</span>}
+        {m.involvesBrazil && <span className="pp-badge-brazil">BRASIL ×2</span>}
       </div>
 
       {/* Teams */}
@@ -59,7 +57,7 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
             min="0"
             max="99"
             defaultValue={m.predictedHomeGoals ?? ''}
-            disabled={locked || tbd}
+            disabled={m.locked || tbd}
             placeholder="—"
           />
         </div>
@@ -77,7 +75,7 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
             min="0"
             max="99"
             defaultValue={m.predictedAwayGoals ?? ''}
-            disabled={locked || tbd}
+            disabled={m.locked || tbd}
             placeholder="—"
           />
         </div>
@@ -104,15 +102,19 @@ function MatchCard({ m, locked }: { m: PhaseMatchContract; locked: boolean }) {
 
 export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRoundContract[]; csrfToken: string }) {
   const [activeKey, setActiveKey] = useState(
-    rounds.find(r => !r.locked && r.matches.length > 0)?.key ?? rounds[0]?.key ?? 'round1'
+    rounds.find(r => r.matches.some(m => !m.locked && m.homeTeam !== 'TBD' && m.awayTeam !== 'TBD'))?.key ?? rounds[0]?.key ?? 'round1'
   );
 
   const activeRound = rounds.find(r => r.key === activeKey);
   const matches = activeRound?.matches ?? [];
-  const locked = activeRound?.locked ?? true;
+  const editableMatches = matches.filter(m => !m.locked && m.homeTeam !== 'TBD' && m.awayTeam !== 'TBD');
+  const locked = matches.length === 0 || editableMatches.length === 0;
+  const partiallyLocked = !locked && editableMatches.length < matches.length;
+  const allExploreOpen = matches.length > 0 && matches.every(m => m.exploreOpen);
+  const partiallyExploreOpen = !allExploreOpen && matches.some(m => m.exploreOpen);
 
-  const filledCount = matches.filter(m => filled(m)).length;
-  const pendingCount = matches.length - filledCount;
+  const editableFilledCount = editableMatches.filter(m => filled(m)).length;
+  const editablePendingCount = editableMatches.length - editableFilledCount;
 
   return (
     <div className="pp-layout">
@@ -141,7 +143,13 @@ export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRou
                   <div>
                     <div className="pp-nav-label">{r.label}</div>
                     <div className="pp-nav-sub">
-                      {!hasMatches ? 'Aguardando chaveamento' : r.locked ? 'bloqueado' : 'aberto'}
+                      {!hasMatches
+                        ? 'Aguardando chaveamento'
+                        : r.matches.every(m => m.locked || m.homeTeam === 'TBD' || m.awayTeam === 'TBD')
+                          ? 'bloqueado'
+                          : r.matches.some(m => m.locked || m.homeTeam === 'TBD' || m.awayTeam === 'TBD')
+                            ? 'parcial'
+                            : 'aberto'}
                     </div>
                   </div>
                   {hasMatches && (
@@ -180,11 +188,11 @@ export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRou
           <div>
             <div className="pp-main-title">{activeRound?.label ?? '—'}</div>
             <div className="pp-main-sub">
-              {matches.length} PARTIDAS · {locked ? 'BLOQUEADO' : 'PLACARES EDITÁVEIS'}
+              {matches.length} PARTIDAS · {locked ? 'BLOQUEADO' : partiallyLocked ? 'PARCIALMENTE EDITÁVEL' : 'PLACARES EDITÁVEIS'}
             </div>
           </div>
-          <div className={`pill ${locked ? 'warn' : 'ok'}`}>
-            <span className="dot" />{locked ? 'Bloqueado' : 'Aberto'}
+          <div className={`pill ${locked || partiallyLocked ? 'warn' : 'ok'}`}>
+            <span className="dot" />{locked ? 'Bloqueado' : partiallyLocked ? 'Parcial' : 'Aberto'}
           </div>
         </div>
 
@@ -195,7 +203,7 @@ export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRou
             <input type="hidden" name="csrf_token" value={csrfToken} />
             <div className="pp-match-grid">
               {matches.map(m => (
-                <MatchCard key={m.id} m={m} locked={locked} />
+                <MatchCard key={m.id} m={m} />
               ))}
             </div>
           </form>
@@ -211,11 +219,13 @@ export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRou
 
           <div className="pp-info-box">
             <div className="pp-info-box-title">
-              {locked ? '🔒 Palpites bloqueados' : 'Palpites editáveis'}
+              {locked ? '🔒 Palpites bloqueados' : partiallyLocked ? 'Palpites parcialmente editáveis' : 'Palpites editáveis'}
             </div>
             <div className="pp-info-box-text">
               {locked
                 ? 'Esta fase foi bloqueada. Você pode visualizar seus palpites.'
+                : partiallyLocked
+                  ? 'Algumas partidas já foram bloqueadas. Você ainda pode alterar os placares das partidas abertas.'
                 : 'Você pode alterar os placares até o horário de fechamento configurado pelo administrador.'}
             </div>
           </div>
@@ -241,12 +251,12 @@ export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRou
         </div>
 
         {/* Save */}
-        {!locked && matches.length > 0 && (
+        {editableMatches.length > 0 && (
           <div className="pp-right-card">
             <div className="pp-right-card-title">Salvar alterações</div>
             <div className="pp-save-meta">
-              {matches.length} partidas nesta visualização.{' '}
-              {filledCount} preenchida{filledCount !== 1 ? 's' : ''} e {pendingCount} pendente{pendingCount !== 1 ? 's' : ''}.
+              {matches.length} partidas nesta visualização, {editableMatches.length} editável{editableMatches.length !== 1 ? 'eis' : ''}.{' '}
+              {editableFilledCount} preenchida{editableFilledCount !== 1 ? 's' : ''} e {editablePendingCount} pendente{editablePendingCount !== 1 ? 's' : ''}.
             </div>
             <button type="submit" form="phase-form" className="btn-primary full" style={{ marginTop: 12 }} suppressHydrationWarning>
               Salvar {activeRound?.label} →
@@ -261,7 +271,7 @@ export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRou
         <div className="pp-right-card">
           <div className="pp-right-card-title">Explore</div>
           <div className="pp-right-card-sub">
-            {activeRound?.exploreOpen ? 'LIBERADO' : 'BLOQUEADO POR HORÁRIO'}
+            {allExploreOpen ? 'LIBERADO' : partiallyExploreOpen ? 'PARCIALMENTE LIBERADO' : 'BLOQUEADO POR HORÁRIO'}
           </div>
           <div className="pp-explore-rows">
             <div className="pp-explore-row">
@@ -270,14 +280,14 @@ export function PhasePredictionsClient({ rounds, csrfToken }: { rounds: PhaseRou
             </div>
             <div className="pp-explore-row">
               <span className="pp-explore-label">Palpites dos outros</span>
-              <span className={`pp-explore-val ${activeRound?.exploreOpen ? 'ok' : 'blocked'}`}>
-                {activeRound?.exploreOpen ? 'visíveis' : 'bloqueados'}
+              <span className={`pp-explore-val ${allExploreOpen ? 'ok' : 'blocked'}`}>
+                {allExploreOpen ? 'visíveis' : partiallyExploreOpen ? 'parcialmente visíveis' : 'bloqueados'}
               </span>
             </div>
             <div className="pp-explore-row">
               <span className="pp-explore-label">Liberação</span>
               <span className="pp-explore-val muted">
-                {activeRound?.exploreOpen ? 'disponível' : 'após fechamento'}
+                {allExploreOpen ? 'disponível' : partiallyExploreOpen ? 'parcial' : 'após fechamento'}
               </span>
             </div>
           </div>

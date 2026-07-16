@@ -1052,7 +1052,9 @@ def get_available_players(user: User = Depends(require_approved_user)) -> list[d
 
 PHASE_LOCK_OFFSET = timedelta(minutes=30)
 
-_ROUND_CONFIG_KEYS = ["round1", "round2", "round3", "roundOf32", "roundOf16", "quarterFinal", "semiFinal", "final"]
+# Keep thirdPlace last in this legacy ordering so existing force-lock bitmasks
+# retain the bit already assigned to final. Config-backed ordering uses sort_order.
+_ROUND_CONFIG_KEYS = ["round1", "round2", "round3", "roundOf32", "roundOf16", "quarterFinal", "semiFinal", "final", "thirdPlace"]
 
 _ROUND_PHASES = [
     ("round1", CompetitionPhase.GROUP_STAGE, 1),
@@ -1117,6 +1119,7 @@ def _match_round_key(match: Match) -> str | None:
         CompetitionPhase.ROUND_OF_16: "roundOf16",
         CompetitionPhase.QUARTER_FINAL: "quarterFinal",
         CompetitionPhase.SEMI_FINAL: "semiFinal",
+        CompetitionPhase.THIRD_PLACE: "thirdPlace",
         CompetitionPhase.FINAL: "final",
     }
     return mapping.get(match.phase)
@@ -1220,6 +1223,9 @@ class PhaseMatchResponse(BaseModel):
     predictedHomeGoals: int | None
     predictedAwayGoals: int | None
     pointsAwarded: int | None
+    locked: bool
+    exploreOpen: bool
+    phaseLabel: str
 
 
 class PhaseRoundResponse(BaseModel):
@@ -1252,6 +1258,11 @@ _ROUND_LABELS = {
     "final": "Final",
 }
 
+_MATCH_PHASE_LABELS = {
+    CompetitionPhase.THIRD_PLACE: "Disputa de 3º lugar",
+    CompetitionPhase.FINAL: "Final",
+}
+
 
 @router.get("/phase-screen", response_model=PhaseScreenResponse, status_code=status.HTTP_200_OK)
 def get_phase_screen(
@@ -1280,24 +1291,41 @@ def get_phase_screen(
     rounds: list[PhaseRoundResponse] = []
     for key, phase, stage_round in _ROUND_PHASES:
         # Load matches for this round
-        stmt = select(Match).where(Match.phase == phase)
+        if key == "final":
+            stmt = select(Match).where(
+                Match.phase.in_((CompetitionPhase.THIRD_PLACE, CompetitionPhase.FINAL))
+            )
+        else:
+            stmt = select(Match).where(Match.phase == phase)
         if stage_round is not None:
             stmt = stmt.where(Match.stage_round == stage_round)
         stmt = stmt.order_by(Match.starts_at.asc())
         matches = list(db_session.scalars(stmt).all())
 
-        if phase_configs:
-            lock_time_value = phase_configs.get(key).lock_at if phase_configs.get(key) is not None else None
-            lock_time = as_utc(lock_time_value) if lock_time_value is not None else None
-        else:
-            lock_time = _phase_lock_time(db_session, phase, stage_round)
-        locked = phase_locks[key]
+        match_lock_times: list[datetime] = []
 
         match_responses: list[PhaseMatchResponse] = []
         for m in matches:
             pred = preds_by_match.get(m.id)
             home_team = get_team_metadata(m.home_team_fifa_code, m.home_team_name)
             away_team = get_team_metadata(m.away_team_fifa_code, m.away_team_name)
+            match_key = _match_round_key(m)
+            if phase_configs and match_key is not None:
+                config = phase_configs.get(match_key)
+                match_locked = config.is_force_locked or now >= as_utc(config.lock_at) if config else False
+                match_explore_open = (
+                    config.is_force_locked or now >= as_utc(config.explore_at)
+                    if config
+                    else _is_explore_match_public(m, now=now, db_session=db_session, phase_configs=phase_configs)
+                )
+                if config is not None:
+                    match_lock_times.append(as_utc(config.lock_at))
+            else:
+                match_locked = phase_locks[key]
+                match_explore_open = explore_open[key]
+                lock_time_value = _phase_lock_time(db_session, m.phase, m.stage_round)
+                if lock_time_value is not None:
+                    match_lock_times.append(lock_time_value)
             match_responses.append(PhaseMatchResponse(
                 id=m.id,
                 homeTeam=home_team.name,
@@ -1317,7 +1345,16 @@ def get_phase_screen(
                 predictedHomeGoals=pred.home_goals if pred else None,
                 predictedAwayGoals=pred.away_goals if pred else None,
                 pointsAwarded=pred.points_awarded if pred else None,
+                locked=match_locked,
+                exploreOpen=match_explore_open,
+                phaseLabel=_MATCH_PHASE_LABELS.get(m.phase, _ROUND_LABELS[key]),
             ))
+
+        locked = bool(match_responses) and all(match.locked for match in match_responses)
+        round_explore_open = bool(match_responses) and all(
+            match.exploreOpen for match in match_responses
+        )
+        lock_time = min(match_lock_times) if match_lock_times else None
 
         rounds.append(PhaseRoundResponse(
             key=key,
@@ -1325,7 +1362,7 @@ def get_phase_screen(
             phase=phase.value,
             stageRound=stage_round,
             locked=locked,
-            exploreOpen=explore_open[key],
+            exploreOpen=round_explore_open,
             lockTime=lock_time.isoformat() if lock_time else None,
             matches=match_responses,
         ))

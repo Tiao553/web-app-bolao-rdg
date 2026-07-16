@@ -6,8 +6,10 @@ from __future__ import annotations
 
 import os
 import sys
+from datetime import datetime, timedelta
 
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine, inspect, select, text
+from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 
@@ -82,6 +84,44 @@ def run_migrations() -> None:
         """))
 
     Base.metadata.create_all(engine, checkfirst=True)
+
+    # Backfill the independently managed third-place phase for databases created
+    # before it was added to the canonical phase schedule.
+    from app.models.schema import CompetitionPhase, CompetitionPhaseConfig
+
+    third_place_starts_at = datetime.fromisoformat("2026-07-18T19:00:00+00:00")
+    with Session(engine) as session:
+        final_config = session.scalar(
+            select(CompetitionPhaseConfig).where(
+                CompetitionPhaseConfig.phase_key == "final"
+            )
+        )
+        if final_config is not None and final_config.sort_order == 8:
+            final_config.sort_order = 9
+            session.flush()
+
+        third_place_config = session.scalar(
+            select(CompetitionPhaseConfig).where(
+                CompetitionPhaseConfig.phase_key == "thirdPlace"
+            )
+        )
+        if third_place_config is None:
+            session.add(
+                CompetitionPhaseConfig(
+                    phase_key="thirdPlace",
+                    label="3º lugar",
+                    phase=CompetitionPhase.THIRD_PLACE,
+                    stage_round=None,
+                    sort_order=8,
+                    first_match_starts_at=third_place_starts_at,
+                    lock_at=third_place_starts_at - timedelta(minutes=30),
+                    explore_at=third_place_starts_at - timedelta(minutes=30),
+                    is_force_locked=False,
+                    is_active=True,
+                )
+            )
+
+        session.commit()
 
     # Incremental: add is_active column if missing (migration 0002)
     with engine.connect() as conn:
